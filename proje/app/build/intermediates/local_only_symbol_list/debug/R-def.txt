@@ -18,6 +18,7 @@ id btnLightTheme
 id btnLogin
 id btnLogout
 id btnRegister
+id btnSaveSettings
 id btnSaveWord
 id btnSelectImage
 id btnSettingsMenu
@@ -37,6 +38,7 @@ id etRegConfirmPassword
 id etRegPassword
 id etRegUsername
 id etSamples
+id etSettingsQuestionLimit
 id etTurWord
 id etUsername
 id ivQuizImage

@@ -3152,6 +3152,7 @@ int id btnLightTheme 0x7f080205
 int id btnLogin 0x7f080062
 int id btnLogout 0x7f080206
 int id btnRegister 0x7f080063
+int id btnSaveSettings 0x7f080229
 int id btnSaveWord 0x7f0801fe
 int id btnSelectImage 0x7f0801ff
 int id btnSettingsMenu 0x7f080207
@@ -3251,6 +3252,7 @@ int id etRegConfirmPassword 0x7f0800b8
 int id etRegPassword 0x7f0800b9
 int id etRegUsername 0x7f0800ba
 int id etSamples 0x7f080201
+int id etSettingsQuestionLimit 0x7f08022a
 int id etTurWord 0x7f080202
 int id etUsername 0x7f0800bb
 int id exitUntilCollapsed 0x7f0800bc

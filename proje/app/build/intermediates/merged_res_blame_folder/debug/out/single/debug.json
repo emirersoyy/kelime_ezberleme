@@ -4,12 +4,12 @@
         "source": "C:\\Users\\emire\\.gradle\\daemon\\8.4\\com.example.kelimeezberleme.app-main-33:\\layout\\activity_quiz.xml"
     },
     {
-        "merged": "C:\\Users\\emire\\.gradle\\daemon\\8.4\\com.example.kelimeezberleme.app-merged_res-31:\\layout_activity_settings.xml.flat",
-        "source": "C:\\Users\\emire\\.gradle\\daemon\\8.4\\com.example.kelimeezberleme.app-main-33:\\layout\\activity_settings.xml"
+        "merged": "com.example.kelimeezberleme.app-merged_res-31:/layout_activity_settings.xml.flat",
+        "source": "com.example.kelimeezberleme.app-main-33:/layout/activity_settings.xml"
     },
     {
-        "merged": "com.example.kelimeezberleme.app-merged_res-31:/layout_activity_quiz.xml.flat",
-        "source": "com.example.kelimeezberleme.app-main-33:/layout/activity_quiz.xml"
+        "merged": "C:\\Users\\emire\\.gradle\\daemon\\8.4\\com.example.kelimeezberleme.app-merged_res-31:\\layout_activity_settings.xml.flat",
+        "source": "C:\\Users\\emire\\.gradle\\daemon\\8.4\\com.example.kelimeezberleme.app-main-33:\\layout\\activity_settings.xml"
     },
     {
         "merged": "C:\\Users\\emire\\.gradle\\daemon\\8.4\\com.example.kelimeezberleme.app-merged_res-31:\\layout_activity_main.xml.flat",
