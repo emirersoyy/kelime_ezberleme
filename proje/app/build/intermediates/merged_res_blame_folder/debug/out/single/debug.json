@@ -1,0 +1,38 @@
+[
+    {
+        "merged": "C:\\Users\\emire\\.gradle\\daemon\\8.4\\com.example.kelimeezberleme.app-merged_res-31:\\layout_activity_login.xml.flat",
+        "source": "C:\\Users\\emire\\.gradle\\daemon\\8.4\\com.example.kelimeezberleme.app-main-33:\\layout\\activity_login.xml"
+    },
+    {
+        "merged": "C:\\Users\\emire\\.gradle\\daemon\\8.4\\com.example.kelimeezberleme.app-merged_res-31:\\layout_activity_main.xml.flat",
+        "source": "C:\\Users\\emire\\.gradle\\daemon\\8.4\\com.example.kelimeezberleme.app-main-33:\\layout\\activity_main.xml"
+    },
+    {
+        "merged": "C:\\Users\\emire\\.gradle\\daemon\\8.4\\com.example.kelimeezberleme.app-merged_res-31:\\layout_activity_register.xml.flat",
+        "source": "C:\\Users\\emire\\.gradle\\daemon\\8.4\\com.example.kelimeezberleme.app-main-33:\\layout\\activity_register.xml"
+    },
+    {
+        "merged": "com.example.kelimeezberleme.app-merged_res-31:/layout_activity_login.xml.flat",
+        "source": "com.example.kelimeezberleme.app-main-33:/layout/activity_login.xml"
+    },
+    {
+        "merged": "C:\\Users\\emire\\.gradle\\daemon\\8.4\\com.example.kelimeezberleme.app-merged_res-31:\\layout_word_item.xml.flat",
+        "source": "C:\\Users\\emire\\.gradle\\daemon\\8.4\\com.example.kelimeezberleme.app-main-33:\\layout\\word_item.xml"
+    },
+    {
+        "merged": "C:\\Users\\emire\\.gradle\\daemon\\8.4\\com.example.kelimeezberleme.app-merged_res-31:\\layout_activity_add_word.xml.flat",
+        "source": "C:\\Users\\emire\\.gradle\\daemon\\8.4\\com.example.kelimeezberleme.app-main-33:\\layout\\activity_add_word.xml"
+    },
+    {
+        "merged": "C:\\Users\\emire\\.gradle\\daemon\\8.4\\com.example.kelimeezberleme.app-merged_res-31:\\layout_activity_settings.xml.flat",
+        "source": "C:\\Users\\emire\\.gradle\\daemon\\8.4\\com.example.kelimeezberleme.app-main-33:\\layout\\activity_settings.xml"
+    },
+    {
+        "merged": "C:\\Users\\emire\\.gradle\\daemon\\8.4\\com.example.kelimeezberleme.app-merged_res-31:\\layout_activity_words_list.xml.flat",
+        "source": "C:\\Users\\emire\\.gradle\\daemon\\8.4\\com.example.kelimeezberleme.app-main-33:\\layout\\activity_words_list.xml"
+    },
+    {
+        "merged": "C:\\Users\\emire\\.gradle\\daemon\\8.4\\com.example.kelimeezberleme.app-merged_res-31:\\layout_activity_forgot_password.xml.flat",
+        "source": "C:\\Users\\emire\\.gradle\\daemon\\8.4\\com.example.kelimeezberleme.app-main-33:\\layout\\activity_forgot_password.xml"
+    }
+]
