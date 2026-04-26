@@ -3145,6 +3145,7 @@ id bounceBoth
 id bounceEnd
 id bounceStart
 id btnAddWordMenu
+id btnAnalysisMenu
 id btnBack
 id btnDarkTheme
 id btnFinishQuiz
@@ -3152,6 +3153,7 @@ id btnForgotBack
 id btnLightTheme
 id btnLogin
 id btnLogout
+id btnPrint
 id btnRegister
 id btnSaveSettings
 id btnSaveWord
@@ -3244,6 +3246,7 @@ id end
 id endToStart
 id enterAlways
 id enterAlwaysCollapsed
+id etCategory
 id etEngWord
 id etForgotUsername
 id etNewPassword
@@ -3318,6 +3321,8 @@ id line3
 id linear
 id listMode
 id list_item
+id llCategoryStats
+id llReportContainer
 id m3_side_sheet
 id marquee
 id masked
@@ -3436,6 +3441,7 @@ id progress_horizontal
 id radio
 id ratio
 id rectangles
+id reportContent
 id report_drawn
 id reverseSawtooth
 id right
@@ -3563,6 +3569,7 @@ id tvOption1
 id tvOption2
 id tvOption3
 id tvOption4
+id tvOverallStats
 id tvProgress
 id tvQuizTitle
 id tvRegister
@@ -3708,6 +3715,7 @@ layout abc_search_view
 layout abc_select_dialog_material
 layout abc_tooltip
 layout activity_add_word
+layout activity_analysis
 layout activity_forgot_password
 layout activity_login
 layout activity_main

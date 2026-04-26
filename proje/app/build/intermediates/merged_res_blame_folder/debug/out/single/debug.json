@@ -4,8 +4,8 @@
         "source": "C:\\Users\\emire\\.gradle\\daemon\\8.4\\com.example.kelimeezberleme.app-main-33:\\layout\\activity_quiz.xml"
     },
     {
-        "merged": "com.example.kelimeezberleme.app-merged_res-31:/layout_activity_settings.xml.flat",
-        "source": "com.example.kelimeezberleme.app-main-33:/layout/activity_settings.xml"
+        "merged": "com.example.kelimeezberleme.app-merged_res-31:/layout_activity_add_word.xml.flat",
+        "source": "com.example.kelimeezberleme.app-main-33:/layout/activity_add_word.xml"
     },
     {
         "merged": "C:\\Users\\emire\\.gradle\\daemon\\8.4\\com.example.kelimeezberleme.app-merged_res-31:\\layout_activity_settings.xml.flat",
@@ -32,8 +32,16 @@
         "source": "C:\\Users\\emire\\.gradle\\daemon\\8.4\\com.example.kelimeezberleme.app-main-33:\\layout\\dialog_quiz_settings.xml"
     },
     {
+        "merged": "com.example.kelimeezberleme.app-merged_res-31:/layout_activity_main.xml.flat",
+        "source": "com.example.kelimeezberleme.app-main-33:/layout/activity_main.xml"
+    },
+    {
         "merged": "C:\\Users\\emire\\.gradle\\daemon\\8.4\\com.example.kelimeezberleme.app-merged_res-31:\\layout_activity_add_word.xml.flat",
         "source": "C:\\Users\\emire\\.gradle\\daemon\\8.4\\com.example.kelimeezberleme.app-main-33:\\layout\\activity_add_word.xml"
+    },
+    {
+        "merged": "com.example.kelimeezberleme.app-merged_res-31:/layout_activity_analysis.xml.flat",
+        "source": "com.example.kelimeezberleme.app-main-33:/layout/activity_analysis.xml"
     },
     {
         "merged": "C:\\Users\\emire\\.gradle\\daemon\\8.4\\com.example.kelimeezberleme.app-merged_res-31:\\layout_activity_quiz_result.xml.flat",

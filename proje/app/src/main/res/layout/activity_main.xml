@@ -54,6 +54,18 @@
         app:icon="@android:drawable/ic_menu_sort_by_size" />
 
     <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnAnalysisMenu"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:layout_marginBottom="16dp"
+        android:text="Analiz Raporu"
+        android:textAllCaps="false"
+        android:textSize="18sp"
+        app:cornerRadius="16dp"
+        app:icon="@android:drawable/ic_menu_report_image" />
+
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnSettingsMenu"
         style="@style/Widget.MaterialComponents.Button.TextButton"
         android:layout_width="match_parent"

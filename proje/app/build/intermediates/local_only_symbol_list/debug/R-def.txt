@@ -10,6 +10,7 @@ color text_primary
 color text_secondary
 color white
 id btnAddWordMenu
+id btnAnalysisMenu
 id btnBack
 id btnDarkTheme
 id btnFinishQuiz
@@ -17,6 +18,7 @@ id btnForgotBack
 id btnLightTheme
 id btnLogin
 id btnLogout
+id btnPrint
 id btnRegister
 id btnSaveSettings
 id btnSaveWord
@@ -29,6 +31,7 @@ id cardOption1
 id cardOption2
 id cardOption3
 id cardOption4
+id etCategory
 id etEngWord
 id etForgotUsername
 id etNewPassword
@@ -43,6 +46,9 @@ id etTurWord
 id etUsername
 id ivQuizImage
 id ivWord
+id llCategoryStats
+id llReportContainer
+id reportContent
 id rvIncorrect
 id rvWords
 id toggleTheme
@@ -55,6 +61,7 @@ id tvOption1
 id tvOption2
 id tvOption3
 id tvOption4
+id tvOverallStats
 id tvProgress
 id tvQuizTitle
 id tvRegister
@@ -63,6 +70,7 @@ id tvTur
 id tvWelcome
 id tvWrongTitle
 layout activity_add_word
+layout activity_analysis
 layout activity_forgot_password
 layout activity_login
 layout activity_main

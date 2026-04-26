@@ -47,13 +47,11 @@ public class QuizActivity extends AppCompatActivity {
         tvFeedback = findViewById(R.id.tvFeedback);
         ivQuizImage = findViewById(R.id.ivQuizImage);
 
-        // Şık Kartlarını Bağla
         cardOptions[0] = findViewById(R.id.cardOption1);
         cardOptions[1] = findViewById(R.id.cardOption2);
         cardOptions[2] = findViewById(R.id.cardOption3);
         cardOptions[3] = findViewById(R.id.cardOption4);
 
-        // Şık Yazılarını Bağla
         tvOptions[0] = findViewById(R.id.tvOption1);
         tvOptions[1] = findViewById(R.id.tvOption2);
         tvOptions[2] = findViewById(R.id.tvOption3);
@@ -125,13 +123,13 @@ public class QuizActivity extends AppCompatActivity {
             tvFeedback.setTextColor(getResources().getColor(android.R.color.holo_green_dark));
             selectedCards.setCardBackgroundColor(getResources().getColor(android.R.color.holo_green_light));
             correctCount++;
-            db.updateWordProgress(currentWord.id, currentWord.stepCount);
+            db.updateWordProgress(currentWord.id, currentWord.stepCount, true);
         } else {
             tvFeedback.setText("Kaydedildi...");
             tvFeedback.setTextColor(getResources().getColor(android.R.color.holo_orange_dark));
             selectedCards.setCardBackgroundColor(getResources().getColor(android.R.color.holo_red_light));
             incorrectWords.add(new IncorrectWord(currentWord.eng, currentWord.tur, selectedAnswer));
-            db.resetWordProgress(currentWord.id);
+            db.updateWordProgress(currentWord.id, currentWord.stepCount, false);
         }
 
         new Handler().postDelayed(() -> {

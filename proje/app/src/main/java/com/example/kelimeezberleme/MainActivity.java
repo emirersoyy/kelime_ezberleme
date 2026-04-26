@@ -49,6 +49,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        findViewById(R.id.btnAnalysisMenu).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, AnalysisActivity.class);
+                startActivity(intent);
+            }
+        });
+
         findViewById(R.id.btnSettingsMenu).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

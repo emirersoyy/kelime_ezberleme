@@ -10,7 +10,7 @@ import java.util.List;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String DATABASE_NAME = "KelimeEzberleme.db";
-    public static final int DATABASE_VERSION = 5; // Sürümü 5 yapıyoruz
+    public static final int DATABASE_VERSION = 6; // Sürümü 6 yapıyoruz (Analiz Modülü)
 
     public static final String TABLE_USERS = "Users";
     public static final String COL_USER_ID = "UserID";
@@ -24,6 +24,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COL_PICTURE = "Picture";
     public static final String COL_STEP_COUNT = "StepCount";
     public static final String COL_NEXT_QUIZ_DATE = "NextQuizDate";
+    public static final String COL_CATEGORY = "Category"; // Yeni: Konu
+    public static final String COL_TOTAL_ATTEMPTS = "TotalAttempts"; // Yeni: Toplam Çözülme
+    public static final String COL_CORRECT_ATTEMPTS = "CorrectAttempts"; // Yeni: Doğru Bilinme
 
     public static final String TABLE_SAMPLES = "WordSamples";
     public static final String COL_SAMPLE_ID = "WordSamplesID";
@@ -42,7 +45,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 COL_TUR_WORD + " TEXT, " +
                 COL_PICTURE + " TEXT, " +
                 COL_STEP_COUNT + " INTEGER DEFAULT 0, " +
-                COL_NEXT_QUIZ_DATE + " LONG DEFAULT 0)");
+                COL_NEXT_QUIZ_DATE + " LONG DEFAULT 0, " +
+                COL_CATEGORY + " TEXT DEFAULT 'Genel', " +
+                COL_TOTAL_ATTEMPTS + " INTEGER DEFAULT 0, " +
+                COL_CORRECT_ATTEMPTS + " INTEGER DEFAULT 0)");
         db.execSQL("CREATE TABLE " + TABLE_SAMPLES + " (" +
                 COL_SAMPLE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 COL_WORD_ID + " INTEGER, " +
@@ -58,14 +64,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public long addWord(String eng, String tur, String picPath) {
+    public long addWord(String eng, String tur, String picPath, String category) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(COL_ENG_WORD, eng);
         contentValues.put(COL_TUR_WORD, tur);
         contentValues.put(COL_PICTURE, picPath);
+        contentValues.put(COL_CATEGORY, (category == null || category.isEmpty()) ? "Genel" : category);
         contentValues.put(COL_STEP_COUNT, 0);
         contentValues.put(COL_NEXT_QUIZ_DATE, System.currentTimeMillis());
+        contentValues.put(COL_TOTAL_ATTEMPTS, 0);
+        contentValues.put(COL_CORRECT_ATTEMPTS, 0);
         return db.insert(TABLE_WORDS, null, contentValues);
     }
 
@@ -82,13 +91,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         List<Word> words = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
         long currentTime = System.currentTimeMillis();
-        
         Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_WORDS + " WHERE NextQuizDate <= ? AND StepCount < 6 ORDER BY RANDOM() LIMIT ?", 
                 new String[]{String.valueOf(currentTime), String.valueOf(limit)});
-        
         if (cursor != null && cursor.moveToFirst()) {
             do {
-                words.add(new Word(cursor.getInt(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getInt(4), cursor.getLong(5)));
+                words.add(new Word(cursor.getInt(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), 
+                        cursor.getInt(4), cursor.getLong(5), cursor.getString(6), cursor.getInt(7), cursor.getInt(8)));
             } while (cursor.moveToNext());
             cursor.close();
         }
@@ -100,7 +108,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery("SELECT " + COL_TUR_WORD + " FROM " + TABLE_WORDS + " WHERE " + COL_WORD_ID + " != ? ORDER BY RANDOM() LIMIT 3", 
                 new String[]{String.valueOf(correctWordId)});
-        
         if (cursor != null && cursor.moveToFirst()) {
             do {
                 wrongs.add(cursor.getString(0));
@@ -110,20 +117,30 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return wrongs;
     }
 
-    public void updateWordProgress(int wordId, int currentStep) {
+    public void updateWordProgress(int wordId, int currentStep, boolean isCorrect) {
         SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        int nextStep = currentStep + 1;
-        values.put(COL_STEP_COUNT, nextStep);
-        values.put(COL_NEXT_QUIZ_DATE, calculateNextDate(nextStep));
-        db.update(TABLE_WORDS, values, COL_WORD_ID + "=?", new String[]{String.valueOf(wordId)});
-    }
+        
+        // Önce mevcut değerleri alalım
+        Cursor cursor = db.rawQuery("SELECT " + COL_TOTAL_ATTEMPTS + ", " + COL_CORRECT_ATTEMPTS + " FROM " + TABLE_WORDS + " WHERE " + COL_WORD_ID + "=?", new String[]{String.valueOf(wordId)});
+        int total = 0, correct = 0;
+        if (cursor.moveToFirst()) {
+            total = cursor.getInt(0);
+            correct = cursor.getInt(1);
+        }
+        cursor.close();
 
-    public void resetWordProgress(int wordId) {
-        SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put(COL_STEP_COUNT, 0);
-        values.put(COL_NEXT_QUIZ_DATE, System.currentTimeMillis());
+        values.put(COL_TOTAL_ATTEMPTS, total + 1);
+        if (isCorrect) {
+            values.put(COL_CORRECT_ATTEMPTS, correct + 1);
+            int nextStep = currentStep + 1;
+            values.put(COL_STEP_COUNT, nextStep);
+            values.put(COL_NEXT_QUIZ_DATE, calculateNextDate(nextStep));
+        } else {
+            values.put(COL_STEP_COUNT, 0);
+            values.put(COL_NEXT_QUIZ_DATE, System.currentTimeMillis());
+        }
+
         db.update(TABLE_WORDS, values, COL_WORD_ID + "=?", new String[]{String.valueOf(wordId)});
     }
 
@@ -172,7 +189,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_WORDS, null);
         if (cursor != null && cursor.moveToFirst()) {
             do {
-                words.add(new Word(cursor.getInt(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getInt(4), cursor.getLong(5)));
+                words.add(new Word(cursor.getInt(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), 
+                        cursor.getInt(4), cursor.getLong(5), cursor.getString(6), cursor.getInt(7), cursor.getInt(8)));
             } while (cursor.moveToNext());
             cursor.close();
         }
@@ -188,16 +206,24 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         if (count == 0) {
             String[][] seedWords = {
-                {"Apple", "Elma"}, {"Book", "Kitap"}, {"Computer", "Bilgisayar"}, {"Water", "Su"}, {"School", "Okul"},
-                {"Pen", "Kalem"}, {"Door", "Kapı"}, {"Window", "Pencere"}, {"Table", "Masa"}, {"Chair", "Sandalye"},
-                {"Friend", "Arkadaş"}, {"Family", "Aile"}, {"Heart", "Kalp"}, {"Sun", "Güneş"}, {"Moon", "Ay"},
-                {"Star", "Yıldız"}, {"Time", "Zaman"}, {"City", "Şehir"}, {"Country", "Ülke"}, {"Money", "Para"},
-                {"Work", "İş"}, {"Sleep", "Uyku"}, {"Happy", "Mutlu"}, {"Sad", "Üzgün"}, {"Beautiful", "Güzel"},
-                {"Big", "Büyük"}, {"Small", "Küçük"}, {"New", "Yeni"}, {"Old", "Eski"}, {"Good", "İyi"},
-                {"Bad", "Kötü"}, {"Fast", "Hızlı"}, {"Slow", "Yavaş"}, {"Hot", "Sıcak"}, {"Cold", "Soğuk"},
-                {"Easy", "Kolay"}, {"Hard", "Zor"}, {"Read", "Okumak"}, {"Write", "Yazmak"}, {"Listen", "Dinlemek"},
-                {"Speak", "Konuşmak"}, {"Run", "Koşmak"}, {"Walk", "Yürümek"}, {"Eat", "Yemek Yemek"}, {"Drink", "İçmek"},
-                {"Language", "Dil"}, {"Bird", "Kuş"}, {"Dog", "Köpek"}, {"Cat", "Kedi"}, {"Flower", "Çiçek"}
+                // {İngilizce, Türkçe, Kategori}
+                {"Apple", "Elma", "Meyveler"}, {"Book", "Kitap", "Eğitim"}, {"Computer", "Bilgisayar", "Teknoloji"}, 
+                {"Water", "Su", "Doğa"}, {"School", "Okul", "Eğitim"}, {"Pen", "Kalem", "Eğitim"}, 
+                {"Door", "Kapı", "Ev"}, {"Window", "Pencere", "Ev"}, {"Table", "Masa", "Ev"}, 
+                {"Chair", "Sandalye", "Ev"}, {"Friend", "Arkadaş", "Sosyal"}, {"Family", "Aile", "Sosyal"}, 
+                {"Heart", "Kalp", "Vücut"}, {"Sun", "Güneş", "Doğa"}, {"Moon", "Ay", "Doğa"}, 
+                {"Star", "Yıldız", "Doğa"}, {"Time", "Zaman", "Soyut"}, {"City", "Şehir", "Yer"}, 
+                {"Country", "Ülke", "Yer"}, {"Money", "Para", "Ekonomi"}, {"Work", "İş", "İş Dünyası"}, 
+                {"Sleep", "Uyku", "Sağlık"}, {"Happy", "Mutlu", "Duygular"}, {"Sad", "Üzgün", "Duygular"}, 
+                {"Beautiful", "Güzel", "Sıfatlar"}, {"Big", "Büyük", "Sıfatlar"}, {"Small", "Küçük", "Sıfatlar"}, 
+                {"New", "Yeni", "Sıfatlar"}, {"Old", "Eski", "Sıfatlar"}, {"Good", "İyi", "Sıfatlar"}, 
+                {"Bad", "Kötü", "Sıfatlar"}, {"Fast", "Hızlı", "Sıfatlar"}, {"Slow", "Yavaş", "Sıfatlar"}, 
+                {"Hot", "Sıcak", "Sıfatlar"}, {"Cold", "Soğuk", "Sıfatlar"}, {"Easy", "Kolay", "Sıfatlar"}, 
+                {"Hard", "Zor", "Sıfatlar"}, {"Read", "Okumak", "Fiiller"}, {"Write", "Yazmak", "Fiiller"}, 
+                {"Listen", "Dinlemek", "Fiiller"}, {"Speak", "Konuşmak", "Fiiller"}, {"Run", "Koşmak", "Fiiller"}, 
+                {"Walk", "Yürümek", "Fiiller"}, {"Eat", "Yemek Yemek", "Fiiller"}, {"Drink", "İçmek", "Fiiller"}, 
+                {"Language", "Dil", "Eğitim"}, {"Bird", "Kuş", "Hayvanlar"}, {"Dog", "Köpek", "Hayvanlar"}, 
+                {"Cat", "Kedi", "Hayvanlar"}, {"Flower", "Çiçek", "Doğa"}
             };
 
             SQLiteDatabase dbWrite = this.getWritableDatabase();
@@ -206,8 +232,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 cv.put(COL_ENG_WORD, w[0]);
                 cv.put(COL_TUR_WORD, w[1]);
                 cv.put(COL_PICTURE, "");
+                cv.put(COL_CATEGORY, w[2]);
                 cv.put(COL_STEP_COUNT, 0);
                 cv.put(COL_NEXT_QUIZ_DATE, System.currentTimeMillis());
+                cv.put(COL_TOTAL_ATTEMPTS, 0);
+                cv.put(COL_CORRECT_ATTEMPTS, 0);
                 dbWrite.insert(TABLE_WORDS, null, cv);
             }
         }

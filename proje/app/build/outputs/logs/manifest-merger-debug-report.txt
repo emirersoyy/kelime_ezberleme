@@ -1,9 +1,9 @@
 -- Merging decision tree log ---
 manifest
-ADDED from C:\Users\emire\OneDrive\Desktop\yazilimYapimi\proje\app\src\main\AndroidManifest.xml:2:1-37:12
-INJECTED from C:\Users\emire\OneDrive\Desktop\yazilimYapimi\proje\app\src\main\AndroidManifest.xml:2:1-37:12
-INJECTED from C:\Users\emire\OneDrive\Desktop\yazilimYapimi\proje\app\src\main\AndroidManifest.xml:2:1-37:12
-INJECTED from C:\Users\emire\OneDrive\Desktop\yazilimYapimi\proje\app\src\main\AndroidManifest.xml:2:1-37:12
+ADDED from C:\Users\emire\OneDrive\Desktop\yazilimYapimi\proje\app\src\main\AndroidManifest.xml:2:1-38:12
+INJECTED from C:\Users\emire\OneDrive\Desktop\yazilimYapimi\proje\app\src\main\AndroidManifest.xml:2:1-38:12
+INJECTED from C:\Users\emire\OneDrive\Desktop\yazilimYapimi\proje\app\src\main\AndroidManifest.xml:2:1-38:12
+INJECTED from C:\Users\emire\OneDrive\Desktop\yazilimYapimi\proje\app\src\main\AndroidManifest.xml:2:1-38:12
 MERGED from [com.google.android.material:material:1.10.0] C:\Users\emire\.gradle\caches\transforms-3\996b6b38875e843414be90c634e94c19\transformed\material-1.10.0\AndroidManifest.xml:17:1-24:12
 MERGED from [androidx.constraintlayout:constraintlayout:2.1.4] C:\Users\emire\.gradle\caches\transforms-3\666e90f6d63a92a3eb6367791e3c8254\transformed\constraintlayout-2.1.4\AndroidManifest.xml:2:1-11:12
 MERGED from [androidx.appcompat:appcompat-resources:1.6.1] C:\Users\emire\.gradle\caches\transforms-3\1d5d1eda87e3d08c1b8e9f67ca7dfd67\transformed\jetified-appcompat-resources-1.6.1\AndroidManifest.xml:17:1-22:12
@@ -62,8 +62,8 @@ ADDED from C:\Users\emire\OneDrive\Desktop\yazilimYapimi\proje\app\src\main\Andr
 	android:name
 		ADDED from C:\Users\emire\OneDrive\Desktop\yazilimYapimi\proje\app\src\main\AndroidManifest.xml:5:22-73
 application
-ADDED from C:\Users\emire\OneDrive\Desktop\yazilimYapimi\proje\app\src\main\AndroidManifest.xml:7:5-35:19
-INJECTED from C:\Users\emire\OneDrive\Desktop\yazilimYapimi\proje\app\src\main\AndroidManifest.xml:7:5-35:19
+ADDED from C:\Users\emire\OneDrive\Desktop\yazilimYapimi\proje\app\src\main\AndroidManifest.xml:7:5-36:19
+INJECTED from C:\Users\emire\OneDrive\Desktop\yazilimYapimi\proje\app\src\main\AndroidManifest.xml:7:5-36:19
 MERGED from [com.google.android.material:material:1.10.0] C:\Users\emire\.gradle\caches\transforms-3\996b6b38875e843414be90c634e94c19\transformed\material-1.10.0\AndroidManifest.xml:22:5-20
 MERGED from [com.google.android.material:material:1.10.0] C:\Users\emire\.gradle\caches\transforms-3\996b6b38875e843414be90c634e94c19\transformed\material-1.10.0\AndroidManifest.xml:22:5-20
 MERGED from [androidx.constraintlayout:constraintlayout:2.1.4] C:\Users\emire\.gradle\caches\transforms-3\666e90f6d63a92a3eb6367791e3c8254\transformed\constraintlayout-2.1.4\AndroidManifest.xml:9:5-20
@@ -140,10 +140,14 @@ activity#com.example.kelimeezberleme.QuizResultActivity
 ADDED from C:\Users\emire\OneDrive\Desktop\yazilimYapimi\proje\app\src\main\AndroidManifest.xml:32:9-56
 	android:name
 		ADDED from C:\Users\emire\OneDrive\Desktop\yazilimYapimi\proje\app\src\main\AndroidManifest.xml:32:19-53
-activity#com.example.kelimeezberleme.MainActivity
-ADDED from C:\Users\emire\OneDrive\Desktop\yazilimYapimi\proje\app\src\main\AndroidManifest.xml:33:9-50
+activity#com.example.kelimeezberleme.AnalysisActivity
+ADDED from C:\Users\emire\OneDrive\Desktop\yazilimYapimi\proje\app\src\main\AndroidManifest.xml:33:9-54
 	android:name
-		ADDED from C:\Users\emire\OneDrive\Desktop\yazilimYapimi\proje\app\src\main\AndroidManifest.xml:33:19-47
+		ADDED from C:\Users\emire\OneDrive\Desktop\yazilimYapimi\proje\app\src\main\AndroidManifest.xml:33:19-51
+activity#com.example.kelimeezberleme.MainActivity
+ADDED from C:\Users\emire\OneDrive\Desktop\yazilimYapimi\proje\app\src\main\AndroidManifest.xml:34:9-50
+	android:name
+		ADDED from C:\Users\emire\OneDrive\Desktop\yazilimYapimi\proje\app\src\main\AndroidManifest.xml:34:19-47
 uses-sdk
 INJECTED from C:\Users\emire\OneDrive\Desktop\yazilimYapimi\proje\app\src\main\AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from C:\Users\emire\OneDrive\Desktop\yazilimYapimi\proje\app\src\main\AndroidManifest.xml
