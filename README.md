@@ -1,38 +1,29 @@
-# 6 Sefer ile Kelime Ezberleme Sistemi
+# Kelime Ezberleme Sistemi
 
-Bu proje, **Scrum** metodolojisi kullanılarak geliştirilen bir mobil kelime ezberleme uygulamasıdır. Kullanıcıların İngilizce kelimeleri belirli zaman aralıklarıyla (6 aşamalı algoritma) tekrar ederek kalıcı bir şekilde öğrenmesini amaçlar.
+Bu uygulama, kullanıcıların yeni diller öğrenirken karşılaştıkları kelime ezberleme zorluğunu bilimsel bir yöntemle çözmeyi amaçlayan mobil bir platformdur. Kullanıcılar, öğrenmek istedikleri kelimeleri kaydederek, sistemin sunduğu özel algoritma sayesinde bu kelimeleri kalıcı hafızalarına aktarabilirler.
 
-## 🚀 Özellikler
+## 🌟 Temel Özellikler
 
-### Tamamlanan Modüller (Sprint 1 & 2)
-- **User Story 1: Kullanıcı İşlemleri**
-  - Kullanıcı Kayıt, Giriş ve Şifre Yenileme (SQLite).
-  - Modern Material Design arayüzü ve Geri Navigasyonu.
-  - Açık ve Karanlık Tema desteği.
-- **User Story 2: Kelime Yönetimi**
-  - Yeni kelime ekleme (İngilizce, Türkçe, Örnek Cümle, Resim).
-  - Kelimelerim listesi ile tüm kelimeleri görüntüleme.
+### Akıllı Sınav Algoritması (6 Sefer Yöntemi)
+Uygulamanın merkezinde yer alan bu sistem, bir kelimenin tam olarak öğrenilmesi için 6 kez farklı zaman aralıklarında (1 gün, 1 hafta, 1 ay vb.) doğru bilinmesi gerektiğini savunur. Algoritma, her kelimenin öğrenilme sürecini bireysel olarak takip eder ve doğru zamanda kullanıcıya hatırlatır.
 
-### Planlanan Modüller
-- **User Story 3: Sınav Modülü (6 Sefer Algoritması)**
-  - Kelimelerin 1 gün, 1 hafta, 1 ay gibi aralıklarla kullanıcıya sorulması.
-- **User Story 5: Analiz ve Raporlama**
-  - Öğrenme istatistiklerinin görselleştirilmesi.
-- **User Story 6 & 7: Oyunlaştırma ve Yapay Zeka**
-  - Wordle benzeri bulmaca modülü.
-  - LLM destekli hikaye ve görsel oluşturma (Word Chain).
+### Kapsamlı Kelime Yönetimi
+Kullanıcılar kelimeleri sadece metin olarak değil; resimler, Türkçe karşılıkları ve örnek cümleler ile birlikte kaydedebilirler. Bu sayede görsel ve işitsel öğrenme desteklenir.
 
-## 🛠 Teknolojiler
-- **Platform:** Android (Java)
-- **Veritabanı:** SQLite
-- **Tasarım:** Material Components, Dark Mode Support
-- **Mimarisi:** Scrum Metodolojisi
+### Kullanıcı Dostu Deneyim
+- **Kişiselleştirme:** Açık ve karanlık tema seçenekleri ile kullanıcı tercihine göre arayüz değişebilir.
+- **Güvenli Erişim:** Kullanıcı kayıt ve giriş sistemi ile veriler lokal veritabanında (SQLite) güvenle saklanır.
+- **Modern Arayüz:** Material Design standartlarına uygun, sade ve şık tasarım.
 
-## 📋 Kurulum
-1. Projeyi klonlayın.
-2. Android Studio (Hedgehog veya üzeri önerilir) ile açın.
-3. Gradle senkronizasyonunun bitmesini bekleyin.
-4. Java 17 veya 21 kullanarak projeyi derleyin.
+## 🛠 Kullanılan Teknolojiler
+- **Platform:** Android
+- **Dil:** Java
+- **Veritabanı:** SQLite (Yerel Veri Saklama)
+- **UI Bileşenleri:** Material Design Components
+- **Metodoloji:** Scrum Yazılım Geliştirme Süreci
+
+## 📱 Uygulama Hakkında
+Bu proje, yazılım geliştirme süreçlerini deneyimlemek ve modern mobil uygulama standartlarını uygulamak amacıyla geliştirilmiştir. Geliştirme sürecinde **KISS (Keep It Simple, Stupid)** prensibi ve yüksek kod kalitesi hedeflenmiştir.
 
 ---
-*Bu proje Yazılım Yapımı dersi kapsamında geliştirilmektedir.*
+*Yazılım Yapımı dersi kapsamında geliştirilmektedir.*
