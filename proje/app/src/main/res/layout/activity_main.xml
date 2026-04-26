@@ -19,6 +19,18 @@
         android:textStyle="bold" />
 
     <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnStartQuiz"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:layout_marginBottom="16dp"
+        android:text="Sınava Başla"
+        android:textAllCaps="false"
+        android:textSize="18sp"
+        app:backgroundTint="@color/accent"
+        app:cornerRadius="16dp"
+        app:icon="@android:drawable/ic_media_play" />
+
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnAddWordMenu"
         android:layout_width="match_parent"
         android:layout_height="64dp"

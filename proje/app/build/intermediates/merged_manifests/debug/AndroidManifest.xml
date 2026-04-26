@@ -44,6 +44,8 @@
         <activity android:name="com.example.kelimeezberleme.AddWordActivity" />
         <activity android:name="com.example.kelimeezberleme.SettingsActivity" />
         <activity android:name="com.example.kelimeezberleme.WordsListActivity" />
+        <activity android:name="com.example.kelimeezberleme.QuizActivity" />
+        <activity android:name="com.example.kelimeezberleme.QuizResultActivity" />
         <activity android:name="com.example.kelimeezberleme.MainActivity" />
 
         <provider

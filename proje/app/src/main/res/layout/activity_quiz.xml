@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <!-- Üst Bar -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/btnBack"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_menu_revert"
+                app:tint="@color/primary" />
+
+            <TextView
+                android:id="@+id/tvQuizTitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:text="Günlük Sınav"
+                android:textColor="@color/primary"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvProgress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0/0"
+                android:textColor="@color/text_secondary"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <!-- Soru Kartı -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            app:cardCornerRadius="24dp"
+            app:cardElevation="4dp"
+            app:strokeWidth="0dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="32dp">
+
+                <ImageView
+                    android:id="@+id/ivQuizImage"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_marginBottom="16dp"
+                    android:scaleType="centerInside"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/tvEngWord"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Word"
+                    android:textColor="@color/primary"
+                    android:textSize="32sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Bu kelimenin anlamı nedir?"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="14sp" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Şıklar (Kart Yapısında) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:orientation="vertical">
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardOption1"
+                android:layout_width="match_parent"
+                android:layout_height="72dp"
+                android:layout_marginBottom="12dp"
+                android:clickable="true"
+                android:focusable="true"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="2dp"
+                app:strokeColor="@color/primary"
+                app:strokeWidth="1.5dp">
+                <TextView
+                    android:id="@+id/tvOption1"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="Seçenek 1"
+                    android:textColor="@color/text_primary"
+                    android:textSize="18sp" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardOption2"
+                android:layout_width="match_parent"
+                android:layout_height="72dp"
+                android:layout_marginBottom="12dp"
+                android:clickable="true"
+                android:focusable="true"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="2dp"
+                app:strokeColor="@color/primary"
+                app:strokeWidth="1.5dp">
+                <TextView
+                    android:id="@+id/tvOption2"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="Seçenek 2"
+                    android:textColor="@color/text_primary"
+                    android:textSize="18sp" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardOption3"
+                android:layout_width="match_parent"
+                android:layout_height="72dp"
+                android:layout_marginBottom="12dp"
+                android:clickable="true"
+                android:focusable="true"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="2dp"
+                app:strokeColor="@color/primary"
+                app:strokeWidth="1.5dp">
+                <TextView
+                    android:id="@+id/tvOption3"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="Seçenek 3"
+                    android:textColor="@color/text_primary"
+                    android:textSize="18sp" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardOption4"
+                android:layout_width="match_parent"
+                android:layout_height="72dp"
+                android:clickable="true"
+                android:focusable="true"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="2dp"
+                app:strokeColor="@color/primary"
+                app:strokeWidth="1.5dp">
+                <TextView
+                    android:id="@+id/tvOption4"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="Seçenek 4"
+                    android:textColor="@color/text_primary"
+                    android:textSize="18sp" />
+            </com.google.android.material.card.MaterialCardView>
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvFeedback"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:gravity="center"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:visibility="invisible" />
+
+    </LinearLayout>
+</ScrollView>
