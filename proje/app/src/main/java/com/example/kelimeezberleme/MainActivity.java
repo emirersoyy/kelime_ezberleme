@@ -25,7 +25,13 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 // Ayarlar'dan soru limitini al
                 SharedPreferences sharedPref = getSharedPreferences("AppSettings", Context.MODE_PRIVATE);
-                int limit = sharedPref.getInt("quiz_limit", 10);
+                String currentUser = sharedPref.getString("current_user", "");
+                String quizLimitKey = "quiz_limit";
+                if (currentUser != null && !currentUser.trim().isEmpty()) {
+                    quizLimitKey = "quiz_limit_" + currentUser.trim().toLowerCase();
+                }
+                int limit = sharedPref.getInt(quizLimitKey, 10);
+                limit = Math.max(5, Math.min(15, limit));
                 
                 Intent intent = new Intent(MainActivity.this, QuizActivity.class);
                 intent.putExtra("limit", limit);

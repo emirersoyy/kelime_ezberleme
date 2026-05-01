@@ -1,0 +1,161 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.example.kelimeezberleme"
+4    android:versionCode="1"
+5    android:versionName="1.0" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="24"
+9        android:targetSdkVersion="34" />
+10
+11    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+11-->C:\Users\ASUS\StudioProjects\kelime_ezberleme\proje\app\src\main\AndroidManifest.xml:4:5-80
+11-->C:\Users\ASUS\StudioProjects\kelime_ezberleme\proje\app\src\main\AndroidManifest.xml:4:22-77
+12    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+12-->C:\Users\ASUS\StudioProjects\kelime_ezberleme\proje\app\src\main\AndroidManifest.xml:5:5-76
+12-->C:\Users\ASUS\StudioProjects\kelime_ezberleme\proje\app\src\main\AndroidManifest.xml:5:22-73
+13
+14    <permission
+14-->[androidx.core:core:1.9.0] C:\Users\ASUS\.gradle\caches\8.13\transforms\00eeb73d329f60914ee7cf1a9183d8d3\transformed\core-1.9.0\AndroidManifest.xml:22:5-24:47
+15        android:name="com.example.kelimeezberleme.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+15-->[androidx.core:core:1.9.0] C:\Users\ASUS\.gradle\caches\8.13\transforms\00eeb73d329f60914ee7cf1a9183d8d3\transformed\core-1.9.0\AndroidManifest.xml:23:9-81
+16        android:protectionLevel="signature" />
+16-->[androidx.core:core:1.9.0] C:\Users\ASUS\.gradle\caches\8.13\transforms\00eeb73d329f60914ee7cf1a9183d8d3\transformed\core-1.9.0\AndroidManifest.xml:24:9-44
+17
+18    <uses-permission android:name="com.example.kelimeezberleme.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+18-->[androidx.core:core:1.9.0] C:\Users\ASUS\.gradle\caches\8.13\transforms\00eeb73d329f60914ee7cf1a9183d8d3\transformed\core-1.9.0\AndroidManifest.xml:26:5-97
+18-->[androidx.core:core:1.9.0] C:\Users\ASUS\.gradle\caches\8.13\transforms\00eeb73d329f60914ee7cf1a9183d8d3\transformed\core-1.9.0\AndroidManifest.xml:26:22-94
+19
+20    <application
+20-->C:\Users\ASUS\StudioProjects\kelime_ezberleme\proje\app\src\main\AndroidManifest.xml:7:5-36:19
+21        android:allowBackup="true"
+21-->C:\Users\ASUS\StudioProjects\kelime_ezberleme\proje\app\src\main\AndroidManifest.xml:8:9-35
+22        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+22-->[androidx.core:core:1.9.0] C:\Users\ASUS\.gradle\caches\8.13\transforms\00eeb73d329f60914ee7cf1a9183d8d3\transformed\core-1.9.0\AndroidManifest.xml:28:18-86
+23        android:debuggable="true"
+24        android:extractNativeLibs="false"
+25        android:label="@string/app_name"
+25-->C:\Users\ASUS\StudioProjects\kelime_ezberleme\proje\app\src\main\AndroidManifest.xml:9:9-41
+26        android:supportsRtl="true"
+26-->C:\Users\ASUS\StudioProjects\kelime_ezberleme\proje\app\src\main\AndroidManifest.xml:10:9-35
+27        android:theme="@style/Theme.KelimeEzberleme" >
+27-->C:\Users\ASUS\StudioProjects\kelime_ezberleme\proje\app\src\main\AndroidManifest.xml:11:9-53
+28        <activity
+28-->C:\Users\ASUS\StudioProjects\kelime_ezberleme\proje\app\src\main\AndroidManifest.xml:13:9-20:20
+29            android:name="com.example.kelimeezberleme.LoginActivity"
+29-->C:\Users\ASUS\StudioProjects\kelime_ezberleme\proje\app\src\main\AndroidManifest.xml:14:13-42
+30            android:exported="true" >
+30-->C:\Users\ASUS\StudioProjects\kelime_ezberleme\proje\app\src\main\AndroidManifest.xml:15:13-36
+31            <intent-filter>
+31-->C:\Users\ASUS\StudioProjects\kelime_ezberleme\proje\app\src\main\AndroidManifest.xml:16:13-19:29
+32                <action android:name="android.intent.action.MAIN" />
+32-->C:\Users\ASUS\StudioProjects\kelime_ezberleme\proje\app\src\main\AndroidManifest.xml:17:17-69
+32-->C:\Users\ASUS\StudioProjects\kelime_ezberleme\proje\app\src\main\AndroidManifest.xml:17:25-66
+33
+34                <category android:name="android.intent.category.LAUNCHER" />
+34-->C:\Users\ASUS\StudioProjects\kelime_ezberleme\proje\app\src\main\AndroidManifest.xml:18:17-77
+34-->C:\Users\ASUS\StudioProjects\kelime_ezberleme\proje\app\src\main\AndroidManifest.xml:18:27-74
+35            </intent-filter>
+36        </activity>
+37        <activity
+37-->C:\Users\ASUS\StudioProjects\kelime_ezberleme\proje\app\src\main\AndroidManifest.xml:22:9-24:59
+38            android:name="com.example.kelimeezberleme.RegisterActivity"
+38-->C:\Users\ASUS\StudioProjects\kelime_ezberleme\proje\app\src\main\AndroidManifest.xml:23:13-45
+39            android:parentActivityName="com.example.kelimeezberleme.LoginActivity" />
+39-->C:\Users\ASUS\StudioProjects\kelime_ezberleme\proje\app\src\main\AndroidManifest.xml:24:13-56
+40        <activity
+40-->C:\Users\ASUS\StudioProjects\kelime_ezberleme\proje\app\src\main\AndroidManifest.xml:25:9-27:59
+41            android:name="com.example.kelimeezberleme.ForgotPasswordActivity"
+41-->C:\Users\ASUS\StudioProjects\kelime_ezberleme\proje\app\src\main\AndroidManifest.xml:26:13-51
+42            android:parentActivityName="com.example.kelimeezberleme.LoginActivity" />
+42-->C:\Users\ASUS\StudioProjects\kelime_ezberleme\proje\app\src\main\AndroidManifest.xml:27:13-56
+43        <activity android:name="com.example.kelimeezberleme.AddWordActivity" />
+43-->C:\Users\ASUS\StudioProjects\kelime_ezberleme\proje\app\src\main\AndroidManifest.xml:28:9-53
+43-->C:\Users\ASUS\StudioProjects\kelime_ezberleme\proje\app\src\main\AndroidManifest.xml:28:19-50
+44        <activity android:name="com.example.kelimeezberleme.SettingsActivity" />
+44-->C:\Users\ASUS\StudioProjects\kelime_ezberleme\proje\app\src\main\AndroidManifest.xml:29:9-54
+44-->C:\Users\ASUS\StudioProjects\kelime_ezberleme\proje\app\src\main\AndroidManifest.xml:29:19-51
+45        <activity android:name="com.example.kelimeezberleme.WordsListActivity" />
+45-->C:\Users\ASUS\StudioProjects\kelime_ezberleme\proje\app\src\main\AndroidManifest.xml:30:9-55
+45-->C:\Users\ASUS\StudioProjects\kelime_ezberleme\proje\app\src\main\AndroidManifest.xml:30:19-52
+46        <activity android:name="com.example.kelimeezberleme.QuizActivity" />
+46-->C:\Users\ASUS\StudioProjects\kelime_ezberleme\proje\app\src\main\AndroidManifest.xml:31:9-50
+46-->C:\Users\ASUS\StudioProjects\kelime_ezberleme\proje\app\src\main\AndroidManifest.xml:31:19-47
+47        <activity android:name="com.example.kelimeezberleme.QuizResultActivity" />
+47-->C:\Users\ASUS\StudioProjects\kelime_ezberleme\proje\app\src\main\AndroidManifest.xml:32:9-56
+47-->C:\Users\ASUS\StudioProjects\kelime_ezberleme\proje\app\src\main\AndroidManifest.xml:32:19-53
+48        <activity android:name="com.example.kelimeezberleme.AnalysisActivity" />
+48-->C:\Users\ASUS\StudioProjects\kelime_ezberleme\proje\app\src\main\AndroidManifest.xml:33:9-54
+48-->C:\Users\ASUS\StudioProjects\kelime_ezberleme\proje\app\src\main\AndroidManifest.xml:33:19-51
+49        <activity android:name="com.example.kelimeezberleme.MainActivity" />
+49-->C:\Users\ASUS\StudioProjects\kelime_ezberleme\proje\app\src\main\AndroidManifest.xml:34:9-50
+49-->C:\Users\ASUS\StudioProjects\kelime_ezberleme\proje\app\src\main\AndroidManifest.xml:34:19-47
+50
+51        <provider
+51-->[androidx.emoji2:emoji2:1.2.0] C:\Users\ASUS\.gradle\caches\8.13\transforms\e6824132ad21a51f5bd68e19997dca65\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:24:9-32:20
+52            android:name="androidx.startup.InitializationProvider"
+52-->[androidx.emoji2:emoji2:1.2.0] C:\Users\ASUS\.gradle\caches\8.13\transforms\e6824132ad21a51f5bd68e19997dca65\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:25:13-67
+53            android:authorities="com.example.kelimeezberleme.androidx-startup"
+53-->[androidx.emoji2:emoji2:1.2.0] C:\Users\ASUS\.gradle\caches\8.13\transforms\e6824132ad21a51f5bd68e19997dca65\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:26:13-68
+54            android:exported="false" >
+54-->[androidx.emoji2:emoji2:1.2.0] C:\Users\ASUS\.gradle\caches\8.13\transforms\e6824132ad21a51f5bd68e19997dca65\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:27:13-37
+55            <meta-data
+55-->[androidx.emoji2:emoji2:1.2.0] C:\Users\ASUS\.gradle\caches\8.13\transforms\e6824132ad21a51f5bd68e19997dca65\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:29:13-31:52
+56                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+56-->[androidx.emoji2:emoji2:1.2.0] C:\Users\ASUS\.gradle\caches\8.13\transforms\e6824132ad21a51f5bd68e19997dca65\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:30:17-75
+57                android:value="androidx.startup" />
+57-->[androidx.emoji2:emoji2:1.2.0] C:\Users\ASUS\.gradle\caches\8.13\transforms\e6824132ad21a51f5bd68e19997dca65\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:31:17-49
+58            <meta-data
+58-->[androidx.lifecycle:lifecycle-process:2.6.1] C:\Users\ASUS\.gradle\caches\8.13\transforms\9847b446801a5990c766dd1de70e77c0\transformed\jetified-lifecycle-process-2.6.1\AndroidManifest.xml:29:13-31:52
+59                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+59-->[androidx.lifecycle:lifecycle-process:2.6.1] C:\Users\ASUS\.gradle\caches\8.13\transforms\9847b446801a5990c766dd1de70e77c0\transformed\jetified-lifecycle-process-2.6.1\AndroidManifest.xml:30:17-78
+60                android:value="androidx.startup" />
+60-->[androidx.lifecycle:lifecycle-process:2.6.1] C:\Users\ASUS\.gradle\caches\8.13\transforms\9847b446801a5990c766dd1de70e77c0\transformed\jetified-lifecycle-process-2.6.1\AndroidManifest.xml:31:17-49
+61            <meta-data
+61-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\ASUS\.gradle\caches\8.13\transforms\f31e9d1da53ef96c37d73819271a7b63\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:29:13-31:52
+62                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+62-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\ASUS\.gradle\caches\8.13\transforms\f31e9d1da53ef96c37d73819271a7b63\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:30:17-85
+63                android:value="androidx.startup" />
+63-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\ASUS\.gradle\caches\8.13\transforms\f31e9d1da53ef96c37d73819271a7b63\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:31:17-49
+64        </provider>
+65
+66        <receiver
+66-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\ASUS\.gradle\caches\8.13\transforms\f31e9d1da53ef96c37d73819271a7b63\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:34:9-52:20
+67            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+67-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\ASUS\.gradle\caches\8.13\transforms\f31e9d1da53ef96c37d73819271a7b63\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:35:13-76
+68            android:directBootAware="false"
+68-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\ASUS\.gradle\caches\8.13\transforms\f31e9d1da53ef96c37d73819271a7b63\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:36:13-44
+69            android:enabled="true"
+69-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\ASUS\.gradle\caches\8.13\transforms\f31e9d1da53ef96c37d73819271a7b63\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:37:13-35
+70            android:exported="true"
+70-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\ASUS\.gradle\caches\8.13\transforms\f31e9d1da53ef96c37d73819271a7b63\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:38:13-36
+71            android:permission="android.permission.DUMP" >
+71-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\ASUS\.gradle\caches\8.13\transforms\f31e9d1da53ef96c37d73819271a7b63\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:39:13-57
+72            <intent-filter>
+72-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\ASUS\.gradle\caches\8.13\transforms\f31e9d1da53ef96c37d73819271a7b63\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:40:13-42:29
+73                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+73-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\ASUS\.gradle\caches\8.13\transforms\f31e9d1da53ef96c37d73819271a7b63\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:41:17-91
+73-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\ASUS\.gradle\caches\8.13\transforms\f31e9d1da53ef96c37d73819271a7b63\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:41:25-88
+74            </intent-filter>
+75            <intent-filter>
+75-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\ASUS\.gradle\caches\8.13\transforms\f31e9d1da53ef96c37d73819271a7b63\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:43:13-45:29
+76                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+76-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\ASUS\.gradle\caches\8.13\transforms\f31e9d1da53ef96c37d73819271a7b63\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:44:17-85
+76-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\ASUS\.gradle\caches\8.13\transforms\f31e9d1da53ef96c37d73819271a7b63\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:44:25-82
+77            </intent-filter>
+78            <intent-filter>
+78-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\ASUS\.gradle\caches\8.13\transforms\f31e9d1da53ef96c37d73819271a7b63\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:46:13-48:29
+79                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+79-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\ASUS\.gradle\caches\8.13\transforms\f31e9d1da53ef96c37d73819271a7b63\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:47:17-88
+79-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\ASUS\.gradle\caches\8.13\transforms\f31e9d1da53ef96c37d73819271a7b63\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:47:25-85
+80            </intent-filter>
+81            <intent-filter>
+81-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\ASUS\.gradle\caches\8.13\transforms\f31e9d1da53ef96c37d73819271a7b63\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:49:13-51:29
+82                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+82-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\ASUS\.gradle\caches\8.13\transforms\f31e9d1da53ef96c37d73819271a7b63\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:50:17-95
+82-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\ASUS\.gradle\caches\8.13\transforms\f31e9d1da53ef96c37d73819271a7b63\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:50:25-92
+83            </intent-filter>
+84        </receiver>
+85    </application>
+86
+87</manifest>

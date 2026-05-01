@@ -23,7 +23,7 @@ public class QuizResultActivity extends AppCompatActivity {
         ArrayList<IncorrectWord> incorrects = (ArrayList<IncorrectWord>) getIntent().getSerializableExtra("incorrects");
 
         TextView tvSummary = findViewById(R.id.tvSummary);
-        tvSummary.setText(total + " soruda " + correct + " doğru cevap verdin.");
+        tvSummary.setText(total + " soruda " + correct + " do\u011fru cevap verdin.");
 
         if (incorrects != null && !incorrects.isEmpty()) {
             findViewById(R.id.tvWrongTitle).setVisibility(View.VISIBLE);
@@ -37,7 +37,10 @@ public class QuizResultActivity extends AppCompatActivity {
 
     class IncorrectAdapter extends RecyclerView.Adapter<IncorrectAdapter.VH> {
         ArrayList<IncorrectWord> list;
-        IncorrectAdapter(ArrayList<IncorrectWord> list) { this.list = list; }
+
+        IncorrectAdapter(ArrayList<IncorrectWord> list) {
+            this.list = list;
+        }
 
         @NonNull
         @Override
@@ -51,14 +54,19 @@ public class QuizResultActivity extends AppCompatActivity {
             IncorrectWord item = list.get(position);
             holder.t1.setText(item.eng + " -> " + item.tur);
             holder.t1.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
-            holder.t2.setText("Senin cevabın: " + (item.userAnswer.isEmpty() ? "(Boş)" : item.userAnswer));
+            String answer = item.userAnswer.isEmpty() ? "(Bo\u015f)" : item.userAnswer;
+            String sentence = item.sentence == null || item.sentence.isEmpty() ? "" : "\n" + item.sentence;
+            holder.t2.setText("Senin cevab\u0131n: " + answer + sentence);
         }
 
         @Override
-        public int getItemCount() { return list.size(); }
+        public int getItemCount() {
+            return list.size();
+        }
 
         class VH extends RecyclerView.ViewHolder {
             TextView t1, t2;
+
             VH(View v) {
                 super(v);
                 t1 = v.findViewById(android.R.id.text1);

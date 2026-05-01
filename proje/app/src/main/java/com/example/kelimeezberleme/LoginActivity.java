@@ -1,6 +1,8 @@
 package com.example.kelimeezberleme;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -8,8 +10,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
-import android.text.InputType;
-import com.google.android.material.textfield.TextInputLayout;
 
 public class LoginActivity extends AppCompatActivity {
     EditText etUsername, etPassword;
@@ -32,19 +32,21 @@ public class LoginActivity extends AppCompatActivity {
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String user = etUsername.getText().toString();
+                String user = etUsername.getText().toString().trim();
                 String pass = etPassword.getText().toString();
 
                 if (user.equals("") || pass.equals("")) {
-                    Toast.makeText(LoginActivity.this, "Tüm alanları doldurun", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, "T\u00fcm alanlar\u0131 doldurun", Toast.LENGTH_SHORT).show();
                 } else {
                     if (db.checkUser(user, pass)) {
-                        Toast.makeText(LoginActivity.this, "Giriş Başarılı", Toast.LENGTH_SHORT).show();
+                        SharedPreferences sharedPref = getSharedPreferences("AppSettings", Context.MODE_PRIVATE);
+                        sharedPref.edit().putString("current_user", user).apply();
+                        Toast.makeText(LoginActivity.this, "Giri\u015f Ba\u015far\u0131l\u0131", Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                         startActivity(intent);
                         finish();
                     } else {
-                        Toast.makeText(LoginActivity.this, "Hatalı Giriş", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(LoginActivity.this, "Hatal\u0131 Giri\u015f", Toast.LENGTH_SHORT).show();
                     }
                 }
             }
