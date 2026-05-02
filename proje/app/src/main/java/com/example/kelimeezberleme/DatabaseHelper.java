@@ -11,6 +11,7 @@ import java.security.spec.KeySpec;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
@@ -365,7 +366,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_WORDS, null);
         if (cursor != null && cursor.moveToFirst()) {
             do {
-                words.add(new Word(cursor.getInt(0), cursor.getString(1), cursor.getString(2), cursor.getString(3),
+                words.add(new Word(cursor.getInt(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), 
                         cursor.getInt(4), cursor.getLong(5), cursor.getString(6), cursor.getInt(7), cursor.getInt(8)));
             } while (cursor.moveToNext());
             cursor.close();
@@ -373,6 +374,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return words;
     }
 
+    public String getRandomWordForWordle() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        // 3 ile 7 harf arası rastgele bir kelime seç (Ekrana sığması için üst sınır 7)
+        Cursor cursor = db.rawQuery("SELECT " + COL_ENG_WORD + " FROM " + TABLE_WORDS + " WHERE length(" + COL_ENG_WORD + ") >= 3 AND length(" + COL_ENG_WORD + ") <= 7 ORDER BY RANDOM() LIMIT 1", null);
+        String word = null;
+        if (cursor.moveToFirst()) {
+            word = cursor.getString(0).toUpperCase(Locale.US);
+        }
+        cursor.close();
+        return word;
+    }
     public void seedDatabase() {
         SQLiteDatabase dbRead = this.getReadableDatabase();
         Cursor cursor = dbRead.rawQuery("SELECT COUNT(*) FROM " + TABLE_WORDS, null);
