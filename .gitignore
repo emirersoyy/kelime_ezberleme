@@ -17,6 +17,7 @@ local.properties
 
 # Proje klasörü içindeki build ve idea klasörlerini yoksay
 proje/build/
+proje/app/build/
 proje/.gradle/
 proje/.idea/
 proje/local.properties

@@ -16,6 +16,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.card.MaterialCardView;
 import java.util.ArrayList;
@@ -347,6 +349,7 @@ public class QuizActivity extends AppCompatActivity {
         bubbleViews.get(bubbleIndex).setBackground(makeBubbleDrawable(color));
     }
 
+    @NonNull
     private GradientDrawable makeBubbleDrawable(int color) {
         GradientDrawable drawable = new GradientDrawable();
         drawable.setShape(GradientDrawable.OVAL);
@@ -358,7 +361,8 @@ public class QuizActivity extends AppCompatActivity {
         return Math.round(value * getResources().getDisplayMetrics().density);
     }
 
-    private String getPronunciationText(String word) {
+    @NonNull
+    private String getPronunciationText(@NonNull String word) {
         switch (word) {
             case "Apple": return "/AP-uhl/";
             case "Book": return "/buuk/";
