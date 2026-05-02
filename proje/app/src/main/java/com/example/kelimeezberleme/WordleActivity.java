@@ -5,19 +5,17 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.Gravity;
-import android.view.View;
 import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import com.google.android.material.card.MaterialCardView;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
 public class WordleActivity extends AppCompatActivity {
@@ -29,7 +27,7 @@ public class WordleActivity extends AppCompatActivity {
 
     GridLayout glWordle;
     LinearLayout llKeyboard, llDateSelector;
-    Button btnSubmit;
+    TextView tvResult;
 
     TextView[][] cells;
     MaterialCardView[][] cards;
@@ -45,15 +43,13 @@ public class WordleActivity extends AppCompatActivity {
         glWordle = findViewById(R.id.glWordle);
         llKeyboard = findViewById(R.id.llKeyboard);
         llDateSelector = findViewById(R.id.llDateSelector);
-        btnSubmit = findViewById(R.id.btnSubmitGuess);
+        tvResult = findViewById(R.id.tvResult);
 
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
 
-        // Varsayılan olarak bugünü seç
         selectedDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
         
         setupGameForDate(selectedDate);
-        createDateSelector();
     }
 
     private void setupGameForDate(String date) {
@@ -61,10 +57,11 @@ public class WordleActivity extends AppCompatActivity {
         this.currentAttempt = 0;
         this.isGameOver = false;
         this.currentGuess.setLength(0);
+        this.tvResult.setText("");
 
         SharedPreferences pref = getSharedPreferences("WordlePrefs", MODE_PRIVATE);
+        // İlgili tarih için kelime var mı bak, yoksa o tarihe özel seç
         targetWord = pref.getString(date + "_word", null);
-
         if (targetWord == null) {
             targetWord = db.getRandomWordForWordle();
             if (targetWord != null) {
@@ -73,7 +70,7 @@ public class WordleActivity extends AppCompatActivity {
         }
 
         if (targetWord == null) {
-            Toast.makeText(this, "Yeterli kelime bulunamadı!", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Yeterli kelime bulunamadı!", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -86,6 +83,7 @@ public class WordleActivity extends AppCompatActivity {
 
         createGrid();
         createVirtualKeyboard();
+        createDateSelector();
         loadPreviousAttempts(date);
     }
 
@@ -95,32 +93,32 @@ public class WordleActivity extends AppCompatActivity {
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
         SimpleDateFormat showDf = new SimpleDateFormat("dd MMM", Locale.getDefault());
 
-        // Bugün dahil son 7 gün
         for (int i = 0; i < 7; i++) {
             String dateKey = df.format(cal.getTime());
-            String dateShow = showDf.format(cal.getTime());
-            if (i == 0) dateShow = "Bugün";
+            String dateShow = (i == 0) ? "Bugün" : showDf.format(cal.getTime());
 
             Button btn = new Button(this, null, android.R.attr.buttonStyleSmall);
             btn.setText(dateShow);
             btn.setAllCaps(false);
             
             if (dateKey.equals(selectedDate)) {
-                btn.setBackgroundColor(getResources().getColor(R.color.primary));
+                btn.setBackgroundColor(ContextCompat.getColor(this, R.color.primary));
                 btn.setTextColor(Color.WHITE);
+            } else {
+                btn.setBackgroundColor(Color.LTGRAY);
+                btn.setTextColor(Color.BLACK);
             }
 
             btn.setOnClickListener(v -> setupGameForDate(dateKey));
             
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.WRAP_CONTENT, 
+                    (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 80, getResources().getDisplayMetrics()),
                     LinearLayout.LayoutParams.WRAP_CONTENT
             );
             params.setMargins(8, 0, 8, 0);
             btn.setLayoutParams(params);
-            
             llDateSelector.addView(btn);
-            cal.add(Calendar.DATE, -1); // Bir gün geriye git
+            cal.add(Calendar.DATE, -1);
         }
     }
 
@@ -132,13 +130,17 @@ public class WordleActivity extends AppCompatActivity {
         if (!savedGuesses.isEmpty()) {
             String[] guesses = savedGuesses.split(",");
             for (String g : guesses) {
-                if (!g.isEmpty()) fillRow(g);
+                if (!g.isEmpty() && currentAttempt < 5 && g.length() == wordLength) {
+                    fillRow(g);
+                }
             }
         }
 
         if (isFinished) {
             isGameOver = true;
-            llKeyboard.setAlpha(0.5f);
+            llKeyboard.setAlpha(0.3f);
+            tvResult.setText("Doğru Kelime: " + targetWord);
+            tvResult.setTextColor(ContextCompat.getColor(this, R.color.primary));
         } else {
             llKeyboard.setAlpha(1.0f);
         }
@@ -167,8 +169,8 @@ public class WordleActivity extends AppCompatActivity {
     private void createGrid() {
         glWordle.removeAllViews();
         int displayWidth = getResources().getDisplayMetrics().widthPixels;
-        int cellSize = (displayWidth - 100) / Math.max(wordLength, 5);
-        if (cellSize > 110) cellSize = 110;
+        int cellSize = (displayWidth - 140) / Math.max(wordLength, 5);
+        if (cellSize > 120) cellSize = 120;
         int margin = 4;
 
         for (int r = 0; r < 5; r++) {
@@ -178,7 +180,7 @@ public class WordleActivity extends AppCompatActivity {
                 params.width = cellSize; params.height = cellSize;
                 params.setMargins(margin, margin, margin, margin);
                 card.setLayoutParams(params);
-                card.setRadius(10f);
+                card.setRadius(12f);
                 card.setStrokeWidth(2);
                 card.setStrokeColor(Color.LTGRAY);
                 card.setCardBackgroundColor(Color.WHITE);
@@ -186,7 +188,7 @@ public class WordleActivity extends AppCompatActivity {
                 TextView tv = new TextView(this);
                 tv.setLayoutParams(new MaterialCardView.LayoutParams(cellSize, cellSize));
                 tv.setGravity(Gravity.CENTER);
-                tv.setTextSize(18);
+                tv.setTextSize(20);
                 tv.setTextColor(Color.BLACK);
                 card.addView(tv);
                 glWordle.addView(card);
@@ -198,7 +200,7 @@ public class WordleActivity extends AppCompatActivity {
     private void createVirtualKeyboard() {
         String[] rows = {"QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM"};
         llKeyboard.removeAllViews();
-        int keyWidth = (getResources().getDisplayMetrics().widthPixels - 40) / 10;
+        int keyWidth = (getResources().getDisplayMetrics().widthPixels - 80) / 10;
 
         for (int i = 0; i < rows.length; i++) {
             LinearLayout rowLayout = new LinearLayout(this);
@@ -245,15 +247,15 @@ public class WordleActivity extends AppCompatActivity {
     private void submitGuess() {
         if (isGameOver || currentGuess.length() != wordLength) return;
         String guess = currentGuess.toString();
-        
         saveGuess(guess);
         fillRow(guess);
 
         if (guess.equals(targetWord) || currentAttempt == 5) {
             isGameOver = true;
             markFinished();
-            Toast.makeText(this, guess.equals(targetWord) ? "TEBRİKLER! 🏆" : "Bitti! Kelime: " + targetWord, Toast.LENGTH_LONG).show();
-            llKeyboard.setAlpha(0.5f);
+            tvResult.setText("Doğru Kelime: " + targetWord);
+            tvResult.setTextColor(ContextCompat.getColor(this, R.color.primary));
+            llKeyboard.setAlpha(0.3f);
         } else {
             currentGuess.setLength(0);
         }
