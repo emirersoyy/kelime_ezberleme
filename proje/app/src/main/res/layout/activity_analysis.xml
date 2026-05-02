@@ -5,7 +5,8 @@
     android:layout_height="match_parent"
     android:background="@color/background"
     android:orientation="vertical"
-    android:padding="24dp">
+    android:paddingHorizontal="24dp"
+    android:paddingVertical="28dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -15,27 +16,43 @@
 
         <ImageButton
             android:id="@+id/btnBack"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@android:drawable/ic_menu_revert"
-            app:tint="@color/primary" />
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:background="@drawable/modern_icon_button_bg"
+            android:padding="10dp"
+            android:src="@drawable/ic_arrow_back_24"
+            app:tint="@color/text_secondary" />
 
-        <TextView
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="14dp"
             android:layout_weight="1"
-            android:text="Analiz Raporu"
-            android:textColor="@color/primary"
-            android:textSize="24sp"
-            android:textStyle="bold" />
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Analiz Raporu"
+                android:textColor="@color/text_primary"
+                android:textSize="26sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="Konu bazlı ilerlemeni takip et"
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp" />
+        </LinearLayout>
 
         <ImageButton
             android:id="@+id/btnPrint"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:background="@drawable/modern_icon_button_bg"
+            android:padding="10dp"
             android:src="@android:drawable/ic_menu_save"
             app:tint="@color/primary" />
     </LinearLayout>
@@ -44,11 +61,13 @@
         android:id="@+id/reportContent"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="22dp"
         android:layout_weight="1"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="0dp"
-        app:strokeWidth="0dp">
+        app:cardBackgroundColor="@color/surface"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="5dp"
+        app:strokeColor="@color/divider"
+        app:strokeWidth="1dp">
 
         <LinearLayout
             android:id="@+id/llReportContainer"
@@ -61,25 +80,28 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Genel Başarı Durumu"
+                android:text="Genel Başarı"
                 android:textColor="@color/text_secondary"
                 android:textSize="14sp"
                 android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/tvOverallStats"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/soft_chip_bg"
+                android:padding="14dp"
                 android:text="Toplam 0 kelime çözüldü."
                 android:textColor="@color/text_primary"
-                android:textSize="18sp" />
+                android:textSize="17sp"
+                android:textStyle="bold" />
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:layout_marginVertical="16dp"
-                android:background="#EEEEEE" />
+                android:layout_marginVertical="18dp"
+                android:background="@color/divider" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -92,7 +114,9 @@
             <ScrollView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginTop="8dp">
+                android:layout_marginTop="10dp"
+                android:clipToPadding="false">
+
                 <LinearLayout
                     android:id="@+id/llCategoryStats"
                     android:layout_width="match_parent"

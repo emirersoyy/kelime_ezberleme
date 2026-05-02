@@ -13,7 +13,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        
+
         DatabaseHelper db = new DatabaseHelper(this);
         db.seedDatabase();
 
@@ -23,7 +23,6 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.btnStartQuiz).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Ayarlar'dan soru limitini al
                 SharedPreferences sharedPref = getSharedPreferences("AppSettings", Context.MODE_PRIVATE);
                 String currentUser = sharedPref.getString("current_user", "");
                 String quizLimitKey = "quiz_limit";
@@ -32,43 +31,23 @@ public class MainActivity extends AppCompatActivity {
                 }
                 int limit = sharedPref.getInt(quizLimitKey, 10);
                 limit = Math.max(5, Math.min(15, limit));
-                
+
                 Intent intent = new Intent(MainActivity.this, QuizActivity.class);
                 intent.putExtra("limit", limit);
                 startActivity(intent);
             }
         });
 
-        findViewById(R.id.btnAddWordMenu).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, AddWordActivity.class);
-                startActivity(intent);
-            }
-        });
+        findViewById(R.id.btnAddWordMenu).setOnClickListener(v ->
+                startActivity(new Intent(MainActivity.this, AddWordActivity.class)));
 
-        findViewById(R.id.btnWordsListMenu).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, WordsListActivity.class);
-                startActivity(intent);
-            }
-        });
+        findViewById(R.id.btnWordsListMenu).setOnClickListener(v ->
+                startActivity(new Intent(MainActivity.this, WordsListActivity.class)));
 
-        findViewById(R.id.btnAnalysisMenu).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, AnalysisActivity.class);
-                startActivity(intent);
-            }
-        });
+        findViewById(R.id.btnAnalysisMenu).setOnClickListener(v ->
+                startActivity(new Intent(MainActivity.this, AnalysisActivity.class)));
 
-        findViewById(R.id.btnSettingsMenu).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-                startActivity(intent);
-            }
-        });
+        findViewById(R.id.btnSettingsMenu).setOnClickListener(v ->
+                startActivity(new Intent(MainActivity.this, SettingsActivity.class)));
     }
 }

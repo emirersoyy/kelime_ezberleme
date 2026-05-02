@@ -8,20 +8,34 @@
     android:padding="24dp">
 
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Sınav Sonucu"
-        android:textColor="@color/primary"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:background="@drawable/login_badge_bg"
+        android:gravity="center"
+        android:text="✓"
+        android:textColor="@color/white"
         android:textSize="28sp"
         android:textStyle="bold" />
 
     <TextView
-        android:id="@+id/tvSummary"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Sınav Sonucu"
+        android:textColor="@color/text_primary"
+        android:textSize="30sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tvSummary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
+        android:background="@drawable/soft_chip_bg"
+        android:padding="14dp"
         android:text="Özet yükleniyor..."
-        android:textColor="@color/text_secondary" />
+        android:textColor="@color/text_primary"
+        android:textSize="15sp" />
 
     <TextView
         android:id="@+id/tvWrongTitle"
@@ -39,14 +53,20 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="8dp"
-        android:layout_weight="1" />
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:paddingBottom="8dp" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnFinishQuiz"
         android:layout_width="match_parent"
-        android:layout_height="64dp"
+        android:layout_height="58dp"
         android:layout_marginTop="16dp"
         android:text="Ana Sayfaya Dön"
+        android:textAllCaps="false"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:backgroundTint="@color/primary"
         app:cornerRadius="16dp" />
 
 </LinearLayout>

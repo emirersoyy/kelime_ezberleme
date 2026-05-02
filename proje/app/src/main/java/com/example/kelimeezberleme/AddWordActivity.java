@@ -34,12 +34,7 @@ public class AddWordActivity extends AppCompatActivity {
         btnSelectImage = findViewById(R.id.btnSelectImage);
         tvImagePath = findViewById(R.id.tvImagePath);
 
-        findViewById(R.id.btnBack).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
+        findViewById(R.id.btnBack).setOnClickListener(v -> finish());
 
         btnSelectImage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -73,7 +68,7 @@ public class AddWordActivity extends AppCompatActivity {
                     Toast.makeText(AddWordActivity.this, "Kelime başarıyla eklendi", Toast.LENGTH_SHORT).show();
                     clearFields();
                 } else {
-                    Toast.makeText(AddWordActivity.this, "Hata oluştu!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AddWordActivity.this, "Hata oluştu", Toast.LENGTH_SHORT).show();
                 }
             }
         });

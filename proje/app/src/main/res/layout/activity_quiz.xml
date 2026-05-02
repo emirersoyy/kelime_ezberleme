@@ -16,7 +16,7 @@
             android:id="@+id/btnBack"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:background="@drawable/quiz_icon_button_bg"
+            android:background="@drawable/modern_icon_button_bg"
             android:contentDescription="Geri d&#246;n"
             android:padding="9dp"
             android:src="@drawable/ic_arrow_back_24"
@@ -75,9 +75,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
+            app:cardBackgroundColor="@color/surface"
             app:cardCornerRadius="20dp"
-            app:cardElevation="4dp"
-            app:strokeWidth="0dp">
+            app:cardElevation="5dp"
+            app:strokeColor="@color/divider"
+            app:strokeWidth="1dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -115,7 +117,7 @@
                         android:layout_width="40dp"
                         android:layout_height="40dp"
                         android:layout_marginEnd="8dp"
-                        android:background="@drawable/quiz_icon_button_bg"
+                        android:background="@drawable/modern_icon_button_bg"
                         android:contentDescription="Yava&#351; telaffuz"
                         android:padding="9dp"
                         android:src="@drawable/ic_slow_motion_24"
@@ -126,7 +128,7 @@
                         android:id="@+id/btnPronunciation"
                         android:layout_width="40dp"
                         android:layout_height="40dp"
-                        android:background="@drawable/quiz_icon_button_bg"
+                        android:background="@drawable/modern_icon_button_bg"
                         android:contentDescription="Telaffuzu dinle"
                         android:padding="9dp"
                         android:src="@drawable/ic_volume_24"
@@ -170,7 +172,7 @@
                 android:focusable="true"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="2dp"
-                app:strokeColor="@color/primary"
+                app:strokeColor="@color/divider"
                 app:strokeWidth="1dp">
 
                 <TextView
@@ -192,7 +194,7 @@
                 android:focusable="true"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="2dp"
-                app:strokeColor="@color/primary"
+                app:strokeColor="@color/divider"
                 app:strokeWidth="1dp">
 
                 <TextView
@@ -214,7 +216,7 @@
                 android:focusable="true"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="2dp"
-                app:strokeColor="@color/primary"
+                app:strokeColor="@color/divider"
                 app:strokeWidth="1dp">
 
                 <TextView
@@ -235,7 +237,7 @@
                 android:focusable="true"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="2dp"
-                app:strokeColor="@color/primary"
+                app:strokeColor="@color/divider"
                 app:strokeWidth="1dp">
 
                 <TextView
