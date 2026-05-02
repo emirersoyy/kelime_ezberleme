@@ -55,10 +55,21 @@ public class WordleActivity extends AppCompatActivity {
 
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
 
-        selectedDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+        selectedDate = getTodayKey();
 
         createDateSelector();
         showGameForDate(selectedDate);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        String todayKey = getTodayKey();
+        if (llDateSelector != null && !isDateVisible(todayKey)) {
+            selectedDate = todayKey;
+            createDateSelector();
+            showGameForDate(todayKey);
+        }
     }
 
     private void showGameForDate(String date) {
@@ -139,7 +150,7 @@ public class WordleActivity extends AppCompatActivity {
 
         for (int i = 0; i < DATE_BUTTON_COUNT; i++) {
             String dateKey = df.format(cal.getTime());
-            String dateShow = (i == DATE_BUTTON_COUNT - 1) ? "Bugün" : showDf.format(cal.getTime());
+            String dateShow = showDf.format(cal.getTime());
 
             Button btn = new Button(this, null, android.R.attr.buttonStyleSmall);
             btn.setText(dateShow);
@@ -194,6 +205,18 @@ public class WordleActivity extends AppCompatActivity {
                 btn.setTextColor(Color.BLACK);
             }
         }
+    }
+
+    private String getTodayKey() {
+        return new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(new Date());
+    }
+
+    private boolean isDateVisible(String dateKey) {
+        for (int i = 0; i < llDateSelector.getChildCount(); i++) {
+            Object tag = llDateSelector.getChildAt(i).getTag();
+            if (dateKey.equals(tag)) return true;
+        }
+        return false;
     }
 
     private void loadPreviousAttempts(String date) {
