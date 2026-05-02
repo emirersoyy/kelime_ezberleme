@@ -10,15 +10,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:orientation="vertical">
 
+        <!-- Üst Sabit Bar -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:paddingBottom="16dp">
+            android:padding="16dp">
 
             <ImageButton
                 android:id="@+id/btnBack"
@@ -29,49 +29,73 @@
                 app:tint="@color/primary" />
 
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
+                android:layout_weight="1"
                 android:text="Kelime Bulmaca"
                 android:textColor="@color/primary"
-                android:textSize="24sp"
+                android:textSize="22sp"
                 android:textStyle="bold" />
         </LinearLayout>
 
-        <GridLayout
-            android:id="@+id/glWordle"
-            android:layout_width="wrap_content"
+        <!-- Tarih Seçici (Son 7 Gün) -->
+        <HorizontalScrollView
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:layout_marginBottom="24dp"
-            android:alignmentMode="alignMargins"
-            android:useDefaultMargins="true" />
+            android:scrollbars="none"
+            android:paddingBottom="8dp">
+            <LinearLayout
+                android:id="@+id/llDateSelector"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingHorizontal="16dp" />
+        </HorizontalScrollView>
 
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="#DDDDDD"
-            android:layout_marginVertical="16dp" />
+            android:background="#EEEEEE" />
 
         <LinearLayout
-            android:id="@+id/llKeyboard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
+            android:gravity="center_horizontal"
             android:orientation="vertical"
-            android:padding="4dp">
-            <!-- Klavye buraya dinamik dolacak -->
+            android:padding="16dp">
+
+            <!-- Oyun Izgarası -->
+            <GridLayout
+                android:id="@+id/glWordle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:alignmentMode="alignMargins"
+                android:useDefaultMargins="true" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#DDDDDD"
+                android:layout_marginVertical="16dp" />
+
+            <!-- Sanal Klavye Bölümü -->
+            <LinearLayout
+                android:id="@+id/llKeyboard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="4dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSubmitGuess"
+                android:layout_width="match_parent"
+                android:layout_height="64dp"
+                android:layout_marginTop="24dp"
+                android:text="Tahmin Et"
+                android:visibility="gone" />
+
         </LinearLayout>
-
-        <!-- Alt butonu opsiyonel olarak tutuyorum, klavyeye de ENTER gelecek -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnSubmitGuess"
-            android:layout_width="match_parent"
-            android:layout_height="64dp"
-            android:layout_marginTop="24dp"
-            android:text="Tahmin Et"
-            android:visibility="gone"
-            app:cornerRadius="16dp" />
-
     </LinearLayout>
 </ScrollView>
