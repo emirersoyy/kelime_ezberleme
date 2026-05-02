@@ -11,6 +11,7 @@ import java.security.spec.KeySpec;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
@@ -379,7 +380,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery("SELECT " + COL_ENG_WORD + " FROM " + TABLE_WORDS + " WHERE length(" + COL_ENG_WORD + ") >= 3 AND length(" + COL_ENG_WORD + ") <= 7 ORDER BY RANDOM() LIMIT 1", null);
         String word = null;
         if (cursor.moveToFirst()) {
-            word = cursor.getString(0).toUpperCase();
+            word = cursor.getString(0).toUpperCase(Locale.US);
         }
         cursor.close();
         return word;
