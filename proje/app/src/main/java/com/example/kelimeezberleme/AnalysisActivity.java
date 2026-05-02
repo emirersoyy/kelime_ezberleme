@@ -1,7 +1,6 @@
 package com.example.kelimeezberleme;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -18,7 +17,6 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -55,7 +53,7 @@ public class AnalysisActivity extends AppCompatActivity {
             return;
         }
 
-        Map<String, int[]> stats = new HashMap<>(); // [Toplam, Doğru]
+        Map<String, int[]> stats = new HashMap<>();
         int totalSolved = 0;
 
         for (Word w : words) {
@@ -76,20 +74,20 @@ public class AnalysisActivity extends AppCompatActivity {
     }
 
     private void addCategoryRow(String name, int total, int correct) {
-        View row = getLayoutInflater().inflate(android.R.layout.simple_list_item_1, null);
-        TextView text = row.findViewById(android.R.id.text1);
-        
         int percent = (int) (((double) correct / total) * 100);
+
+        TextView text = new TextView(this);
         text.setText(name + ": %" + percent + " Başarı (" + correct + "/" + total + ")");
-        text.setTextColor(Color.BLACK);
-        
-        // Basit bir ilerleme çubuğu ekleyelim altına
+        text.setTextColor(getResources().getColor(R.color.text_primary));
+        text.setTextSize(15);
+        text.setPadding(0, 12, 0, 8);
+
         ProgressBar pb = new ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal);
         pb.setMax(100);
         pb.setProgress(percent);
-        pb.setPadding(0, 0, 0, 32);
+        pb.setPadding(0, 0, 0, 18);
 
-        llCategoryStats.addView(row);
+        llCategoryStats.addView(text);
         llCategoryStats.addView(pb);
     }
 
@@ -114,7 +112,7 @@ public class AnalysisActivity extends AppCompatActivity {
             @Override
             public void onWrite(PageRange[] pages, ParcelFileDescriptor destination, CancellationSignal cancellationSignal, WriteResultCallback callback) {
                 PdfDocument pdfDocument = new PdfDocument();
-                PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(595, 842, 1).create(); // A4
+                PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(595, 842, 1).create();
                 PdfDocument.Page page = pdfDocument.startPage(pageInfo);
 
                 Canvas canvas = page.getCanvas();
@@ -122,16 +120,14 @@ public class AnalysisActivity extends AppCompatActivity {
                 paint.setColor(Color.BLACK);
                 paint.setTextSize(18);
 
-                // Ekrandaki raporu bitmap olarak çizmek yerine metinleri manuel çizelim (daha temiz çıkar)
                 canvas.drawText("KELİME EZBERLEME SİSTEMİ - ANALİZ RAPORU", 50, 50, paint);
                 paint.setTextSize(14);
                 canvas.drawText(tvOverallStats.getText().toString(), 50, 100, paint);
-                
+
                 int y = 150;
                 canvas.drawText("Konu Bazlı Başarılar:", 50, y, paint);
                 y += 30;
 
-                // LinearLayout içindeki her satırı dolaşalım
                 for (int i = 0; i < llCategoryStats.getChildCount(); i++) {
                     View child = llCategoryStats.getChildAt(i);
                     if (child instanceof TextView) {

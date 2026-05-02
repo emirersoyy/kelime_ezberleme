@@ -2,19 +2,20 @@ package com.example.kelimeezberleme;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
+import android.graphics.Paint;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
-import android.text.InputType;
 import com.google.android.material.textfield.TextInputLayout;
 
 public class LoginActivity extends AppCompatActivity {
     EditText etUsername, etPassword;
     Button btnLogin;
     TextView tvRegister, tvForgotPassword;
+    TextInputLayout tilUsername, tilPassword;
     DatabaseHelper db;
 
     @Override
@@ -23,47 +24,58 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         db = new DatabaseHelper(this);
+        tilUsername = findViewById(R.id.tilUsername);
+        tilPassword = findViewById(R.id.tilPassword);
         etUsername = findViewById(R.id.etUsername);
         etPassword = findViewById(R.id.etPassword);
         btnLogin = findViewById(R.id.btnLogin);
         tvRegister = findViewById(R.id.tvRegister);
         tvForgotPassword = findViewById(R.id.tvForgotPassword);
 
-        btnLogin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String user = etUsername.getText().toString();
-                String pass = etPassword.getText().toString();
+        tvRegister.setPaintFlags(tvRegister.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+        tvForgotPassword.setPaintFlags(tvForgotPassword.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
 
-                if (user.equals("") || pass.equals("")) {
-                    Toast.makeText(LoginActivity.this, "Tüm alanları doldurun", Toast.LENGTH_SHORT).show();
-                } else {
-                    if (db.checkUser(user, pass)) {
-                        Toast.makeText(LoginActivity.this, "Giriş Başarılı", Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                        startActivity(intent);
-                        finish();
-                    } else {
-                        Toast.makeText(LoginActivity.this, "Hatalı Giriş", Toast.LENGTH_SHORT).show();
-                    }
-                }
+        etPassword.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                attemptLogin();
+                return true;
             }
+            return false;
         });
 
-        tvRegister.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
-                startActivity(intent);
-            }
-        });
+        btnLogin.setOnClickListener(v -> attemptLogin());
+        tvRegister.setOnClickListener(v -> startActivity(new Intent(LoginActivity.this, RegisterActivity.class)));
+        tvForgotPassword.setOnClickListener(v -> startActivity(new Intent(LoginActivity.this, ForgotPasswordActivity.class)));
+    }
 
-        tvForgotPassword.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(LoginActivity.this, ForgotPasswordActivity.class);
-                startActivity(intent);
-            }
-        });
+    private void attemptLogin() {
+        tilUsername.setError(null);
+        tilPassword.setError(null);
+
+        String user = etUsername.getText().toString().trim();
+        String pass = etPassword.getText().toString();
+
+        if (user.isEmpty()) {
+            tilUsername.setError("Kullanıcı adını girin");
+            etUsername.requestFocus();
+            return;
+        }
+
+        if (pass.isEmpty()) {
+            tilPassword.setError("Şifrenizi girin");
+            etPassword.requestFocus();
+            return;
+        }
+
+        if (db.checkUser(user, pass)) {
+            AppSettings.setCurrentUser(this, user);
+            Toast.makeText(LoginActivity.this, "Giriş başarılı", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            startActivity(intent);
+            finish();
+        } else {
+            tilPassword.setError("Kullanıcı adı veya şifre hatalı");
+            etPassword.requestFocus();
+        }
     }
 }

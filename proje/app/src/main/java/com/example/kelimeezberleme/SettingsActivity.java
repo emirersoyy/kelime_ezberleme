@@ -1,52 +1,70 @@
 package com.example.kelimeezberleme;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
+import com.google.android.material.slider.Slider;
+import com.google.android.material.button.MaterialButtonToggleGroup;
 
 public class SettingsActivity extends AppCompatActivity {
-    EditText etLimit;
-    SharedPreferences sharedPref;
+    Slider sliderQuestionLimit;
+    TextView tvQuestionLimitValue;
+    MaterialButtonToggleGroup toggleTheme;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
-        sharedPref = getSharedPreferences("AppSettings", Context.MODE_PRIVATE);
-        etLimit = findViewById(R.id.etSettingsQuestionLimit);
+        sliderQuestionLimit = findViewById(R.id.sliderQuestionLimit);
+        tvQuestionLimitValue = findViewById(R.id.tvQuestionLimitValue);
+        toggleTheme = findViewById(R.id.toggleTheme);
 
-        // Mevcut ayarı yükle (Varsayılan 10)
-        int currentLimit = sharedPref.getInt("quiz_limit", 10);
-        etLimit.setText(String.valueOf(currentLimit));
+        int currentLimit = AppSettings.getQuizLimit(this);
+        sliderQuestionLimit.setValue(currentLimit);
+        updateQuestionLimitText(currentLimit);
+
+        sliderQuestionLimit.addOnChangeListener((slider, value, fromUser) -> updateQuestionLimitText(Math.round(value)));
 
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
 
-        findViewById(R.id.btnLightTheme).setOnClickListener(v -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO));
-        findViewById(R.id.btnDarkTheme).setOnClickListener(v -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES));
+        setupThemeSelection();
 
         findViewById(R.id.btnSaveSettings).setOnClickListener(v -> {
-            String val = etLimit.getText().toString();
-            if (!val.isEmpty()) {
-                int newLimit = Integer.parseInt(val);
-                SharedPreferences.Editor editor = sharedPref.edit();
-                editor.putInt("quiz_limit", newLimit);
-                editor.apply();
-                Toast.makeText(SettingsActivity.this, "Ayarlar kaydedildi", Toast.LENGTH_SHORT).show();
-            }
+            int newLimit = AppSettings.clampQuizLimit(Math.round(sliderQuestionLimit.getValue()));
+            AppSettings.setQuizLimit(this, newLimit);
+            updateQuestionLimitText(newLimit);
+            Toast.makeText(SettingsActivity.this, "Ayarlar kaydedildi", Toast.LENGTH_SHORT).show();
         });
 
         findViewById(R.id.btnLogout).setOnClickListener(v -> {
+            AppSettings.clearCurrentUser(this);
             Intent intent = new Intent(SettingsActivity.this, LoginActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
             finish();
+        });
+    }
+
+    private void updateQuestionLimitText(int limit) {
+        tvQuestionLimitValue.setText(String.valueOf(AppSettings.clampQuizLimit(limit)));
+    }
+
+    private void setupThemeSelection() {
+        String savedTheme = ThemeManager.getSavedTheme(this);
+        toggleTheme.check(ThemeManager.THEME_DARK.equals(savedTheme)
+                ? R.id.btnDarkTheme
+                : R.id.btnLightTheme);
+
+        toggleTheme.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
+            if (!isChecked) return;
+            if (checkedId == R.id.btnDarkTheme) {
+                ThemeManager.saveAndApplyTheme(SettingsActivity.this, ThemeManager.THEME_DARK);
+            } else if (checkedId == R.id.btnLightTheme) {
+                ThemeManager.saveAndApplyTheme(SettingsActivity.this, ThemeManager.THEME_LIGHT);
+            }
         });
     }
 }

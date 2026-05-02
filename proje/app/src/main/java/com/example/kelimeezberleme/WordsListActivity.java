@@ -1,6 +1,5 @@
 package com.example.kelimeezberleme;
 
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -57,18 +56,16 @@ public class WordsListActivity extends AppCompatActivity {
             Word word = words.get(position);
             holder.tvEng.setText(word.eng);
             holder.tvTur.setText(word.tur);
-            
-            // Eğer resim varsa göster
-            if (word.pic != null && !word.pic.isEmpty()) {
-                try {
-                    holder.ivWord.setImageURI(Uri.parse(word.pic));
-                    holder.ivWord.setVisibility(View.VISIBLE);
-                } catch (Exception e) {
-                    holder.ivWord.setVisibility(View.GONE);
-                }
+
+            List<String> samples = db.getSamplesForWord(word.id);
+            if (!samples.isEmpty()) {
+                holder.tvSample.setText(samples.get(0));
+                holder.tvSample.setVisibility(View.VISIBLE);
             } else {
-                holder.ivWord.setVisibility(View.GONE);
+                holder.tvSample.setVisibility(View.GONE);
             }
+
+            WordImageLoader.load(holder.ivWord, word.pic);
         }
 
         @Override
@@ -77,13 +74,14 @@ public class WordsListActivity extends AppCompatActivity {
         }
 
         class WordViewHolder extends RecyclerView.ViewHolder {
-            TextView tvEng, tvTur;
+            TextView tvEng, tvTur, tvSample;
             ImageView ivWord;
 
             WordViewHolder(View itemView) {
                 super(itemView);
                 tvEng = itemView.findViewById(R.id.tvEng);
                 tvTur = itemView.findViewById(R.id.tvTur);
+                tvSample = itemView.findViewById(R.id.tvSample);
                 ivWord = itemView.findViewById(R.id.ivWord);
             }
         }
