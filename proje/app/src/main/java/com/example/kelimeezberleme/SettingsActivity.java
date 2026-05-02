@@ -7,8 +7,8 @@ import android.os.Bundle;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
 import com.google.android.material.slider.Slider;
+import com.google.android.material.button.MaterialButtonToggleGroup;
 
 public class SettingsActivity extends AppCompatActivity {
     private static final int MIN_QUESTION_LIMIT = 5;
@@ -17,6 +17,7 @@ public class SettingsActivity extends AppCompatActivity {
 
     Slider sliderQuestionLimit;
     TextView tvQuestionLimitValue;
+    MaterialButtonToggleGroup toggleTheme;
     SharedPreferences sharedPref;
 
     @Override
@@ -27,6 +28,7 @@ public class SettingsActivity extends AppCompatActivity {
         sharedPref = getSharedPreferences("AppSettings", Context.MODE_PRIVATE);
         sliderQuestionLimit = findViewById(R.id.sliderQuestionLimit);
         tvQuestionLimitValue = findViewById(R.id.tvQuestionLimitValue);
+        toggleTheme = findViewById(R.id.toggleTheme);
 
         int currentLimit = clampQuestionLimit(sharedPref.getInt(getQuizLimitKey(), DEFAULT_QUESTION_LIMIT));
         sliderQuestionLimit.setValue(currentLimit);
@@ -36,8 +38,7 @@ public class SettingsActivity extends AppCompatActivity {
 
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
 
-        findViewById(R.id.btnLightTheme).setOnClickListener(v -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO));
-        findViewById(R.id.btnDarkTheme).setOnClickListener(v -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES));
+        setupThemeSelection();
 
         findViewById(R.id.btnSaveSettings).setOnClickListener(v -> {
             int newLimit = clampQuestionLimit(Math.round(sliderQuestionLimit.getValue()));
@@ -71,5 +72,21 @@ public class SettingsActivity extends AppCompatActivity {
             return "quiz_limit";
         }
         return "quiz_limit_" + currentUser.trim().toLowerCase();
+    }
+
+    private void setupThemeSelection() {
+        String savedTheme = ThemeManager.getSavedTheme(this);
+        toggleTheme.check(ThemeManager.THEME_DARK.equals(savedTheme)
+                ? R.id.btnDarkTheme
+                : R.id.btnLightTheme);
+
+        toggleTheme.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
+            if (!isChecked) return;
+            if (checkedId == R.id.btnDarkTheme) {
+                ThemeManager.saveAndApplyTheme(SettingsActivity.this, ThemeManager.THEME_DARK);
+            } else if (checkedId == R.id.btnLightTheme) {
+                ThemeManager.saveAndApplyTheme(SettingsActivity.this, ThemeManager.THEME_LIGHT);
+            }
+        });
     }
 }
