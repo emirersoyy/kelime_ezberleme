@@ -42,7 +42,7 @@ public class WordleActivity extends AppCompatActivity {
         llKeyboard = findViewById(R.id.llKeyboard);
         btnSubmit = findViewById(R.id.btnSubmitGuess);
 
-        if (!checkAndSetupDailyWord()) return;
+        if (!setupDailyGame()) return;
 
         wordLength = targetWord.length();
         cells = new TextView[5][wordLength];
@@ -55,20 +55,16 @@ public class WordleActivity extends AppCompatActivity {
 
         createGrid();
         createVirtualKeyboard();
+        
+        // Eğer oyun zaten bitmişse, eski tahminleri yükle ve kilitle
+        checkIfAlreadyPlayed();
     }
 
-    private boolean checkAndSetupDailyWord() {
+    private boolean setupDailyGame() {
         SharedPreferences pref = getSharedPreferences("WordlePrefs", MODE_PRIVATE);
         String today = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
         String lastDate = pref.getString("last_date", "");
-        boolean isPlayed = pref.getBoolean("is_played_" + today, false);
-
-        if (today.equals(lastDate) && isPlayed) {
-            Toast.makeText(this, "Bugün zaten oynadın!", Toast.LENGTH_LONG).show();
-            finish();
-            return false;
-        }
-
+        
         if (today.equals(lastDate)) {
             targetWord = pref.getString("daily_word", null);
         } else {
@@ -77,7 +73,8 @@ public class WordleActivity extends AppCompatActivity {
                 pref.edit()
                     .putString("last_date", today)
                     .putString("daily_word", targetWord)
-                    .putBoolean("is_played_" + today, false)
+                    .putString("guesses", "") // Yeni gün tahminleri sıfırla
+                    .putBoolean("is_finished", false)
                     .apply();
             }
         }
@@ -90,15 +87,56 @@ public class WordleActivity extends AppCompatActivity {
         return true;
     }
 
+    private void checkIfAlreadyPlayed() {
+        SharedPreferences pref = getSharedPreferences("WordlePrefs", MODE_PRIVATE);
+        boolean isFinished = pref.getBoolean("is_finished", false);
+        String savedGuesses = pref.getString("guesses", "");
+
+        if (!savedGuesses.isEmpty()) {
+            String[] guesses = savedGuesses.split(",");
+            for (String g : guesses) {
+                if (!g.isEmpty()) {
+                    fillSavedGuess(g);
+                }
+            }
+        }
+
+        if (isFinished) {
+            isGameOver = true;
+            btnSubmit.setEnabled(false);
+            llKeyboard.setAlpha(0.5f); // Klavyeyi soluklaştır
+            Toast.makeText(this, "Bugünkü bulmacayı tamamladın!", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void fillSavedGuess(String guess) {
+        for (int i = 0; i < wordLength; i++) {
+            char gChar = guess.charAt(i);
+            cells[currentAttempt][i].setText(String.valueOf(gChar));
+            applyColor(currentAttempt, i, gChar);
+        }
+        currentAttempt++;
+    }
+
+    private void applyColor(int row, int col, char c) {
+        if (c == targetWord.charAt(col)) {
+            cards[row][col].setCardBackgroundColor(Color.parseColor("#6AAA64"));
+        } else if (targetWord.contains(String.valueOf(c))) {
+            cards[row][col].setCardBackgroundColor(Color.parseColor("#C9B458"));
+        } else {
+            cards[row][col].setCardBackgroundColor(Color.parseColor("#787C7E"));
+        }
+        cells[row][col].setTextColor(Color.WHITE);
+    }
+
     private void createGrid() {
         glWordle.removeAllViews();
-        // Ekran genişliğine göre hücre boyutunu hesapla
         int displayWidth = getResources().getDisplayMetrics().widthPixels;
-        int paddingTotal = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 48, getResources().getDisplayMetrics());
-        int cellSize = (displayWidth - paddingTotal) / Math.max(wordLength, 5);
-        if (cellSize > 120) cellSize = 120; // Çok büyük olmasın
+        int screenPadding = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 48, getResources().getDisplayMetrics());
+        int cellSize = (displayWidth - screenPadding) / Math.max(wordLength, 5);
+        if (cellSize > 120) cellSize = 120;
         
-        int margin = 6;
+        int margin = 4;
 
         for (int r = 0; r < 5; r++) {
             for (int c = 0; c < wordLength; c++) {
@@ -116,7 +154,7 @@ public class WordleActivity extends AppCompatActivity {
                 TextView tv = new TextView(this);
                 tv.setLayoutParams(new MaterialCardView.LayoutParams(cellSize, cellSize));
                 tv.setGravity(Gravity.CENTER);
-                tv.setTextSize(22);
+                tv.setTextSize(20);
                 tv.setAllCaps(true);
                 tv.setTextColor(Color.BLACK);
                 tv.setText("");
@@ -133,32 +171,27 @@ public class WordleActivity extends AppCompatActivity {
         String[] rows = {"QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM"};
         llKeyboard.removeAllViews();
 
-        for (int i = 0; i < rows.length; i++) {
-            String row = rows[i];
-            LinearLayout rowLayout = new LinearLayout(this);
-            rowLayout.setOrientation(LinearLayout.HORIZONTAL);
-            rowLayout.setGravity(Gravity.CENTER);
-            
-            // Üçüncü satıra ENTER butonunu ekle
-            if (i == 2) {
-                Button btnEnter = createKey("ENTER", 140);
-                btnEnter.setOnClickListener(v -> submitGuess());
-                rowLayout.addView(btnEnter);
-            }
+        int displayWidth = getResources().getDisplayMetrics().widthPixels;
+        int keyWidth = (displayWidth - 40) / 10;
 
-            for (char c : row.toCharArray()) {
-                Button btn = createKey(String.valueOf(c), 85);
+        for (int i = 0; i < rows.length; i++) {
+            LinearLayout rowLayout = new LinearLayout(this);
+            rowLayout.setGravity(Gravity.CENTER);
+            if (i == 2) {
+                Button btnEnt = createKey("ENT", keyWidth + (keyWidth/2));
+                btnEnt.setOnClickListener(v -> submitGuess());
+                rowLayout.addView(btnEnt);
+            }
+            for (char c : rows[i].toCharArray()) {
+                Button btn = createKey(String.valueOf(c), keyWidth);
                 btn.setOnClickListener(v -> addLetter(c));
                 rowLayout.addView(btn);
             }
-
-            // Üçüncü satıra SİL butonunu ekle
             if (i == 2) {
-                Button btnDelete = createKey("SİL", 110);
-                btnDelete.setOnClickListener(v -> removeLetter());
-                rowLayout.addView(btnDelete);
+                Button btnDel = createKey("DEL", keyWidth + (keyWidth/2));
+                btnDel.setOnClickListener(v -> removeLetter());
+                rowLayout.addView(btnDel);
             }
-
             llKeyboard.addView(rowLayout);
         }
     }
@@ -166,15 +199,9 @@ public class WordleActivity extends AppCompatActivity {
     private Button createKey(String text, int width) {
         Button btn = new Button(this, null, android.R.attr.buttonStyleSmall);
         btn.setText(text);
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, width, getResources().getDisplayMetrics()),
-                (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 54, getResources().getDisplayMetrics())
-        );
-        params.setMargins(2, 2, 2, 2);
-        btn.setLayoutParams(params);
-        btn.setPadding(0, 0, 0, 0);
-        btn.setAllCaps(false);
-        btn.setTextSize(12);
+        btn.setLayoutParams(new LinearLayout.LayoutParams(width, 130));
+        btn.setPadding(0,0,0,0);
+        btn.setTextSize(11);
         return btn;
     }
 
@@ -182,57 +209,44 @@ public class WordleActivity extends AppCompatActivity {
         if (isGameOver || currentGuess.length() >= wordLength) return;
         currentGuess.append(c);
         cells[currentAttempt][currentGuess.length() - 1].setText(String.valueOf(c));
-        cards[currentAttempt][currentGuess.length() - 1].setStrokeColor(Color.parseColor("#6366F1"));
     }
 
     private void removeLetter() {
         if (isGameOver || currentGuess.length() == 0) return;
-        cards[currentAttempt][currentGuess.length() - 1].setStrokeColor(Color.LTGRAY);
         cells[currentAttempt][currentGuess.length() - 1].setText("");
         currentGuess.deleteCharAt(currentGuess.length() - 1);
     }
 
     private void submitGuess() {
         if (isGameOver) return;
-        if (currentGuess.length() != wordLength) {
-            Toast.makeText(this, "Kelimeyi tamamlayın", Toast.LENGTH_SHORT).show();
-            return;
-        }
+        if (currentGuess.length() != wordLength) return;
         processGuess(currentGuess.toString());
     }
 
     private void processGuess(String guess) {
-        int correctChars = 0;
+        saveGuess(guess);
         for (int i = 0; i < wordLength; i++) {
-            char gChar = guess.charAt(i);
-            if (gChar == targetWord.charAt(i)) {
-                cards[currentAttempt][i].setCardBackgroundColor(Color.parseColor("#6AAA64"));
-                correctChars++;
-            } else if (targetWord.contains(String.valueOf(gChar))) {
-                cards[currentAttempt][i].setCardBackgroundColor(Color.parseColor("#C9B458"));
-            } else {
-                cards[currentAttempt][i].setCardBackgroundColor(Color.parseColor("#787C7E"));
-            }
-            cells[currentAttempt][i].setTextColor(Color.WHITE);
+            applyColor(currentAttempt, i, guess.charAt(i));
         }
 
-        if (correctChars == wordLength || currentAttempt == 4) {
+        if (guess.equals(targetWord) || currentAttempt == 4) {
             isGameOver = true;
-            markTodayAsPlayed();
-            if (correctChars == wordLength) {
-                Toast.makeText(this, "TEBRİKLER! 🏆", Toast.LENGTH_LONG).show();
-            } else {
-                Toast.makeText(this, "Bitti! Kelime: " + targetWord, Toast.LENGTH_LONG).show();
-            }
+            saveGameOver();
+            Toast.makeText(this, guess.equals(targetWord) ? "TEBRİKLER! 🏆" : "Bitti! Kelime: " + targetWord, Toast.LENGTH_LONG).show();
+            btnSubmit.setEnabled(false);
         } else {
             currentAttempt++;
             currentGuess.setLength(0);
         }
     }
 
-    private void markTodayAsPlayed() {
+    private void saveGuess(String guess) {
         SharedPreferences pref = getSharedPreferences("WordlePrefs", MODE_PRIVATE);
-        String today = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
-        pref.edit().putBoolean("is_played_" + today, true).apply();
+        String saved = pref.getString("guesses", "");
+        pref.edit().putString("guesses", saved + (saved.isEmpty() ? "" : ",") + guess).apply();
+    }
+
+    private void saveGameOver() {
+        getSharedPreferences("WordlePrefs", MODE_PRIVATE).edit().putBoolean("is_finished", true).apply();
     }
 }
