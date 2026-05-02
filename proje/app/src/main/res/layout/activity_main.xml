@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:orientation="vertical"
-        android:paddingHorizontal="24dp"
+        android:paddingHorizontal="@dimen/screen_padding"
         android:paddingVertical="32dp">
 
         <TextView
@@ -47,14 +47,11 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnStartQuiz"
+            style="@style/App.Button.Primary"
             android:layout_width="match_parent"
-            android:layout_height="64dp"
+            android:layout_height="@dimen/button_height_large"
             android:text="Sınava Başla"
-            android:textAllCaps="false"
             android:textSize="18sp"
-            android:textStyle="bold"
-            app:backgroundTint="@color/primary"
-            app:cornerRadius="18dp"
             app:icon="@android:drawable/ic_media_play"
             app:iconGravity="textStart"
             app:iconPadding="12dp" />
@@ -67,62 +64,48 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnAddWordMenu"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                style="@style/App.Button.Outlined"
                 android:layout_width="match_parent"
                 android:layout_height="58dp"
                 android:layout_marginBottom="10dp"
                 android:text="Kelime Ekle"
-                android:textAllCaps="false"
-                android:textColor="@color/text_primary"
                 android:textSize="16sp"
-                app:cornerRadius="16dp"
                 app:icon="@android:drawable/ic_input_add"
                 app:iconGravity="textStart"
-                app:iconTint="@color/primary"
-                app:strokeColor="@color/divider" />
+                app:iconTint="@color/primary" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnWordsListMenu"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                style="@style/App.Button.Outlined"
                 android:layout_width="match_parent"
                 android:layout_height="58dp"
                 android:layout_marginBottom="10dp"
                 android:text="Kelimelerim"
-                android:textAllCaps="false"
-                android:textColor="@color/text_primary"
                 android:textSize="16sp"
-                app:cornerRadius="16dp"
                 app:icon="@android:drawable/ic_menu_sort_by_size"
                 app:iconGravity="textStart"
-                app:iconTint="@color/primary"
-                app:strokeColor="@color/divider" />
+                app:iconTint="@color/primary" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnAnalysisMenu"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                style="@style/App.Button.Outlined"
                 android:layout_width="match_parent"
                 android:layout_height="58dp"
                 android:layout_marginBottom="10dp"
                 android:text="Analiz Raporu"
-                android:textAllCaps="false"
-                android:textColor="@color/text_primary"
                 android:textSize="16sp"
-                app:cornerRadius="16dp"
                 app:icon="@android:drawable/ic_menu_report_image"
                 app:iconGravity="textStart"
-                app:iconTint="@color/accent"
-                app:strokeColor="@color/divider" />
+                app:iconTint="@color/accent" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSettingsMenu"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
+                style="@style/App.Button.Text"
                 android:layout_width="match_parent"
                 android:layout_height="54dp"
                 android:text="Ayarlar"
-                android:textAllCaps="false"
                 android:textColor="@color/text_secondary"
                 android:textSize="16sp"
-                app:cornerRadius="16dp"
                 app:icon="@android:drawable/ic_menu_preferences"
                 app:iconGravity="textStart"
                 app:iconTint="@color/text_secondary" />

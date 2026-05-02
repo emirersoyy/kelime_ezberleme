@@ -1,8 +1,6 @@
 package com.example.kelimeezberleme;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -11,26 +9,20 @@ import com.google.android.material.slider.Slider;
 import com.google.android.material.button.MaterialButtonToggleGroup;
 
 public class SettingsActivity extends AppCompatActivity {
-    private static final int MIN_QUESTION_LIMIT = 5;
-    private static final int MAX_QUESTION_LIMIT = 15;
-    private static final int DEFAULT_QUESTION_LIMIT = 10;
-
     Slider sliderQuestionLimit;
     TextView tvQuestionLimitValue;
     MaterialButtonToggleGroup toggleTheme;
-    SharedPreferences sharedPref;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
-        sharedPref = getSharedPreferences("AppSettings", Context.MODE_PRIVATE);
         sliderQuestionLimit = findViewById(R.id.sliderQuestionLimit);
         tvQuestionLimitValue = findViewById(R.id.tvQuestionLimitValue);
         toggleTheme = findViewById(R.id.toggleTheme);
 
-        int currentLimit = clampQuestionLimit(sharedPref.getInt(getQuizLimitKey(), DEFAULT_QUESTION_LIMIT));
+        int currentLimit = AppSettings.getQuizLimit(this);
         sliderQuestionLimit.setValue(currentLimit);
         updateQuestionLimitText(currentLimit);
 
@@ -41,16 +33,14 @@ public class SettingsActivity extends AppCompatActivity {
         setupThemeSelection();
 
         findViewById(R.id.btnSaveSettings).setOnClickListener(v -> {
-            int newLimit = clampQuestionLimit(Math.round(sliderQuestionLimit.getValue()));
-            SharedPreferences.Editor editor = sharedPref.edit();
-            editor.putInt(getQuizLimitKey(), newLimit);
-            editor.apply();
+            int newLimit = AppSettings.clampQuizLimit(Math.round(sliderQuestionLimit.getValue()));
+            AppSettings.setQuizLimit(this, newLimit);
             updateQuestionLimitText(newLimit);
             Toast.makeText(SettingsActivity.this, "Ayarlar kaydedildi", Toast.LENGTH_SHORT).show();
         });
 
         findViewById(R.id.btnLogout).setOnClickListener(v -> {
-            sharedPref.edit().remove("current_user").apply();
+            AppSettings.clearCurrentUser(this);
             Intent intent = new Intent(SettingsActivity.this, LoginActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
@@ -59,19 +49,7 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     private void updateQuestionLimitText(int limit) {
-        tvQuestionLimitValue.setText(String.valueOf(clampQuestionLimit(limit)));
-    }
-
-    private int clampQuestionLimit(int limit) {
-        return Math.max(MIN_QUESTION_LIMIT, Math.min(MAX_QUESTION_LIMIT, limit));
-    }
-
-    private String getQuizLimitKey() {
-        String currentUser = sharedPref.getString("current_user", "");
-        if (currentUser == null || currentUser.trim().isEmpty()) {
-            return "quiz_limit";
-        }
-        return "quiz_limit_" + currentUser.trim().toLowerCase();
+        tvQuestionLimitValue.setText(String.valueOf(AppSettings.clampQuizLimit(limit)));
     }
 
     private void setupThemeSelection() {

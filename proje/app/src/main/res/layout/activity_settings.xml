@@ -10,8 +10,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingHorizontal="24dp"
-        android:paddingVertical="28dp">
+        android:paddingHorizontal="@dimen/screen_padding"
+        android:paddingVertical="@dimen/screen_padding_top">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -21,10 +21,7 @@
 
             <ImageButton
                 android:id="@+id/btnBack"
-                android:layout_width="44dp"
-                android:layout_height="44dp"
-                android:background="@drawable/modern_icon_button_bg"
-                android:padding="10dp"
+                style="@style/App.IconButton"
                 android:src="@drawable/ic_arrow_back_24"
                 app:tint="@color/text_secondary" />
 
@@ -36,32 +33,25 @@
                 android:orientation="vertical">
 
                 <TextView
+                    style="@style/App.TitleText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Ayarlar"
-                    android:textColor="@color/text_primary"
-                    android:textSize="26sp"
-                    android:textStyle="bold" />
+                    android:text="Ayarlar" />
 
                 <TextView
+                    style="@style/App.SubtitleText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
-                    android:text="Görünüm ve sınav tercihlerini düzenle"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="13sp" />
+                    android:text="Görünüm ve sınav tercihlerini düzenle" />
             </LinearLayout>
         </LinearLayout>
 
         <com.google.android.material.card.MaterialCardView
+            style="@style/App.Card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="22dp"
-            app:cardBackgroundColor="@color/surface"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="5dp"
-            app:strokeColor="@color/divider"
-            app:strokeWidth="1dp">
+            android:layout_marginTop="22dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -105,14 +95,10 @@
         </com.google.android.material.card.MaterialCardView>
 
         <com.google.android.material.card.MaterialCardView
+            style="@style/App.Card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            app:cardBackgroundColor="@color/surface"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="5dp"
-            app:strokeColor="@color/divider"
-            app:strokeWidth="1dp">
+            android:layout_marginTop="16dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -167,26 +153,22 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnSaveSettings"
+                    style="@style/App.Button.Primary"
                     android:layout_width="match_parent"
                     android:layout_height="52dp"
                     android:layout_marginTop="8dp"
-                    android:text="Kaydet"
-                    android:textAllCaps="false"
-                    android:textStyle="bold"
-                    app:backgroundTint="@color/primary"
-                    app:cornerRadius="16dp" />
+                    android:text="Kaydet" />
 
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnLogout"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
+            style="@style/App.Button.Text"
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:layout_marginTop="22dp"
             android:text="Hesaptan Çıkış Yap"
-            android:textAllCaps="false"
             android:textColor="@color/accent"
             android:textStyle="bold"
             app:icon="@android:drawable/ic_lock_power_off"

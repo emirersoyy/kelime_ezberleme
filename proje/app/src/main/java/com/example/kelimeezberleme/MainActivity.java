@@ -1,10 +1,7 @@
 package com.example.kelimeezberleme;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -20,23 +17,7 @@ public class MainActivity extends AppCompatActivity {
         TextView tvWelcome = findViewById(R.id.tvWelcome);
         tvWelcome.setText("Hoş Geldiniz!");
 
-        findViewById(R.id.btnStartQuiz).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                SharedPreferences sharedPref = getSharedPreferences("AppSettings", Context.MODE_PRIVATE);
-                String currentUser = sharedPref.getString("current_user", "");
-                String quizLimitKey = "quiz_limit";
-                if (currentUser != null && !currentUser.trim().isEmpty()) {
-                    quizLimitKey = "quiz_limit_" + currentUser.trim().toLowerCase();
-                }
-                int limit = sharedPref.getInt(quizLimitKey, 10);
-                limit = Math.max(5, Math.min(15, limit));
-
-                Intent intent = new Intent(MainActivity.this, QuizActivity.class);
-                intent.putExtra("limit", limit);
-                startActivity(intent);
-            }
-        });
+        findViewById(R.id.btnStartQuiz).setOnClickListener(v -> startQuiz());
 
         findViewById(R.id.btnAddWordMenu).setOnClickListener(v ->
                 startActivity(new Intent(MainActivity.this, AddWordActivity.class)));
@@ -49,5 +30,11 @@ public class MainActivity extends AppCompatActivity {
 
         findViewById(R.id.btnSettingsMenu).setOnClickListener(v ->
                 startActivity(new Intent(MainActivity.this, SettingsActivity.class)));
+    }
+
+    private void startQuiz() {
+        Intent intent = new Intent(MainActivity.this, QuizActivity.class);
+        intent.putExtra("limit", AppSettings.getQuizLimit(this));
+        startActivity(intent);
     }
 }

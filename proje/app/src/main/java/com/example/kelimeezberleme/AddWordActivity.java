@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -35,43 +34,48 @@ public class AddWordActivity extends AppCompatActivity {
         tvImagePath = findViewById(R.id.tvImagePath);
 
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
+        btnSelectImage.setOnClickListener(v -> selectImage());
+        btnSave.setOnClickListener(v -> saveWord());
+    }
 
-        btnSelectImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                startActivityForResult(intent, PICK_IMAGE_REQUEST);
+    private void selectImage() {
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(intent, PICK_IMAGE_REQUEST);
+    }
+
+    private void saveWord() {
+        String eng = etEngWord.getText().toString().trim();
+        String tur = etTurWord.getText().toString().trim();
+        String category = etCategory.getText().toString().trim();
+        String samplesText = etSamples.getText().toString().trim();
+
+        if (eng.isEmpty() || tur.isEmpty()) {
+            Toast.makeText(this, "Lütfen İngilizce ve Türkçe alanları doldurun", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        long wordId = db.addWord(eng, tur, selectedImagePath, category);
+        if (wordId == -1) {
+            Toast.makeText(this, "Hata oluştu", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        saveSamples(wordId, samplesText);
+        Toast.makeText(this, "Kelime başarıyla eklendi", Toast.LENGTH_SHORT).show();
+        clearFields();
+    }
+
+    private void saveSamples(long wordId, String samplesText) {
+        if (samplesText.isEmpty()) {
+            return;
+        }
+        String[] samplesArray = samplesText.split(",");
+        for (String sample : samplesArray) {
+            String cleanedSample = sample.trim();
+            if (!cleanedSample.isEmpty()) {
+                db.addSample(wordId, cleanedSample);
             }
-        });
-
-        btnSave.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String eng = etEngWord.getText().toString().trim();
-                String tur = etTurWord.getText().toString().trim();
-                String category = etCategory.getText().toString().trim();
-                String samplesText = etSamples.getText().toString().trim();
-
-                if (eng.isEmpty() || tur.isEmpty()) {
-                    Toast.makeText(AddWordActivity.this, "Lütfen İngilizce ve Türkçe alanları doldurun", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                long wordId = db.addWord(eng, tur, selectedImagePath, category);
-                if (wordId != -1) {
-                    if (!samplesText.isEmpty()) {
-                        String[] samplesArray = samplesText.split(",");
-                        for (String s : samplesArray) {
-                            db.addSample(wordId, s.trim());
-                        }
-                    }
-                    Toast.makeText(AddWordActivity.this, "Kelime başarıyla eklendi", Toast.LENGTH_SHORT).show();
-                    clearFields();
-                } else {
-                    Toast.makeText(AddWordActivity.this, "Hata oluştu", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
+        }
     }
 
     @Override

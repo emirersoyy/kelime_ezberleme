@@ -5,8 +5,8 @@
     android:layout_height="match_parent"
     android:background="@color/background"
     android:orientation="vertical"
-    android:paddingHorizontal="24dp"
-    android:paddingVertical="28dp">
+    android:paddingHorizontal="@dimen/screen_padding"
+    android:paddingVertical="@dimen/screen_padding_top">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -16,10 +16,7 @@
 
         <ImageButton
             android:id="@+id/btnBack"
-            android:layout_width="44dp"
-            android:layout_height="44dp"
-            android:background="@drawable/modern_icon_button_bg"
-            android:padding="10dp"
+            style="@style/App.IconButton"
             android:src="@drawable/ic_arrow_back_24"
             app:tint="@color/text_secondary" />
 
@@ -31,43 +28,33 @@
             android:orientation="vertical">
 
             <TextView
+                style="@style/App.TitleText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Analiz Raporu"
-                android:textColor="@color/text_primary"
-                android:textSize="26sp"
-                android:textStyle="bold" />
+                android:text="Analiz Raporu" />
 
             <TextView
+                style="@style/App.SubtitleText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
-                android:text="Konu bazlı ilerlemeni takip et"
-                android:textColor="@color/text_secondary"
-                android:textSize="13sp" />
+                android:text="Konu bazlı ilerlemeni takip et" />
         </LinearLayout>
 
         <ImageButton
             android:id="@+id/btnPrint"
-            android:layout_width="44dp"
-            android:layout_height="44dp"
-            android:background="@drawable/modern_icon_button_bg"
-            android:padding="10dp"
+            style="@style/App.IconButton"
             android:src="@android:drawable/ic_menu_save"
             app:tint="@color/primary" />
     </LinearLayout>
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/reportContent"
+        style="@style/App.Card"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="22dp"
-        android:layout_weight="1"
-        app:cardBackgroundColor="@color/surface"
-        app:cardCornerRadius="20dp"
-        app:cardElevation="5dp"
-        app:strokeColor="@color/divider"
-        app:strokeWidth="1dp">
+        android:layout_weight="1">
 
         <LinearLayout
             android:id="@+id/llReportContainer"

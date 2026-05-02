@@ -10,8 +10,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingHorizontal="24dp"
-        android:paddingVertical="28dp">
+        android:paddingHorizontal="@dimen/screen_padding"
+        android:paddingVertical="@dimen/screen_padding_top">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -21,10 +21,7 @@
 
             <ImageButton
                 android:id="@+id/btnBack"
-                android:layout_width="44dp"
-                android:layout_height="44dp"
-                android:background="@drawable/modern_icon_button_bg"
-                android:padding="10dp"
+                style="@style/App.IconButton"
                 android:src="@drawable/ic_arrow_back_24"
                 app:tint="@color/text_secondary" />
 
@@ -36,32 +33,25 @@
                 android:orientation="vertical">
 
                 <TextView
+                    style="@style/App.TitleText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Kelime Ekle"
-                    android:textColor="@color/text_primary"
-                    android:textSize="26sp"
-                    android:textStyle="bold" />
+                    android:text="Kelime Ekle" />
 
                 <TextView
+                    style="@style/App.SubtitleText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
-                    android:text="Yeni kelimeyi, anlamını ve örneklerini kaydet"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="13sp" />
+                    android:text="Yeni kelimeyi, anlamını ve örneklerini kaydet" />
             </LinearLayout>
         </LinearLayout>
 
         <com.google.android.material.card.MaterialCardView
+            style="@style/App.Card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="22dp"
-            app:cardBackgroundColor="@color/surface"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="5dp"
-            app:strokeColor="@color/divider"
-            app:strokeWidth="1dp">
+            android:layout_marginTop="22dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -70,15 +60,10 @@
                 android:padding="24dp">
 
                 <com.google.android.material.textfield.TextInputLayout
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    style="@style/App.TextInput"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="İngilizce Kelime"
-                    app:boxBackgroundColor="@color/surface"
-                    app:boxCornerRadiusBottomEnd="14dp"
-                    app:boxCornerRadiusBottomStart="14dp"
-                    app:boxCornerRadiusTopEnd="14dp"
-                    app:boxCornerRadiusTopStart="14dp">
+                    android:hint="İngilizce Kelime">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etEngWord"
@@ -88,16 +73,11 @@
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    style="@style/App.TextInput"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="14dp"
-                    android:hint="Türkçe Karşılığı"
-                    app:boxBackgroundColor="@color/surface"
-                    app:boxCornerRadiusBottomEnd="14dp"
-                    app:boxCornerRadiusBottomStart="14dp"
-                    app:boxCornerRadiusTopEnd="14dp"
-                    app:boxCornerRadiusTopStart="14dp">
+                    android:hint="Türkçe Karşılığı">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etTurWord"
@@ -107,16 +87,11 @@
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    style="@style/App.TextInput"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="14dp"
-                    android:hint="Kategori / Konu"
-                    app:boxBackgroundColor="@color/surface"
-                    app:boxCornerRadiusBottomEnd="14dp"
-                    app:boxCornerRadiusBottomStart="14dp"
-                    app:boxCornerRadiusTopEnd="14dp"
-                    app:boxCornerRadiusTopStart="14dp">
+                    android:hint="Kategori / Konu">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etCategory"
@@ -126,16 +101,11 @@
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    style="@style/App.TextInput"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="14dp"
-                    android:hint="Örnek Cümleler (virgülle ayırın)"
-                    app:boxBackgroundColor="@color/surface"
-                    app:boxCornerRadiusBottomEnd="14dp"
-                    app:boxCornerRadiusBottomStart="14dp"
-                    app:boxCornerRadiusTopEnd="14dp"
-                    app:boxCornerRadiusTopStart="14dp">
+                    android:hint="Örnek Cümleler (virgülle ayırın)">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etSamples"
@@ -156,7 +126,7 @@
 
                     <Button
                         android:id="@+id/btnSelectImage"
-                        style="@style/Widget.MaterialComponents.Button.TextButton"
+                        style="@style/App.Button.Text"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Resim Seç"
@@ -177,15 +147,12 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnSaveWord"
+                    style="@style/App.Button.Primary"
                     android:layout_width="match_parent"
-                    android:layout_height="56dp"
+                    android:layout_height="@dimen/button_height"
                     android:layout_marginTop="22dp"
                     android:text="Kelimeleri Kaydet"
-                    android:textAllCaps="false"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    app:backgroundTint="@color/primary"
-                    app:cornerRadius="16dp" />
+                    android:textSize="16sp" />
 
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
