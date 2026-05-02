@@ -99,6 +99,18 @@
                 app:iconTint="@color/accent" />
 
             <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnWordleMenu"
+                style="@style/App.Button.Outlined"
+                android:layout_width="match_parent"
+                android:layout_height="58dp"
+                android:layout_marginBottom="10dp"
+                android:text="Bulmaca (Wordle)"
+                android:textSize="16sp"
+                app:icon="@android:drawable/ic_menu_help"
+                app:iconGravity="textStart"
+                app:iconTint="@color/primary" />
+
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSettingsMenu"
                 style="@style/App.Button.Text"
                 android:layout_width="match_parent"

@@ -28,6 +28,9 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.btnAnalysisMenu).setOnClickListener(v ->
                 startActivity(new Intent(MainActivity.this, AnalysisActivity.class)));
 
+        findViewById(R.id.btnWordleMenu).setOnClickListener(v ->
+                startActivity(new Intent(MainActivity.this, WordleActivity.class)));
+
         findViewById(R.id.btnSettingsMenu).setOnClickListener(v ->
                 startActivity(new Intent(MainActivity.this, SettingsActivity.class)));
     }

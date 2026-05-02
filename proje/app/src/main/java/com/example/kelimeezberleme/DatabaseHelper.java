@@ -365,7 +365,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_WORDS, null);
         if (cursor != null && cursor.moveToFirst()) {
             do {
-                words.add(new Word(cursor.getInt(0), cursor.getString(1), cursor.getString(2), cursor.getString(3),
+                words.add(new Word(cursor.getInt(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), 
                         cursor.getInt(4), cursor.getLong(5), cursor.getString(6), cursor.getInt(7), cursor.getInt(8)));
             } while (cursor.moveToNext());
             cursor.close();
@@ -373,6 +373,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return words;
     }
 
+    public String getRandomFiveLetterWord() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT " + COL_ENG_WORD + " FROM " + TABLE_WORDS + " WHERE length(" + COL_ENG_WORD + ") = 5 ORDER BY RANDOM() LIMIT 1", null);
+        String word = null;
+        if (cursor.moveToFirst()) {
+            word = cursor.getString(0).toUpperCase();
+        }
+        cursor.close();
+        return word;
+    }
     public void seedDatabase() {
         SQLiteDatabase dbRead = this.getReadableDatabase();
         Cursor cursor = dbRead.rawQuery("SELECT COUNT(*) FROM " + TABLE_WORDS, null);

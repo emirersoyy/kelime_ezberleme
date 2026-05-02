@@ -32,6 +32,7 @@
         <activity android:name=".QuizActivity" />
         <activity android:name=".QuizResultActivity" />
         <activity android:name=".AnalysisActivity" />
+        <activity android:name=".WordleActivity" />
         <activity android:name=".MainActivity" />
         
     </application>
