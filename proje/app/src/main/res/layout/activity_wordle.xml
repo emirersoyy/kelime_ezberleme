@@ -38,6 +38,15 @@
                 android:textStyle="bold" />
         </LinearLayout>
 
+        <!-- Bu gizli EditText klavyeden girişi yakalayacak -->
+        <EditText
+            android:id="@+id/etHiddenInput"
+            android:layout_width="1dp"
+            android:layout_height="1dp"
+            android:alpha="0"
+            android:inputType="textCapCharacters"
+            android:maxLength="10" />
+
         <GridLayout
             android:id="@+id/glWordle"
             android:layout_width="wrap_content"
@@ -48,37 +57,20 @@
             android:alignmentMode="alignMargins"
             android:useDefaultMargins="true" />
 
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="240dp"
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="48dp"
-            android:hint="5 Harfli Kelime"
-            app:boxCornerRadiusBottomEnd="12dp"
-            app:boxCornerRadiusBottomStart="12dp"
-            app:boxCornerRadiusTopEnd="12dp"
-            app:boxCornerRadiusTopStart="12dp"
-            app:counterEnabled="true"
-            app:counterMaxLength="5">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etGuess"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:inputType="textCapCharacters"
-                android:maxLength="5"
-                android:textAllCaps="true"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-        </com.google.android.material.textfield.TextInputLayout>
+            android:layout_marginTop="32dp"
+            android:text="Klavyeyi açmak için ekrana dokun."
+            android:textColor="@color/text_secondary"
+            android:textSize="14sp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnSubmitGuess"
             android:layout_width="240dp"
             android:layout_height="64dp"
-            android:layout_marginTop="16dp"
-            android:text="Tahmin Et"
+            android:layout_marginTop="24dp"
+            android:text="Tahmin Et (Enter)"
             android:textAllCaps="false"
             android:textSize="18sp"
             app:cornerRadius="16dp" />

@@ -1,9 +1,14 @@
 package com.example.kelimeezberleme;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridLayout;
@@ -11,16 +16,22 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.card.MaterialCardView;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class WordleActivity extends AppCompatActivity {
     DatabaseHelper db;
     String targetWord;
     int currentAttempt = 0;
+    int wordLength = 0;
+
     GridLayout glWordle;
-    EditText etGuess;
+    EditText etHiddenInput;
     Button btnSubmit;
-    TextView[][] cells = new TextView[5][5];
-    MaterialCardView[][] cards = new MaterialCardView[5][5];
+
+    TextView[][] cells;
+    MaterialCardView[][] cards;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,56 +39,101 @@ public class WordleActivity extends AppCompatActivity {
         setContentView(R.layout.activity_wordle);
 
         db = new DatabaseHelper(this);
-        targetWord = db.getRandomFiveLetterWord();
+        setupDailyWord(); // Günlük kelimeyi ayarla
 
         if (targetWord == null) {
-            Toast.makeText(this, "Sistemde 5 harfli kelime bulunamadı!", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Yeterli kelime bulunamadı!", Toast.LENGTH_LONG).show();
             finish();
             return;
         }
 
+        wordLength = targetWord.length();
+        cells = new TextView[5][wordLength];
+        cards = new MaterialCardView[5][wordLength];
+
         glWordle = findViewById(R.id.glWordle);
-        etGuess = findViewById(R.id.etGuess);
+        etHiddenInput = findViewById(R.id.etHiddenInput);
         btnSubmit = findViewById(R.id.btnSubmitGuess);
 
+        glWordle.setColumnCount(wordLength);
+        glWordle.setRowCount(5);
+
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
+        
+        // Klavye tetikleyici
+        View.OnClickListener keyboardTrigger = v -> {
+            etHiddenInput.requestFocus();
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imm != null) {
+                imm.showSoftInput(etHiddenInput, InputMethodManager.SHOW_IMMEDIATE);
+            }
+        };
+        findViewById(android.R.id.content).setOnClickListener(keyboardTrigger);
+        glWordle.setOnClickListener(keyboardTrigger);
 
         createGrid();
+        setupInputLogic();
 
         btnSubmit.setOnClickListener(v -> {
-            String guess = etGuess.getText().toString().toUpperCase().trim();
-            if (guess.length() != 5) {
-                Toast.makeText(WordleActivity.this, "Lütfen 5 harfli bir kelime girin", Toast.LENGTH_SHORT).show();
+            String guess = etHiddenInput.getText().toString().toUpperCase().trim();
+            if (guess.length() != wordLength) {
+                Toast.makeText(WordleActivity.this, "Lütfen " + wordLength + " harf girin", Toast.LENGTH_SHORT).show();
                 return;
             }
-            if (currentAttempt < 5) {
-                processGuess(guess);
-            }
+            processGuess(guess);
         });
+
+        // Sayfa açılır açılmaz klavyeyi açmaya çalış
+        etHiddenInput.postDelayed(() -> keyboardTrigger.onClick(null), 500);
+    }
+
+    private void setupDailyWord() {
+        SharedPreferences pref = getSharedPreferences("WordlePrefs", MODE_PRIVATE);
+        String today = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+        String lastDate = pref.getString("last_date", "");
+        
+        if (today.equals(lastDate)) {
+            // Bugün zaten bir kelime seçilmiş, onu kullan
+            targetWord = pref.getString("daily_word", null);
+        } else {
+            // Yeni gün, yeni kelime seç ve kaydet
+            targetWord = db.getRandomWordForWordle();
+            if (targetWord != null) {
+                pref.edit()
+                    .putString("last_date", today)
+                    .putString("daily_word", targetWord)
+                    .putInt("attempt_count", 0) // Yeni gün denemeleri sıfırla
+                    .apply();
+            }
+        }
+        
+        // Eğer kullanıcı bugün hakkını bitirdiyse (isteğe bağlı eklenebilir)
+        // currentAttempt = pref.getInt("attempt_count", 0);
     }
 
     private void createGrid() {
         glWordle.removeAllViews();
-        int cellSize = 130;
-        int margin = 8;
+        int cellSize = (wordLength > 5) ? 100 : 130; 
+        int margin = 6;
 
         for (int r = 0; r < 5; r++) {
-            for (int c = 0; c < 5; c++) {
+            for (int c = 0; c < wordLength; c++) {
                 MaterialCardView card = new MaterialCardView(this);
                 GridLayout.LayoutParams params = new GridLayout.LayoutParams();
                 params.width = cellSize;
                 params.height = cellSize;
                 params.setMargins(margin, margin, margin, margin);
                 card.setLayoutParams(params);
-                card.setCardCornerRadius(12f);
-                card.setCardElevation(2f);
+                card.setRadius(16f);
                 card.setStrokeWidth(2);
                 card.setStrokeColor(Color.LTGRAY);
+                card.setCardBackgroundColor(Color.WHITE);
 
                 TextView tv = new TextView(this);
                 tv.setLayoutParams(new MaterialCardView.LayoutParams(cellSize, cellSize));
                 tv.setGravity(Gravity.CENTER);
-                tv.setTextSize(20);
+                tv.setTextSize(22);
+                tv.setAllCaps(true);
                 tv.setTextColor(Color.BLACK);
                 tv.setText("");
 
@@ -89,32 +145,55 @@ public class WordleActivity extends AppCompatActivity {
         }
     }
 
-    private void processGuess(String guess) {
-        for (int i = 0; i < 5; i++) {
-            char gChar = guess.charAt(i);
-            cells[currentAttempt][i].setText(String.valueOf(gChar));
-            
-            if (gChar == targetWord.charAt(i)) {
-                cards[currentAttempt][i].setCardBackgroundColor(Color.parseColor("#6AAA64")); // Yeşil
-                cells[currentAttempt][i].setTextColor(Color.WHITE);
-            } else if (targetWord.contains(String.valueOf(gChar))) {
-                cards[currentAttempt][i].setCardBackgroundColor(Color.parseColor("#C9B458")); // Sarı
-                cells[currentAttempt][i].setTextColor(Color.WHITE);
-            } else {
-                cards[currentAttempt][i].setCardBackgroundColor(Color.parseColor("#787C7E")); // Gri
-                cells[currentAttempt][i].setTextColor(Color.WHITE);
+    private void setupInputLogic() {
+        etHiddenInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (currentAttempt >= 5) return;
+                String currentText = s.toString().toUpperCase();
+                for (int i = 0; i < wordLength; i++) {
+                    if (i < currentText.length()) {
+                        cells[currentAttempt][i].setText(String.valueOf(currentText.charAt(i)));
+                        cards[currentAttempt][i].setStrokeColor(Color.parseColor("#6366F1"));
+                    } else {
+                        cells[currentAttempt][i].setText("");
+                        cards[currentAttempt][i].setStrokeColor(Color.LTGRAY);
+                    }
+                }
             }
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
+    }
+
+    private void processGuess(String guess) {
+        int correctChars = 0;
+        for (int i = 0; i < wordLength; i++) {
+            char gChar = guess.charAt(i);
+            if (gChar == targetWord.charAt(i)) {
+                cards[currentAttempt][i].setCardBackgroundColor(Color.parseColor("#6AAA64"));
+                correctChars++;
+            } else if (targetWord.contains(String.valueOf(gChar))) {
+                cards[currentAttempt][i].setCardBackgroundColor(Color.parseColor("#C9B458"));
+            } else {
+                cards[currentAttempt][i].setCardBackgroundColor(Color.parseColor("#787C7E"));
+            }
+            cells[currentAttempt][i].setTextColor(Color.WHITE);
         }
 
-        if (guess.equals(targetWord)) {
-            Toast.makeText(this, "Tebrikler! Kelimeyi buldun: " + targetWord, Toast.LENGTH_LONG).show();
+        if (correctChars == wordLength) {
+            Toast.makeText(this, "MÜKEMMEL! 🏆", Toast.LENGTH_LONG).show();
             btnSubmit.setEnabled(false);
+            etHiddenInput.setEnabled(false);
         } else {
             currentAttempt++;
-            etGuess.setText("");
+            etHiddenInput.setText("");
             if (currentAttempt == 5) {
-                Toast.makeText(this, "Oyun Bitti! Kelime: " + targetWord, Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "Hakkın bitti! Kelime: " + targetWord, Toast.LENGTH_LONG).show();
                 btnSubmit.setEnabled(false);
+                etHiddenInput.setEnabled(false);
             }
         }
     }

@@ -373,9 +373,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return words;
     }
 
-    public String getRandomFiveLetterWord() {
+    public String getRandomWordForWordle() {
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT " + COL_ENG_WORD + " FROM " + TABLE_WORDS + " WHERE length(" + COL_ENG_WORD + ") = 5 ORDER BY RANDOM() LIMIT 1", null);
+        // 3 ile 7 harf arası rastgele bir kelime seç (Ekrana sığması için üst sınır 7)
+        Cursor cursor = db.rawQuery("SELECT " + COL_ENG_WORD + " FROM " + TABLE_WORDS + " WHERE length(" + COL_ENG_WORD + ") >= 3 AND length(" + COL_ENG_WORD + ") <= 7 ORDER BY RANDOM() LIMIT 1", null);
         String word = null;
         if (cursor.moveToFirst()) {
             word = cursor.getString(0).toUpperCase();
