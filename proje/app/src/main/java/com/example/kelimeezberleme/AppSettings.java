@@ -2,12 +2,16 @@ package com.example.kelimeezberleme;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Set;
 
 public final class AppSettings {
     public static final String PREFS_NAME = "AppSettings";
     public static final String KEY_CURRENT_USER = "current_user";
     public static final String KEY_THEME_MODE = "theme_mode";
     public static final String KEY_QUIZ_LIMIT = "quiz_limit";
+    public static final String KEY_CORRECT_WORD_IDS = "correct_word_ids";
     public static final int MIN_QUIZ_LIMIT = 5;
     public static final int MAX_QUIZ_LIMIT = 15;
     public static final int DEFAULT_QUIZ_LIMIT = 10;
@@ -48,6 +52,34 @@ public final class AppSettings {
         if (currentUser == null || currentUser.trim().isEmpty()) {
             return KEY_QUIZ_LIMIT;
         }
-        return KEY_QUIZ_LIMIT + "_" + currentUser.trim().toLowerCase();
+        return KEY_QUIZ_LIMIT + "_" + normalizeUserKey(currentUser);
+    }
+
+    public static void recordCorrectWord(Context context, int wordId) {
+        if (wordId <= 0) return;
+
+        Set<String> ids = new HashSet<>(prefs(context).getStringSet(getCorrectWordIdsKey(context), new HashSet<>()));
+        ids.add(String.valueOf(wordId));
+        prefs(context).edit().putStringSet(getCorrectWordIdsKey(context), ids).apply();
+    }
+
+    public static Set<String> getCorrectWordIds(Context context) {
+        return new HashSet<>(prefs(context).getStringSet(getCorrectWordIdsKey(context), new HashSet<>()));
+    }
+
+    public static String getCurrentUserKey(Context context) {
+        String currentUser = getCurrentUser(context);
+        if (currentUser == null || currentUser.trim().isEmpty()) {
+            return "guest";
+        }
+        return normalizeUserKey(currentUser);
+    }
+
+    private static String getCorrectWordIdsKey(Context context) {
+        return KEY_CORRECT_WORD_IDS + "_" + getCurrentUserKey(context);
+    }
+
+    private static String normalizeUserKey(String username) {
+        return username.trim().toLowerCase(Locale.US);
     }
 }

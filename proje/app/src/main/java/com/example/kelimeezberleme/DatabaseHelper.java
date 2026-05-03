@@ -376,8 +376,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public String getRandomWordForWordle() {
         SQLiteDatabase db = this.getReadableDatabase();
-        // 3 ile 7 harf arası rastgele bir kelime seç (Ekrana sığması için üst sınır 7)
-        Cursor cursor = db.rawQuery("SELECT " + COL_ENG_WORD + " FROM " + TABLE_WORDS + " WHERE length(" + COL_ENG_WORD + ") >= 3 AND length(" + COL_ENG_WORD + ") <= 7 ORDER BY RANDOM() LIMIT 1", null);
+        Cursor cursor = db.rawQuery("SELECT " + COL_ENG_WORD + " FROM " + TABLE_WORDS + " WHERE length(trim(" + COL_ENG_WORD + ")) = 5 ORDER BY RANDOM() LIMIT 1", null);
         String word = null;
         if (cursor.moveToFirst()) {
             word = cursor.getString(0).toUpperCase(Locale.US);
@@ -385,54 +384,151 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         cursor.close();
         return word;
     }
-    public void seedDatabase() {
-        SQLiteDatabase dbRead = this.getReadableDatabase();
-        Cursor cursor = dbRead.rawQuery("SELECT COUNT(*) FROM " + TABLE_WORDS, null);
-        cursor.moveToFirst();
-        int count = cursor.getInt(0);
-        cursor.close();
 
-        if (count == 0) {
-            String[][] seedWords = {
-                    {"Apple", "Elma", "Meyveler"}, {"Book", "Kitap", "E\u011fitim"}, {"Computer", "Bilgisayar", "Teknoloji"},
-                    {"Water", "Su", "Do\u011fa"}, {"School", "Okul", "E\u011fitim"}, {"Pen", "Kalem", "E\u011fitim"},
-                    {"Door", "Kap\u0131", "Ev"}, {"Window", "Pencere", "Ev"}, {"Table", "Masa", "Ev"},
-                    {"Chair", "Sandalye", "Ev"}, {"Friend", "Arkada\u015f", "Sosyal"}, {"Family", "Aile", "Sosyal"},
-                    {"Heart", "Kalp", "V\u00fccut"}, {"Sun", "G\u00fcne\u015f", "Do\u011fa"}, {"Moon", "Ay", "Do\u011fa"},
-                    {"Star", "Y\u0131ld\u0131z", "Do\u011fa"}, {"Time", "Zaman", "Soyut"}, {"City", "\u015eehir", "Yer"},
-                    {"Country", "\u00dclke", "Yer"}, {"Money", "Para", "Ekonomi"}, {"Work", "\u0130\u015f", "\u0130\u015f D\u00fcnyas\u0131"},
-                    {"Sleep", "Uyku", "Sa\u011fl\u0131k"}, {"Happy", "Mutlu", "Duygular"}, {"Sad", "\u00dczg\u00fcn", "Duygular"},
-                    {"Beautiful", "G\u00fczel", "S\u0131fatlar"}, {"Big", "B\u00fcy\u00fck", "S\u0131fatlar"}, {"Small", "K\u00fc\u00e7\u00fck", "S\u0131fatlar"},
-                    {"New", "Yeni", "S\u0131fatlar"}, {"Old", "Eski", "S\u0131fatlar"}, {"Good", "\u0130yi", "S\u0131fatlar"},
-                    {"Bad", "K\u00f6t\u00fc", "S\u0131fatlar"}, {"Fast", "H\u0131zl\u0131", "S\u0131fatlar"}, {"Slow", "Yava\u015f", "S\u0131fatlar"},
-                    {"Hot", "S\u0131cak", "S\u0131fatlar"}, {"Cold", "So\u011fuk", "S\u0131fatlar"}, {"Easy", "Kolay", "S\u0131fatlar"},
-                    {"Hard", "Zor", "Sifatlar"}, {"Read", "Okumak", "Fiiller"}, {"Write", "Yazmak", "Fiiller"},
-                    {"Listen", "Dinlemek", "Fiiller"}, {"Speak", "Konu\u015fmak", "Fiiller"}, {"Run", "Ko\u015fmak", "Fiiller"},
-                    {"Walk", "Y\u00fcr\u00fcmek", "Fiiller"}, {"Eat", "Yemek Yemek", "Fiiller"}, {"Drink", "\u0130\u00e7mek", "Fiiller"},
-                    {"Language", "Dil", "E\u011fitim"}, {"Bird", "Ku\u015f", "Hayvanlar"}, {"Dog", "K\u00f6pek", "Hayvanlar"},
-                    {"Cat", "Kedi", "Hayvanlar"}, {"Flower", "\u00c7i\u00e7ek", "Do\u011fa"}
-            };
+    public String getRandomWordForWordle(Set<String> eligibleWordIds) {
+        if (eligibleWordIds == null || eligibleWordIds.isEmpty()) return null;
 
-            SQLiteDatabase dbWrite = this.getWritableDatabase();
-            for (String[] w : seedWords) {
-                ContentValues cv = new ContentValues();
-                cv.put(COL_ENG_WORD, w[0]);
-                cv.put(COL_TUR_WORD, w[1]);
-                cv.put(COL_PICTURE, "word:" + w[0].toLowerCase());
-                cv.put(COL_CATEGORY, w[2]);
-                cv.put(COL_STEP_COUNT, 0);
-                cv.put(COL_NEXT_QUIZ_DATE, System.currentTimeMillis());
-                cv.put(COL_TOTAL_ATTEMPTS, 0);
-                cv.put(COL_CORRECT_ATTEMPTS, 0);
-                long wordId = dbWrite.insert(TABLE_WORDS, null, cv);
-                for (String sample : samplesForWord(w[0])) {
-                    ContentValues sampleValues = new ContentValues();
-                    sampleValues.put(COL_WORD_ID, (int) wordId);
-                    sampleValues.put(COL_SAMPLE_TEXT, sample);
-                    sampleValues.put(COL_SAMPLE_USED, 0);
-                    dbWrite.insert(TABLE_SAMPLES, null, sampleValues);
-                }
+        List<String> cleanIds = new ArrayList<>();
+        for (String id : eligibleWordIds) {
+            if (id != null && id.matches("\\d+")) {
+                cleanIds.add(id);
             }
+        }
+        if (cleanIds.isEmpty()) return null;
+
+        StringBuilder placeholders = new StringBuilder();
+        for (int i = 0; i < cleanIds.size(); i++) {
+            if (i > 0) placeholders.append(",");
+            placeholders.append("?");
+        }
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(
+                "SELECT " + COL_ENG_WORD + " FROM " + TABLE_WORDS +
+                        " WHERE " + COL_WORD_ID + " IN (" + placeholders + ")" +
+                        " AND length(trim(" + COL_ENG_WORD + ")) = 5" +
+                        " ORDER BY RANDOM() LIMIT 1",
+                cleanIds.toArray(new String[0])
+        );
+        String word = null;
+        if (cursor.moveToFirst()) {
+            word = cursor.getString(0).toUpperCase(Locale.US);
+        }
+        cursor.close();
+        return word;
+    }
+
+    public boolean isValidWordleGuess(String guess) {
+        if (guess == null || guess.trim().length() != 5) return false;
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(
+                "SELECT 1 FROM " + TABLE_WORDS +
+                        " WHERE lower(trim(" + COL_ENG_WORD + ")) = lower(trim(?))" +
+                        " AND length(trim(" + COL_ENG_WORD + ")) = 5" +
+                        " LIMIT 1",
+                new String[]{guess}
+        );
+        boolean exists = cursor.moveToFirst();
+        cursor.close();
+        return exists;
+    }
+    public void seedDatabase() {
+        String[][] seedWords = {
+                {"Apple", "Elma", "Meyveler"}, {"Book", "Kitap", "E\u011fitim"}, {"Computer", "Bilgisayar", "Teknoloji"},
+                {"Water", "Su", "Do\u011fa"}, {"School", "Okul", "E\u011fitim"}, {"Pen", "Kalem", "E\u011fitim"},
+                {"Door", "Kap\u0131", "Ev"}, {"Window", "Pencere", "Ev"}, {"Table", "Masa", "Ev"},
+                {"Chair", "Sandalye", "Ev"}, {"Friend", "Arkada\u015f", "Sosyal"}, {"Family", "Aile", "Sosyal"},
+                {"Heart", "Kalp", "V\u00fccut"}, {"Sun", "G\u00fcne\u015f", "Do\u011fa"}, {"Moon", "Ay", "Do\u011fa"},
+                {"Star", "Y\u0131ld\u0131z", "Do\u011fa"}, {"Time", "Zaman", "Soyut"}, {"City", "\u015eehir", "Yer"},
+                {"Country", "\u00dclke", "Yer"}, {"Money", "Para", "Ekonomi"}, {"Work", "\u0130\u015f", "\u0130\u015f D\u00fcnyas\u0131"},
+                {"Sleep", "Uyku", "Sa\u011fl\u0131k"}, {"Happy", "Mutlu", "Duygular"}, {"Sad", "\u00dczg\u00fcn", "Duygular"},
+                {"Beautiful", "G\u00fczel", "S\u0131fatlar"}, {"Big", "B\u00fcy\u00fck", "S\u0131fatlar"}, {"Small", "K\u00fc\u00e7\u00fck", "S\u0131fatlar"},
+                {"New", "Yeni", "S\u0131fatlar"}, {"Old", "Eski", "S\u0131fatlar"}, {"Good", "\u0130yi", "S\u0131fatlar"},
+                {"Bad", "K\u00f6t\u00fc", "S\u0131fatlar"}, {"Fast", "H\u0131zl\u0131", "S\u0131fatlar"}, {"Slow", "Yava\u015f", "S\u0131fatlar"},
+                {"Hot", "S\u0131cak", "S\u0131fatlar"}, {"Cold", "So\u011fuk", "S\u0131fatlar"}, {"Easy", "Kolay", "S\u0131fatlar"},
+                {"Hard", "Zor", "Sifatlar"}, {"Read", "Okumak", "Fiiller"}, {"Write", "Yazmak", "Fiiller"},
+                {"Listen", "Dinlemek", "Fiiller"}, {"Speak", "Konu\u015fmak", "Fiiller"}, {"Run", "Ko\u015fmak", "Fiiller"},
+                {"Walk", "Y\u00fcr\u00fcmek", "Fiiller"}, {"Eat", "Yemek Yemek", "Fiiller"}, {"Drink", "\u0130\u00e7mek", "Fiiller"},
+                {"Language", "Dil", "E\u011fitim"}, {"Bird", "Ku\u015f", "Hayvanlar"}, {"Dog", "K\u00f6pek", "Hayvanlar"},
+                {"Cat", "Kedi", "Hayvanlar"}, {"Flower", "\u00c7i\u00e7ek", "Do\u011fa"},
+                {"About", "Hakk\u0131nda", "Genel"}, {"Above", "\u00dcst\u00fcnde", "Yer"}, {"After", "Sonra", "Zaman"},
+                {"Again", "Tekrar", "Zaman"}, {"Agent", "Temsilci", "\u0130\u015f D\u00fcnyas\u0131"}, {"Agree", "Kat\u0131lmak", "Fiiller"},
+                {"Alarm", "Alarm", "Genel"}, {"Album", "Alb\u00fcm", "Sanat"}, {"Alive", "Canl\u0131", "S\u0131fatlar"},
+                {"Allow", "\u0130zin vermek", "Fiiller"}, {"Alone", "Yaln\u0131z", "S\u0131fatlar"}, {"Along", "Boyunca", "Yer"},
+                {"Angel", "Melek", "Genel"}, {"Angry", "K\u0131zg\u0131n", "Duygular"}, {"Arena", "Arena", "Yer"},
+                {"Beach", "Plaj", "Yer"}, {"Begin", "Ba\u015flamak", "Fiiller"}, {"Black", "Siyah", "Renkler"},
+                {"Brave", "Cesur", "S\u0131fatlar"}, {"Bread", "Ekmek", "Yiyecek"}, {"Bring", "Getirmek", "Fiiller"},
+                {"Brown", "Kahverengi", "Renkler"}, {"Build", "\u0130n\u015fa etmek", "Fiiller"}, {"Candy", "\u015eeker", "Yiyecek"},
+                {"Carry", "Ta\u015f\u0131mak", "Fiiller"}, {"Catch", "Yakalamak", "Fiiller"}, {"Cause", "Sebep", "Soyut"},
+                {"Clean", "Temiz", "S\u0131fatlar"}, {"Clear", "A\u00e7\u0131k", "S\u0131fatlar"}, {"Cloud", "Bulut", "Do\u011fa"},
+                {"Coast", "Sahil", "Yer"}, {"Cover", "\u00d6rtmek", "Fiiller"}, {"Cream", "Krema", "Yiyecek"},
+                {"Dance", "Dans", "Sanat"}, {"Dream", "R\u00fcya", "Soyut"}, {"Drive", "S\u00fcrmek", "Fiiller"},
+                {"Earth", "D\u00fcnya", "Do\u011fa"}, {"Empty", "Bo\u015f", "S\u0131fatlar"}, {"Enjoy", "Keyif almak", "Fiiller"},
+                {"Enter", "Girmek", "Fiiller"}, {"Event", "Etkinlik", "Genel"}, {"Every", "Her", "Genel"},
+                {"Field", "Alan", "Yer"}, {"Floor", "Zemin", "Ev"}, {"Focus", "Odak", "Soyut"},
+                {"Force", "G\u00fc\u00e7", "Soyut"}, {"Fresh", "Taze", "S\u0131fatlar"}, {"Front", "\u00d6n", "Yer"},
+                {"Fruit", "Meyve", "Yiyecek"}, {"Glass", "Cam", "Ev"}, {"Grace", "Zarafet", "Soyut"},
+                {"Grain", "Tah\u0131l", "Yiyecek"}, {"Green", "Ye\u015fil", "Renkler"}, {"Group", "Grup", "Sosyal"},
+                {"Guard", "Koruma", "\u0130\u015f D\u00fcnyas\u0131"}, {"Guess", "Tahmin", "Genel"}, {"Guide", "Rehber", "Sosyal"},
+                {"House", "Ev", "Ev"}, {"Human", "\u0130nsan", "Sosyal"}, {"Ideal", "\u0130deal", "S\u0131fatlar"},
+                {"Image", "G\u00f6rsel", "Teknoloji"}, {"Issue", "Konu", "Genel"}, {"Knife", "B\u0131\u00e7ak", "Ev"},
+                {"Laugh", "G\u00fclmek", "Fiiller"}, {"Learn", "\u00d6\u011frenmek", "E\u011fitim"}, {"Light", "I\u015f\u0131k", "Do\u011fa"},
+                {"Local", "Yerel", "S\u0131fatlar"}, {"Magic", "Sihir", "Soyut"}, {"March", "Mart", "Zaman"},
+                {"Match", "E\u015fle\u015fme", "Genel"}, {"Maybe", "Belki", "Genel"}, {"Metal", "Metal", "Malzemeler"},
+                {"Music", "M\u00fczik", "Sanat"}, {"Night", "Gece", "Zaman"}, {"Noise", "G\u00fcr\u00fclt\u00fc", "Genel"},
+                {"North", "Kuzey", "Yer"}, {"Ocean", "Okyanus", "Do\u011fa"}, {"Offer", "Teklif", "\u0130\u015f D\u00fcnyas\u0131"},
+                {"Order", "Sipari\u015f", "\u0130\u015f D\u00fcnyas\u0131"}, {"Paint", "Boya", "Sanat"}, {"Paper", "Ka\u011f\u0131t", "E\u011fitim"},
+                {"Party", "Parti", "Sosyal"}, {"Peace", "Bar\u0131\u015f", "Soyut"}, {"Phone", "Telefon", "Teknoloji"},
+                {"Place", "Yer", "Yer"}, {"Plant", "Bitki", "Do\u011fa"}, {"Plate", "Tabak", "Ev"},
+                {"Point", "Nokta", "Genel"}, {"Power", "G\u00fc\u00e7", "Soyut"}, {"Price", "Fiyat", "Ekonomi"},
+                {"Pride", "Gurur", "Duygular"}, {"Queen", "Krali\u00e7e", "Sosyal"}, {"Quick", "\u00c7abuk", "S\u0131fatlar"},
+                {"Quiet", "Sessiz", "S\u0131fatlar"}, {"Radio", "Radyo", "Teknoloji"}, {"Reach", "Ula\u015fmak", "Fiiller"},
+                {"Right", "Do\u011fru", "S\u0131fatlar"}, {"River", "Nehir", "Do\u011fa"}, {"Round", "Yuvarlak", "\u015eekiller"},
+                {"Serve", "Hizmet etmek", "Fiiller"}, {"Shape", "\u015eekil", "\u015eekiller"}, {"Share", "Payla\u015fmak", "Fiiller"},
+                {"Short", "K\u0131sa", "S\u0131fatlar"}, {"Skill", "Beceri", "E\u011fitim"}, {"Smile", "G\u00fcl\u00fcmseme", "Duygular"},
+                {"Sound", "Ses", "Genel"}, {"South", "G\u00fcney", "Yer"}, {"Space", "Uzay", "Do\u011fa"},
+                {"Sport", "Spor", "Sa\u011fl\u0131k"}, {"Story", "Hikaye", "E\u011fitim"}, {"Sugar", "\u015eeker", "Yiyecek"},
+                {"Sweet", "Tatl\u0131", "S\u0131fatlar"}, {"Teach", "\u00d6\u011fretmek", "E\u011fitim"}, {"Theme", "Tema", "Genel"},
+                {"Thing", "\u015eey", "Genel"}, {"Think", "D\u00fc\u015f\u00fcnmek", "Fiiller"}, {"Touch", "Dokunmak", "Fiiller"},
+                {"Train", "Tren", "Ula\u015f\u0131m"}, {"Trust", "G\u00fcven", "Duygular"}, {"Voice", "Ses", "V\u00fccut"},
+                {"Watch", "Saat", "Genel"}, {"White", "Beyaz", "Renkler"}, {"World", "D\u00fcnya", "Yer"},
+                {"Youth", "Gen\u00e7lik", "Sosyal"}
+        };
+
+        SQLiteDatabase dbWrite = this.getWritableDatabase();
+        for (String[] w : seedWords) {
+            insertSeedWordIfMissing(dbWrite, w[0], w[1], w[2]);
+        }
+    }
+
+    private void insertSeedWordIfMissing(SQLiteDatabase dbWrite, String english, String turkish, String category) {
+        Cursor cursor = dbWrite.rawQuery(
+                "SELECT 1 FROM " + TABLE_WORDS + " WHERE lower(trim(" + COL_ENG_WORD + ")) = lower(trim(?)) LIMIT 1",
+                new String[]{english}
+        );
+        boolean exists = cursor.moveToFirst();
+        cursor.close();
+        if (exists) return;
+
+        ContentValues cv = new ContentValues();
+        cv.put(COL_ENG_WORD, english);
+        cv.put(COL_TUR_WORD, turkish);
+        cv.put(COL_PICTURE, "word:" + english.toLowerCase(Locale.US));
+        cv.put(COL_CATEGORY, category);
+        cv.put(COL_STEP_COUNT, 0);
+        cv.put(COL_NEXT_QUIZ_DATE, System.currentTimeMillis());
+        cv.put(COL_TOTAL_ATTEMPTS, 0);
+        cv.put(COL_CORRECT_ATTEMPTS, 0);
+        long wordId = dbWrite.insert(TABLE_WORDS, null, cv);
+        if (wordId == -1) return;
+
+        for (String sample : samplesForWord(english)) {
+            ContentValues sampleValues = new ContentValues();
+            sampleValues.put(COL_WORD_ID, (int) wordId);
+            sampleValues.put(COL_SAMPLE_TEXT, sample);
+            sampleValues.put(COL_SAMPLE_USED, 0);
+            dbWrite.insert(TABLE_SAMPLES, null, sampleValues);
         }
     }
 
