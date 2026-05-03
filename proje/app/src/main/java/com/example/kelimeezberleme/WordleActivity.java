@@ -1,7 +1,9 @@
 package com.example.kelimeezberleme;
 
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.TypedValue;
@@ -15,17 +17,27 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 public class WordleActivity extends AppCompatActivity {
     private static final String TAG = "WordleActivity";
     private static final int MAX_ATTEMPTS = 5;
     private static final int DATE_BUTTON_COUNT = 7;
     private static final String WORDLE_PREFS = "WordlePrefs";
+    private static final int LETTER_UNKNOWN = 0;
+    private static final int LETTER_ABSENT = 1;
+    private static final int LETTER_PRESENT = 2;
+    private static final int LETTER_CORRECT = 3;
+    private static final int WORDLE_GREEN = Color.parseColor("#6AAA64");
+    private static final int WORDLE_YELLOW = Color.parseColor("#C9B458");
+    private static final int WORDLE_GRAY = Color.parseColor("#787C7E");
 
     DatabaseHelper db;
     String targetWord;
@@ -39,6 +51,8 @@ public class WordleActivity extends AppCompatActivity {
 
     TextView[][] cells;
     MaterialCardView[][] cards;
+    Map<Character, MaterialButton> keyboardButtons = new HashMap<>();
+    Map<Character, Integer> keyboardStatuses = new HashMap<>();
     boolean isGameOver = false;
     String selectedDate;
 
@@ -268,14 +282,35 @@ public class WordleActivity extends AppCompatActivity {
     }
 
     private void applyColor(int row, int col, char c) {
-        if (c == targetWord.charAt(col)) {
-            cards[row][col].setCardBackgroundColor(Color.parseColor("#6AAA64"));
-        } else if (targetWord.contains(String.valueOf(c))) {
-            cards[row][col].setCardBackgroundColor(Color.parseColor("#C9B458"));
-        } else {
-            cards[row][col].setCardBackgroundColor(Color.parseColor("#787C7E"));
-        }
+        int status = getLetterStatus(col, c);
+        cards[row][col].setCardBackgroundColor(getStatusColor(status));
         cells[row][col].setTextColor(Color.WHITE);
+        updateKeyboardKey(c, status);
+    }
+
+    private int getLetterStatus(int col, char c) {
+        if (c == targetWord.charAt(col)) return LETTER_CORRECT;
+        if (targetWord.contains(String.valueOf(c))) return LETTER_PRESENT;
+        return LETTER_ABSENT;
+    }
+
+    private int getStatusColor(int status) {
+        if (status == LETTER_CORRECT) return WORDLE_GREEN;
+        if (status == LETTER_PRESENT) return WORDLE_YELLOW;
+        return WORDLE_GRAY;
+    }
+
+    private void updateKeyboardKey(char c, int newStatus) {
+        MaterialButton key = keyboardButtons.get(c);
+        if (key == null) return;
+
+        int currentStatus = keyboardStatuses.containsKey(c) ? keyboardStatuses.get(c) : LETTER_UNKNOWN;
+        if (newStatus < currentStatus) return;
+
+        keyboardStatuses.put(c, newStatus);
+        key.setBackgroundTintList(ColorStateList.valueOf(getStatusColor(newStatus)));
+        key.setStrokeColor(ColorStateList.valueOf(getStatusColor(newStatus)));
+        key.setTextColor(Color.WHITE);
     }
 
     private void createGrid() {
@@ -312,36 +347,96 @@ public class WordleActivity extends AppCompatActivity {
     private void createVirtualKeyboard() {
         String[] rows = {"QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM"};
         llKeyboard.removeAllViews();
-        int keyWidth = (getResources().getDisplayMetrics().widthPixels - 80) / 10;
+        keyboardButtons.clear();
+        keyboardStatuses.clear();
 
         for (int i = 0; i < rows.length; i++) {
             LinearLayout rowLayout = new LinearLayout(this);
+            rowLayout.setOrientation(LinearLayout.HORIZONTAL);
             rowLayout.setGravity(Gravity.CENTER);
+            LinearLayout.LayoutParams rowParams = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+            );
+            rowParams.setMargins(0, dp(3), 0, dp(3));
+            rowLayout.setLayoutParams(rowParams);
+
+            if (i == 1) {
+                rowLayout.addView(createKeyboardSpacer(0.5f));
+            }
             if (i == 2) {
-                Button bEnt = createKey("ENT", (int)(keyWidth*1.5));
+                MaterialButton bEnt = createKey("ENT", 1.5f);
+                applyActionKeyStyle(bEnt);
                 bEnt.setOnClickListener(v -> submitGuess());
                 rowLayout.addView(bEnt);
             }
             for (char c : rows[i].toCharArray()) {
-                Button b = createKey(String.valueOf(c), keyWidth);
+                MaterialButton b = createKey(String.valueOf(c), 1f);
+                keyboardButtons.put(c, b);
                 b.setOnClickListener(v -> addLetter(c));
                 rowLayout.addView(b);
             }
             if (i == 2) {
-                Button bDel = createKey("DEL", (int)(keyWidth*1.5));
+                MaterialButton bDel = createKey("DEL", 1.5f);
+                applyActionKeyStyle(bDel);
                 bDel.setOnClickListener(v -> removeLetter());
                 rowLayout.addView(bDel);
+            }
+            if (i == 1) {
+                rowLayout.addView(createKeyboardSpacer(0.5f));
             }
             llKeyboard.addView(rowLayout);
         }
     }
 
-    private Button createKey(String text, int width) {
-        Button btn = new Button(this, null, android.R.attr.buttonStyleSmall);
+    private MaterialButton createKey(String text, float weight) {
+        MaterialButton btn = new MaterialButton(this);
         btn.setText(text);
-        btn.setLayoutParams(new LinearLayout.LayoutParams(width, 130));
-        btn.setPadding(0,0,0,0); btn.setTextSize(10);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0, dp(56), weight);
+        params.setMargins(dp(1), 0, dp(1), 0);
+        btn.setLayoutParams(params);
+        btn.setMinWidth(0);
+        btn.setMinimumWidth(0);
+        btn.setMinHeight(0);
+        btn.setMinimumHeight(0);
+        btn.setInsetTop(0);
+        btn.setInsetBottom(0);
+        btn.setPadding(0, 0, 0, 0);
+        btn.setAllCaps(false);
+        btn.setSingleLine(true);
+        btn.setTextSize(text.length() > 1 ? 11 : 15);
+        btn.setTypeface(null, Typeface.BOLD);
+        btn.setCornerRadius(dp(8));
+        btn.setStrokeWidth(dp(1));
+        resetKeyStyle(btn);
         return btn;
+    }
+
+    private View createKeyboardSpacer(float weight) {
+        View spacer = new View(this);
+        spacer.setLayoutParams(new LinearLayout.LayoutParams(0, dp(56), weight));
+        return spacer;
+    }
+
+    private void resetKeyStyle(MaterialButton btn) {
+        btn.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.surface_variant)));
+        btn.setStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.divider)));
+        btn.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
+    }
+
+    private void applyActionKeyStyle(MaterialButton btn) {
+        int primary = ContextCompat.getColor(this, R.color.primary);
+        btn.setBackgroundTintList(ColorStateList.valueOf(primary));
+        btn.setStrokeColor(ColorStateList.valueOf(primary));
+        btn.setTextColor(Color.WHITE);
+    }
+
+    private int dp(int value) {
+        return (int) TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                value,
+                getResources().getDisplayMetrics()
+        );
     }
 
     private void addLetter(char c) {
