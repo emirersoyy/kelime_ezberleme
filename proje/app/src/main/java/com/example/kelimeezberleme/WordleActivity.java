@@ -1,5 +1,6 @@
 package com.example.kelimeezberleme;
 
+import android.app.Dialog;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
@@ -9,9 +10,9 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
-import android.widget.Button;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.GridLayout;
-import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,8 +30,10 @@ import java.util.Map;
 public class WordleActivity extends AppCompatActivity {
     private static final String TAG = "WordleActivity";
     private static final int MAX_ATTEMPTS = 5;
-    private static final int DATE_BUTTON_COUNT = 7;
     private static final String WORDLE_PREFS = "WordlePrefs";
+    private static final String STATUS_CORRECT = "correct";
+    private static final String STATUS_FAILED = "failed";
+    private static final String STATUS_PARTIAL = "partial";
     private static final int LETTER_UNKNOWN = 0;
     private static final int LETTER_ABSENT = 1;
     private static final int LETTER_PRESENT = 2;
@@ -38,6 +41,9 @@ public class WordleActivity extends AppCompatActivity {
     private static final int WORDLE_GREEN = Color.parseColor("#6AAA64");
     private static final int WORDLE_YELLOW = Color.parseColor("#C9B458");
     private static final int WORDLE_GRAY = Color.parseColor("#787C7E");
+    private static final int WORDLE_RED = Color.parseColor("#DC2626");
+    private static final int CALENDAR_GRAY = Color.parseColor("#E5E7EB");
+    private static final int CALENDAR_LOCKED_GRAY = Color.parseColor("#4B5563");
 
     DatabaseHelper db;
     String targetWord;
@@ -46,8 +52,9 @@ public class WordleActivity extends AppCompatActivity {
     StringBuilder currentGuess = new StringBuilder();
 
     GridLayout glWordle;
-    LinearLayout llKeyboard, llDateSelector;
+    LinearLayout llKeyboard;
     TextView tvResult;
+    MaterialButton btnSelectedDate;
 
     TextView[][] cells;
     MaterialCardView[][] cards;
@@ -64,26 +71,21 @@ public class WordleActivity extends AppCompatActivity {
         db = new DatabaseHelper(this);
         glWordle = findViewById(R.id.glWordle);
         llKeyboard = findViewById(R.id.llKeyboard);
-        llDateSelector = findViewById(R.id.llDateSelector);
         tvResult = findViewById(R.id.tvResult);
+        btnSelectedDate = findViewById(R.id.btnSelectedDate);
 
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
+        btnSelectedDate.setOnClickListener(v -> showCalendarDialog());
 
         selectedDate = getTodayKey();
 
-        createDateSelector();
         showGameForDate(selectedDate);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        String todayKey = getTodayKey();
-        if (llDateSelector != null && !isDateVisible(todayKey)) {
-            selectedDate = todayKey;
-            createDateSelector();
-            showGameForDate(todayKey);
-        }
+        updateSelectedDateButton();
     }
 
     private void showGameForDate(String date) {
@@ -99,7 +101,7 @@ public class WordleActivity extends AppCompatActivity {
             } catch (RuntimeException secondError) {
                 Log.e(TAG, "Wordle date reload failed: " + date, secondError);
                 selectedDate = previousDate;
-                updateDateSelectorStyles();
+                updateSelectedDateButton();
                 glWordle.removeAllViews();
                 llKeyboard.removeAllViews();
                 tvResult.setText("Bulmaca yüklenemedi.");
@@ -146,7 +148,7 @@ public class WordleActivity extends AppCompatActivity {
 
         createGrid();
         createVirtualKeyboard();
-        updateDateSelectorStyles();
+        updateSelectedDateButton();
         if (ignoreSavedAttempts) {
             setKeyboardEnabled(true);
         } else {
@@ -154,83 +156,263 @@ public class WordleActivity extends AppCompatActivity {
         }
     }
 
-    private void createDateSelector() {
-        llDateSelector.removeAllViews();
-        Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.DATE, -(DATE_BUTTON_COUNT - 1));
-        Locale trLocale = new Locale("tr", "TR");
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
-        SimpleDateFormat showDf = new SimpleDateFormat("d MMMM", trLocale);
-
-        for (int i = 0; i < DATE_BUTTON_COUNT; i++) {
-            String dateKey = df.format(cal.getTime());
-            String dateShow = showDf.format(cal.getTime());
-
-            Button btn = new Button(this, null, android.R.attr.buttonStyleSmall);
-            btn.setText(dateShow);
-            btn.setAllCaps(false);
-            btn.setTag(dateKey);
-            
-            if (dateKey.equals(selectedDate)) {
-                btn.setBackgroundColor(ContextCompat.getColor(this, R.color.primary));
-                btn.setTextColor(Color.WHITE);
-            } else {
-                btn.setBackgroundColor(Color.LTGRAY);
-                btn.setTextColor(Color.BLACK);
-            }
-
-            btn.setOnClickListener(v -> {
-                if (!dateKey.equals(selectedDate)) {
-                    showGameForDate(dateKey);
-                }
-            });
-            
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                    (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 80, getResources().getDisplayMetrics()),
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-            );
-            params.setMargins(8, 0, 8, 0);
-            btn.setLayoutParams(params);
-            llDateSelector.addView(btn);
-            cal.add(Calendar.DATE, 1);
-        }
-
-        llDateSelector.post(() -> {
-            View parent = (View) llDateSelector.getParent();
-            if (parent instanceof HorizontalScrollView) {
-                ((HorizontalScrollView) parent).fullScroll(View.FOCUS_RIGHT);
-            }
-        });
-    }
-
-    private void updateDateSelectorStyles() {
-        for (int i = 0; i < llDateSelector.getChildCount(); i++) {
-            View child = llDateSelector.getChildAt(i);
-            Object tag = child.getTag();
-            if (!(child instanceof Button) || !(tag instanceof String)) continue;
-
-            Button btn = (Button) child;
-            boolean selected = tag.equals(selectedDate);
-            if (selected) {
-                btn.setBackgroundColor(ContextCompat.getColor(this, R.color.primary));
-                btn.setTextColor(Color.WHITE);
-            } else {
-                btn.setBackgroundColor(Color.LTGRAY);
-                btn.setTextColor(Color.BLACK);
-            }
-        }
-    }
-
     private String getTodayKey() {
         return new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(new Date());
     }
 
-    private boolean isDateVisible(String dateKey) {
-        for (int i = 0; i < llDateSelector.getChildCount(); i++) {
-            Object tag = llDateSelector.getChildAt(i).getTag();
-            if (dateKey.equals(tag)) return true;
+    private void updateSelectedDateButton() {
+        btnSelectedDate.setText(formatDisplayDate(selectedDate));
+    }
+
+    private String formatDisplayDate(String dateKey) {
+        try {
+            Date date = new SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(dateKey);
+            return new SimpleDateFormat("d MMMM", new Locale("tr", "TR")).format(date);
+        } catch (Exception e) {
+            return dateKey;
+        }
+    }
+
+    private void showCalendarDialog() {
+        Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+
+        Calendar visibleMonth = Calendar.getInstance();
+        try {
+            Date selected = new SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(selectedDate);
+            visibleMonth.setTime(selected);
+        } catch (Exception ignored) {
+            visibleMonth.setTime(new Date());
+        }
+        visibleMonth.set(Calendar.DAY_OF_MONTH, 1);
+
+        LinearLayout root = new LinearLayout(this);
+        root.setOrientation(LinearLayout.VERTICAL);
+        root.setPadding(dp(18), dp(16), dp(18), dp(18));
+        root.setBackgroundColor(Color.TRANSPARENT);
+
+        LinearLayout header = new LinearLayout(this);
+        header.setGravity(Gravity.CENTER_VERTICAL);
+        header.setOrientation(LinearLayout.HORIZONTAL);
+
+        MaterialButton prev = createCalendarNavButton("<");
+        TextView title = new TextView(this);
+        title.setGravity(Gravity.CENTER);
+        title.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
+        title.setTextSize(18);
+        title.setTypeface(null, Typeface.BOLD);
+        title.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+        MaterialButton next = createCalendarNavButton(">");
+
+        header.addView(prev);
+        header.addView(title);
+        header.addView(next);
+        root.addView(header);
+
+        LinearLayout weekHeader = new LinearLayout(this);
+        weekHeader.setOrientation(LinearLayout.HORIZONTAL);
+        weekHeader.setGravity(Gravity.CENTER);
+        weekHeader.setPadding(0, dp(12), 0, dp(6));
+        String[] days = {"Pzt", "Sal", "Car", "Per", "Cum", "Cmt", "Paz"};
+        for (String day : days) {
+            TextView tv = new TextView(this);
+            tv.setGravity(Gravity.CENTER);
+            tv.setText(day);
+            tv.setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
+            tv.setTextSize(12);
+            tv.setTypeface(null, Typeface.BOLD);
+            tv.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+            weekHeader.addView(tv);
+        }
+        root.addView(weekHeader);
+
+        GridLayout calendarGrid = new GridLayout(this);
+        calendarGrid.setColumnCount(7);
+        calendarGrid.setUseDefaultMargins(false);
+        calendarGrid.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        ));
+        root.addView(calendarGrid);
+
+        Runnable[] renderCalendar = new Runnable[1];
+        renderCalendar[0] = () -> {
+            title.setText(new SimpleDateFormat("MMMM yyyy", new Locale("tr", "TR")).format(visibleMonth.getTime()));
+            renderCalendarDays(calendarGrid, visibleMonth, dialog);
+        };
+
+        prev.setOnClickListener(v -> {
+            visibleMonth.add(Calendar.MONTH, -1);
+            renderCalendar[0].run();
+        });
+        next.setOnClickListener(v -> {
+            visibleMonth.add(Calendar.MONTH, 1);
+            renderCalendar[0].run();
+        });
+
+        renderCalendar[0].run();
+
+        MaterialCardView card = new MaterialCardView(this);
+        card.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        ));
+        card.setRadius(dp(22));
+        card.setCardElevation(dp(10));
+        card.setCardBackgroundColor(ContextCompat.getColor(this, R.color.surface));
+        card.addView(root);
+        dialog.setContentView(card);
+
+        dialog.show();
+        Window window = dialog.getWindow();
+        if (window != null) {
+            window.setBackgroundDrawableResource(android.R.color.transparent);
+            WindowManager.LayoutParams params = new WindowManager.LayoutParams();
+            params.copyFrom(window.getAttributes());
+            params.width = (int) (getResources().getDisplayMetrics().widthPixels * 0.92f);
+            params.height = WindowManager.LayoutParams.WRAP_CONTENT;
+            window.setAttributes(params);
+        }
+    }
+
+    private MaterialButton createCalendarNavButton(String text) {
+        MaterialButton btn = new MaterialButton(this);
+        btn.setText(text);
+        btn.setTextSize(18);
+        btn.setTypeface(null, Typeface.BOLD);
+        btn.setMinWidth(0);
+        btn.setMinimumWidth(0);
+        btn.setMinHeight(0);
+        btn.setMinimumHeight(0);
+        btn.setInsetTop(0);
+        btn.setInsetBottom(0);
+        btn.setPadding(0, 0, 0, dp(2));
+        btn.setCornerRadius(dp(20));
+        btn.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.surface_variant)));
+        btn.setTextColor(ContextCompat.getColor(this, R.color.primary));
+        btn.setLayoutParams(new LinearLayout.LayoutParams(dp(40), dp(40)));
+        return btn;
+    }
+
+    private void renderCalendarDays(GridLayout calendarGrid, Calendar visibleMonth, Dialog dialog) {
+        calendarGrid.removeAllViews();
+
+        Calendar cursor = (Calendar) visibleMonth.clone();
+        int month = cursor.get(Calendar.MONTH);
+        int firstDayOffset = (cursor.get(Calendar.DAY_OF_WEEK) + 5) % 7;
+        int daysInMonth = cursor.getActualMaximum(Calendar.DAY_OF_MONTH);
+
+        for (int i = 0; i < firstDayOffset; i++) {
+            calendarGrid.addView(createCalendarBlankCell());
+        }
+
+        SimpleDateFormat keyFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+        for (int day = 1; day <= daysInMonth; day++) {
+            cursor.set(Calendar.DAY_OF_MONTH, day);
+            String dateKey = keyFormat.format(cursor.getTime());
+            MaterialButton dayButton = createCalendarDayButton(day, dateKey);
+            dayButton.setOnClickListener(v -> {
+                dialog.dismiss();
+                showGameForDate(dateKey);
+            });
+            calendarGrid.addView(dayButton);
+        }
+    }
+
+    private View createCalendarBlankCell() {
+        View view = new View(this);
+        GridLayout.LayoutParams params = new GridLayout.LayoutParams();
+        params.width = 0;
+        params.height = dp(42);
+        params.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
+        params.setMargins(dp(2), dp(2), dp(2), dp(2));
+        view.setLayoutParams(params);
+        return view;
+    }
+
+    private MaterialButton createCalendarDayButton(int day, String dateKey) {
+        MaterialButton btn = new MaterialButton(this);
+        btn.setText(String.valueOf(day));
+        btn.setTextSize(13);
+        btn.setTypeface(null, Typeface.BOLD);
+        btn.setMinWidth(0);
+        btn.setMinimumWidth(0);
+        btn.setMinHeight(0);
+        btn.setMinimumHeight(0);
+        btn.setInsetTop(0);
+        btn.setInsetBottom(0);
+        btn.setPadding(0, 0, 0, 0);
+        btn.setCornerRadius(dp(12));
+        btn.setStrokeWidth(dateKey.equals(selectedDate) ? dp(2) : 0);
+        btn.setStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.primary)));
+
+        boolean hasPuzzle = hasPuzzleForDate(dateKey);
+        int background = getCalendarDayColor(dateKey);
+        btn.setBackgroundTintList(ColorStateList.valueOf(background));
+        btn.setTextColor(hasPuzzle && getGameStatus(dateKey) == null
+                ? ContextCompat.getColor(this, R.color.text_primary)
+                : Color.WHITE);
+        btn.setEnabled(hasPuzzle);
+        btn.setAlpha(1.0f);
+
+        GridLayout.LayoutParams params = new GridLayout.LayoutParams();
+        params.width = 0;
+        params.height = dp(42);
+        params.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
+        params.setMargins(dp(2), dp(2), dp(2), dp(2));
+        btn.setLayoutParams(params);
+        return btn;
+    }
+
+    private int getCalendarDayColor(String dateKey) {
+        if (!hasPuzzleForDate(dateKey)) return CALENDAR_LOCKED_GRAY;
+
+        String status = getGameStatus(dateKey);
+        if (STATUS_CORRECT.equals(status)) return WORDLE_GREEN;
+        if (STATUS_FAILED.equals(status)) return WORDLE_RED;
+        if (STATUS_PARTIAL.equals(status)) return WORDLE_YELLOW;
+        return CALENDAR_GRAY;
+    }
+
+    private boolean hasPuzzleForDate(String dateKey) {
+        SharedPreferences pref = getSharedPreferences(WORDLE_PREFS, MODE_PRIVATE);
+        return isValidWord(normalizeWord(pref.getString(dateKey + "_word", null)));
+    }
+
+    private String getGameStatus(String dateKey) {
+        SharedPreferences pref = getSharedPreferences(WORDLE_PREFS, MODE_PRIVATE);
+        String savedStatus = pref.getString(dateKey + "_status", null);
+        if (savedStatus != null) return savedStatus;
+
+        String savedGuesses = pref.getString(dateKey + "_guesses", "");
+        if (savedGuesses.isEmpty()) return null;
+
+        String savedWord = normalizeWord(pref.getString(dateKey + "_word", null));
+        boolean finished = pref.getBoolean(dateKey + "_finished", false);
+        boolean solved = savedWord != null && containsGuess(savedGuesses, savedWord);
+        if (solved) return STATUS_CORRECT;
+
+        int guessCount = countGuesses(savedGuesses);
+        if (finished || guessCount >= MAX_ATTEMPTS) return STATUS_FAILED;
+        return STATUS_PARTIAL;
+    }
+
+    private boolean containsGuess(String savedGuesses, String word) {
+        String[] guesses = savedGuesses.split(",");
+        for (String guess : guesses) {
+            if (word.equals(normalizeWord(guess))) return true;
         }
         return false;
+    }
+
+    private int countGuesses(String savedGuesses) {
+        if (savedGuesses == null || savedGuesses.isEmpty()) return 0;
+        int count = 0;
+        String[] guesses = savedGuesses.split(",");
+        for (String guess : guesses) {
+            if (!guess.isEmpty()) count++;
+        }
+        return count;
     }
 
     private void loadPreviousAttempts(String date) {
@@ -254,9 +436,11 @@ public class WordleActivity extends AppCompatActivity {
                 isGameOver = true;
                 setKeyboardEnabled(false);
                 tvResult.setText("Doğru Kelime: " + targetWord);
-                tvResult.setTextColor(ContextCompat.getColor(this, R.color.primary));
+                boolean solved = containsGuess(savedGuesses, targetWord);
+                saveGameStatus(solved ? STATUS_CORRECT : STATUS_FAILED);
+                tvResult.setTextColor(solved ? WORDLE_GREEN : WORDLE_RED);
                 if (!isFinished) {
-                    markFinished();
+                    markFinished(solved);
                 }
             } else {
                 setKeyboardEnabled(true);
@@ -457,11 +641,12 @@ public class WordleActivity extends AppCompatActivity {
         saveGuess(guess);
         fillRow(guess);
 
-        if (guess.equals(targetWord) || currentAttempt == MAX_ATTEMPTS) {
+        boolean solved = guess.equals(targetWord);
+        if (solved || currentAttempt == MAX_ATTEMPTS) {
             isGameOver = true;
-            markFinished();
+            markFinished(solved);
             tvResult.setText("Doğru Kelime: " + targetWord);
-            tvResult.setTextColor(ContextCompat.getColor(this, R.color.primary));
+            tvResult.setTextColor(solved ? WORDLE_GREEN : WORDLE_RED);
             setKeyboardEnabled(false);
         } else {
             currentGuess.setLength(0);
@@ -474,8 +659,19 @@ public class WordleActivity extends AppCompatActivity {
         pref.edit().putString(selectedDate + "_guesses", saved + (saved.isEmpty() ? "" : ",") + guess).apply();
     }
 
-    private void markFinished() {
-        getSharedPreferences(WORDLE_PREFS, MODE_PRIVATE).edit().putBoolean(selectedDate + "_finished", true).apply();
+    private void markFinished(boolean solved) {
+        getSharedPreferences(WORDLE_PREFS, MODE_PRIVATE)
+                .edit()
+                .putBoolean(selectedDate + "_finished", true)
+                .putString(selectedDate + "_status", solved ? STATUS_CORRECT : STATUS_FAILED)
+                .apply();
+    }
+
+    private void saveGameStatus(String status) {
+        getSharedPreferences(WORDLE_PREFS, MODE_PRIVATE)
+                .edit()
+                .putString(selectedDate + "_status", status)
+                .apply();
     }
 
     private void clearSavedGame(String date) {
@@ -484,6 +680,7 @@ public class WordleActivity extends AppCompatActivity {
                 .remove(date + "_word")
                 .remove(date + "_guesses")
                 .remove(date + "_finished")
+                .remove(date + "_status")
                 .commit();
     }
 
@@ -492,6 +689,7 @@ public class WordleActivity extends AppCompatActivity {
                 .edit()
                 .remove(date + "_guesses")
                 .remove(date + "_finished")
+                .remove(date + "_status")
                 .commit();
     }
 
@@ -501,7 +699,8 @@ public class WordleActivity extends AppCompatActivity {
                 .edit()
                 .remove(date + "_word")
                 .remove(date + "_guesses")
-                .remove(date + "_finished");
+                .remove(date + "_finished")
+                .remove(date + "_status");
         if (isValidWord(freshWord)) {
             editor.putString(date + "_word", freshWord);
         }
