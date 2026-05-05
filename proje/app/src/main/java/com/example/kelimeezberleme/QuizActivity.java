@@ -241,6 +241,7 @@ public class QuizActivity extends AppCompatActivity {
             tvFeedback.setTextColor(getResources().getColor(android.R.color.holo_green_dark));
             selectedCard.setCardBackgroundColor(getResources().getColor(android.R.color.holo_green_light));
             setBubbleColor(question.originalIndex, Color.rgb(34, 197, 94));
+            question.everAnsweredCorrect = true;
             if (!reviewMode) {
                 correctCount++;
                 question.answeredCorrect = true;
@@ -284,6 +285,9 @@ public class QuizActivity extends AppCompatActivity {
     private void finishQuiz() {
         for (QuizQuestion question : quizQuestions) {
             db.updateWordProgress(question.word.id, question.word.stepCount, question.answeredCorrect);
+            if (question.everAnsweredCorrect) {
+                AppSettings.recordCorrectWord(this, question.word.id);
+            }
         }
         db.markSamplesUsed(usedSampleIds);
 
@@ -434,6 +438,7 @@ public class QuizActivity extends AppCompatActivity {
         final int sampleId;
         final int originalIndex;
         boolean answeredCorrect = false;
+        boolean everAnsweredCorrect = false;
 
         QuizQuestion(Word word, DatabaseHelper.SampleSentence sample, int originalIndex) {
             this.word = word;
