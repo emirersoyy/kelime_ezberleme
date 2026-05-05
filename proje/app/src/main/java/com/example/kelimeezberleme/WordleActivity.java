@@ -133,7 +133,7 @@ public class WordleActivity extends AppCompatActivity {
         }
 
         if (targetWord == null) {
-            targetWord = normalizeWord(db.getRandomWordForWordle(AppSettings.getCorrectWordIds(this)));
+            targetWord = chooseWordleWord();
             if (isValidWord(targetWord)) {
                 pref.edit().putString(prefKey(date, "_word"), targetWord).apply();
             } else {
@@ -142,7 +142,7 @@ public class WordleActivity extends AppCompatActivity {
         }
 
         if (targetWord == null) {
-            Toast.makeText(this, "Wordle için önce testte 5 harfli bir kelimeyi doğru bilmelisin.", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Wordle için 5 harfli kelime bulunamadı.", Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -386,10 +386,7 @@ public class WordleActivity extends AppCompatActivity {
     }
 
     private boolean hasPuzzleForDate(String dateKey) {
-        if (isFutureDate(dateKey)) return false;
-
-        SharedPreferences pref = getSharedPreferences(WORDLE_PREFS, MODE_PRIVATE);
-        return isValidWord(normalizeWord(pref.getString(prefKey(dateKey, "_word"), null)));
+        return !isFutureDate(dateKey);
     }
 
     private boolean isFutureDate(String dateKey) {
@@ -723,7 +720,7 @@ public class WordleActivity extends AppCompatActivity {
     }
 
     private void resetSavedGame(String date) {
-        String freshWord = normalizeWord(db.getRandomWordForWordle(AppSettings.getCorrectWordIds(this)));
+        String freshWord = chooseWordleWord();
         SharedPreferences.Editor editor = getSharedPreferences(WORDLE_PREFS, MODE_PRIVATE)
                 .edit()
                 .remove(prefKey(date, "_word"))
@@ -734,6 +731,14 @@ public class WordleActivity extends AppCompatActivity {
             editor.putString(prefKey(date, "_word"), freshWord);
         }
         editor.commit();
+    }
+
+    private String chooseWordleWord() {
+        String learnedWord = normalizeWord(db.getRandomWordForWordle(AppSettings.getCorrectWordIds(this)));
+        if (isValidWord(learnedWord)) {
+            return learnedWord;
+        }
+        return normalizeWord(db.getRandomWordForWordle());
     }
 
     private String normalizeWord(String word) {
