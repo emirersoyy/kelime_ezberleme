@@ -2,17 +2,26 @@ package com.example.kelimeezberleme;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
+    private static final String TAG = "MainActivity";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         DatabaseHelper db = new DatabaseHelper(this);
-        db.seedDatabase();
+        try {
+            db.seedDatabase();
+        } catch (RuntimeException e) {
+            Log.e(TAG, "Seed database failed", e);
+            Toast.makeText(this, "Varsayılan kelimeler hazırlanamadı.", Toast.LENGTH_SHORT).show();
+        }
 
         TextView tvWelcome = findViewById(R.id.tvWelcome);
         tvWelcome.setText("Hoş Geldiniz!");

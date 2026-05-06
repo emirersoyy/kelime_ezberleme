@@ -18,7 +18,7 @@ import javax.crypto.spec.PBEKeySpec;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String DATABASE_NAME = "KelimeEzberleme.db";
-    public static final int DATABASE_VERSION = 9;
+    public static final int DATABASE_VERSION = 10;
     private static final String PASSWORD_HASH_PREFIX = "pbkdf2";
     private static final int PASSWORD_HASH_ITERATIONS = 120000;
     private static final int PASSWORD_SALT_BYTES = 16;
@@ -72,6 +72,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        ensureCurrentSchema(db);
+    }
+
+    private void ensureCurrentSchema(SQLiteDatabase db) {
         db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_USERS + " (UserID INTEGER PRIMARY KEY AUTOINCREMENT, UserName TEXT, Password TEXT)");
         db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_WORDS + " (" +
                 COL_WORD_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -497,6 +501,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         };
 
         SQLiteDatabase dbWrite = this.getWritableDatabase();
+        ensureCurrentSchema(dbWrite);
         for (String[] w : seedWords) {
             insertSeedWordIfMissing(dbWrite, w[0], w[1], w[2]);
         }
