@@ -154,6 +154,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return samples;
     }
 
+    public List<String> getDisplaySamplesForWord(Word word) {
+        List<String> currentSamples = getSamplesForWord(word.id);
+        if (shouldRefreshSamples(currentSamples, word.eng)) {
+            String[] replacements = samplesForWord(word.eng, word.tur, word.category);
+            replaceSamplesForWord(word.id, replacements);
+            currentSamples = new ArrayList<>();
+            for (String replacement : replacements) {
+                currentSamples.add(replacement);
+            }
+        }
+        return currentSamples;
+    }
+
     public SampleSentence getNextUnusedSampleForWord(int wordId) {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery("SELECT " + COL_SAMPLE_ID + ", " + COL_SAMPLE_TEXT +
@@ -504,7 +517,30 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ensureCurrentSchema(dbWrite);
         for (String[] w : seedWords) {
             insertSeedWordIfMissing(dbWrite, w[0], w[1], w[2]);
+            syncSeedWordSamples(dbWrite, w[0], w[1], w[2]);
         }
+    }
+
+    private void syncSeedWordSamples(SQLiteDatabase dbWrite, String english, String turkish, String category) {
+        Cursor cursor = dbWrite.rawQuery(
+                "SELECT " + COL_WORD_ID + " FROM " + TABLE_WORDS +
+                        " WHERE lower(trim(" + COL_ENG_WORD + ")) = lower(trim(?)) LIMIT 1",
+                new String[]{english}
+        );
+        if (!cursor.moveToFirst()) {
+            cursor.close();
+            return;
+        }
+
+        int wordId = cursor.getInt(0);
+        cursor.close();
+
+        List<String> currentSamples = getSamplesForWord(wordId);
+        if (!shouldRefreshSamples(currentSamples, english)) {
+            return;
+        }
+
+        replaceSamplesForWord(wordId, samplesForWord(english, turkish, category));
     }
 
     private void insertSeedWordIfMissing(SQLiteDatabase dbWrite, String english, String turkish, String category) {
@@ -528,7 +564,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         long wordId = dbWrite.insert(TABLE_WORDS, null, cv);
         if (wordId == -1) return;
 
-        for (String sample : samplesForWord(english)) {
+        for (String sample : samplesForWord(english, turkish, category)) {
             ContentValues sampleValues = new ContentValues();
             sampleValues.put(COL_WORD_ID, (int) wordId);
             sampleValues.put(COL_SAMPLE_TEXT, sample);
@@ -537,7 +573,49 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
-    private String[] samplesForWord(String word) {
+    private void replaceSamplesForWord(int wordId, String[] samples) {
+        SQLiteDatabase dbWrite = this.getWritableDatabase();
+        dbWrite.delete(TABLE_SAMPLES, COL_WORD_ID + "=?", new String[]{String.valueOf(wordId)});
+
+        for (String sample : samples) {
+            ContentValues sampleValues = new ContentValues();
+            sampleValues.put(COL_WORD_ID, wordId);
+            sampleValues.put(COL_SAMPLE_TEXT, sample);
+            sampleValues.put(COL_SAMPLE_USED, 0);
+            dbWrite.insert(TABLE_SAMPLES, null, sampleValues);
+        }
+    }
+
+    private boolean shouldRefreshSamples(List<String> samples, String word) {
+        if (samples == null || samples.isEmpty() || samples.size() < 3) {
+            return true;
+        }
+
+        Set<String> normalizedSamples = new HashSet<>();
+        boolean allPlaceholders = true;
+        for (String sample : samples) {
+            if (sample == null || sample.trim().isEmpty()) {
+                return true;
+            }
+
+            String normalized = sample.trim().toLowerCase(Locale.US);
+            normalizedSamples.add(normalized);
+            if (!isPlaceholderSample(normalized, word)) {
+                allPlaceholders = false;
+            }
+        }
+
+        return allPlaceholders || normalizedSamples.size() < samples.size();
+    }
+
+    private boolean isPlaceholderSample(String sample, String word) {
+        String lowerWord = word == null ? "" : word.toLowerCase(Locale.US);
+        return sample.equals(("i saw the word " + lowerWord + " in a useful sentence.").toLowerCase(Locale.US))
+                || sample.equals(("the meaning of " + lowerWord + " is important to learn.").toLowerCase(Locale.US))
+                || sample.equals(("she practiced " + lowerWord + " with a clear example.").toLowerCase(Locale.US));
+    }
+
+    private String[] samplesForWord(String word, String turkish, String category) {
         switch (word) {
             case "Apple": return new String[]{"She packed a red apple for lunch.", "The apple fell from the tree.", "I sliced the apple into small pieces."};
             case "Book": return new String[]{"He opened the book to chapter three.", "The book explains the history of the city.", "She borrowed a book from the library."};
@@ -589,8 +667,160 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             case "Dog": return new String[]{"The dog waited by the door.", "My dog likes to play outside.", "A friendly dog followed us home."};
             case "Cat": return new String[]{"The cat slept on the sofa.", "Her cat chased a toy mouse.", "A black cat crossed the street."};
             case "Flower": return new String[]{"The flower opened in the sunlight.", "She picked a yellow flower.", "A bee landed on the flower."};
-            default: return new String[]{"I saw the word " + word + " in a useful sentence.", "The meaning of " + word + " is important to learn.", "She practiced " + word + " with a clear example."};
+            default: return buildGeneratedSamples(word, turkish, category);
         }
+    }
+
+    private String[] buildGeneratedSamples(String word, String turkish, String category) {
+        String cleanWord = word == null ? "word" : word.trim();
+        String lowerWord = cleanWord.toLowerCase(Locale.US);
+        String cleanCategory = category == null ? "" : category.trim();
+
+        String[] templates;
+        switch (cleanCategory) {
+            case "Fiiller":
+                templates = new String[]{
+                        "I try to %s for a few minutes every day.",
+                        "She plans to %s before dinner tonight.",
+                        "They learned how to %s during class.",
+                        "We need to %s carefully to finish on time.",
+                        "He forgot to %s until the teacher reminded him.",
+                        "The coach asked us to %s together after school."
+                };
+                return pickTemplates(templates, lowerWord);
+            case "Sifatlar":
+            case "Sıfatlar":
+                templates = new String[]{
+                        "The room felt %s after the windows were opened.",
+                        "She chose a %s style for her project.",
+                        "His voice sounded calm but %s.",
+                        "We noticed a %s detail in the design.",
+                        "That jacket looks simple and %s.",
+                        "The teacher gave a %s example to explain the idea."
+                };
+                return pickTemplates(templates, lowerWord);
+            case "Renkler":
+                templates = new String[]{
+                        "She painted the wall %s before the guests arrived.",
+                        "He wore a %s shirt to the concert.",
+                        "The artist added a %s line across the canvas.",
+                        "We chose a %s cover for the notebook.",
+                        "The car looked bright in its %s color.",
+                        "A %s light flashed near the door."
+                };
+                return pickTemplates(templates, lowerWord);
+            case "Hayvanlar":
+                templates = new String[]{
+                        "The %s moved quietly across the garden.",
+                        "We saw a %s near the lake this morning.",
+                        "The child pointed at the %s with excitement.",
+                        "A small %s rested in the shade.",
+                        "The %s made a sound from behind the fence.",
+                        "Everyone watched the %s for a few seconds."
+                };
+                return pickTemplates(templates, lowerWord);
+            case "Yiyecek":
+                templates = new String[]{
+                        "She bought fresh %s from the market.",
+                        "We served %s with tea in the afternoon.",
+                        "The plate was filled with warm %s.",
+                        "He tasted the %s before adding more salt.",
+                        "They packed %s for the picnic.",
+                        "The smell of %s came from the kitchen."
+                };
+                return pickTemplates(templates, lowerWord);
+            case "Doğa":
+                templates = new String[]{
+                        "We watched the %s during our trip.",
+                        "The %s changed the view outside the window.",
+                        "Children learned about the %s in science class.",
+                        "The guide spoke about the %s for several minutes.",
+                        "A photo of the %s hung on the wall.",
+                        "The quiet sound of the %s made the place peaceful."
+                };
+                return pickTemplates(templates, lowerWord);
+            case "Ev":
+                templates = new String[]{
+                        "The %s in the house needed cleaning.",
+                        "She left the %s near the living room wall.",
+                        "We moved the %s to make more space.",
+                        "The %s matched the rest of the room.",
+                        "He fixed the %s before the visitors arrived.",
+                        "The new %s changed the look of the house."
+                };
+                return pickTemplates(templates, lowerWord);
+            case "Eğitim":
+                templates = new String[]{
+                        "The teacher wrote %s on the board.",
+                        "She used %s in her homework sentence.",
+                        "We reviewed %s again before the quiz.",
+                        "The student remembered %s from yesterday's lesson.",
+                        "A note about %s stayed in his notebook.",
+                        "They practiced %s during English class."
+                };
+                return pickTemplates(templates, lowerWord);
+            case "İş Dünyası":
+                templates = new String[]{
+                        "The manager discussed the %s during the meeting.",
+                        "She prepared the %s before noon.",
+                        "They reviewed the %s in the office.",
+                        "A short report mentioned the %s twice.",
+                        "The team improved the %s step by step.",
+                        "He brought the %s to the manager's desk."
+                };
+                return pickTemplates(templates, lowerWord);
+            case "Yer":
+                templates = new String[]{
+                        "They reached the %s before sunset.",
+                        "We talked about the %s during the trip.",
+                        "A map showed the %s clearly.",
+                        "The bus stopped near the %s.",
+                        "She took a photo of the %s in the morning.",
+                        "Everyone asked how to find the %s."
+                };
+                return pickTemplates(templates, lowerWord);
+            case "Duygular":
+                templates = new String[]{
+                        "The news brought a feeling of %s to the room.",
+                        "You could see %s on his face.",
+                        "Her voice was full of %s after the result.",
+                        "The story ended with a sense of %s.",
+                        "They spoke openly about %s during the conversation.",
+                        "That moment created real %s between the friends."
+                };
+                return pickTemplates(templates, lowerWord);
+            case "Teknoloji":
+                templates = new String[]{
+                        "The new %s worked faster than the old one.",
+                        "She checked the %s before the presentation.",
+                        "A problem with the %s delayed our work.",
+                        "They tested the %s in the lab.",
+                        "The %s stayed on the desk all day.",
+                        "He learned how to use the %s last week."
+                };
+                return pickTemplates(templates, lowerWord);
+            case "Genel":
+            default:
+                templates = new String[]{
+                        "We heard the word %s in today's lesson.",
+                        "She used %s in a short conversation.",
+                        "The example with %s was easy to remember.",
+                        "He wrote %s on a small card for practice.",
+                        "Everyone understood %s after the teacher explained it.",
+                        "A simple sentence with %s helped the class."
+                };
+                return pickTemplates(templates, lowerWord);
+        }
+    }
+
+    private String[] pickTemplates(String[] templates, String value) {
+        String[] samples = new String[3];
+        int start = Math.abs(value.hashCode()) % templates.length;
+        for (int i = 0; i < samples.length; i++) {
+            String template = templates[(start + (i * 2)) % templates.length];
+            samples[i] = String.format(Locale.US, template, value);
+        }
+        return samples;
     }
 
     public static class SampleSentence {

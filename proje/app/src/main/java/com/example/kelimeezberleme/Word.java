@@ -6,6 +6,7 @@ public class Word {
     int stepCount;
     long nextQuizDate;
     int totalAttempts, correctAttempts;
+    boolean expanded;
 
     public Word(int id, String eng, String tur, String pic) {
         this.id = id;
