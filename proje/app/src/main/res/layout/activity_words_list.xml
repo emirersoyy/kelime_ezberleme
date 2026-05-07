@@ -43,6 +43,20 @@
         </LinearLayout>
     </LinearLayout>
 
+    <com.google.android.material.card.MaterialCardView
+        style="@style/App.Card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginBottom="10dp">
+
+        <Spinner
+            android:id="@+id/spSort"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="8dp" />
+    </com.google.android.material.card.MaterialCardView>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvWords"
         android:layout_width="match_parent"

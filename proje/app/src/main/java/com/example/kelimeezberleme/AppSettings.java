@@ -12,6 +12,7 @@ public final class AppSettings {
     public static final String KEY_REMEMBER_LOGIN = "remember_login";
     public static final String KEY_REMEMBERED_USER = "remembered_user";
     public static final String KEY_THEME_MODE = "theme_mode";
+    public static final String KEY_WORDS_SORT = "words_sort";
     public static final String KEY_QUIZ_LIMIT = "quiz_limit";
     public static final String KEY_CORRECT_WORD_IDS = "correct_word_ids";
     public static final int MIN_QUIZ_LIMIT = 5;
@@ -64,6 +65,14 @@ public final class AppSettings {
                 .apply();
     }
 
+    public static String getWordsSortOrder(Context context) {
+        return prefs(context).getString(getWordsSortKey(context), "alpha_asc");
+    }
+
+    public static void setWordsSortOrder(Context context, String sortOrder) {
+        prefs(context).edit().putString(getWordsSortKey(context), sortOrder == null ? "alpha_asc" : sortOrder).apply();
+    }
+
     public static int getQuizLimit(Context context) {
         return clampQuizLimit(prefs(context).getInt(getQuizLimitKey(context), DEFAULT_QUIZ_LIMIT));
     }
@@ -106,6 +115,10 @@ public final class AppSettings {
 
     private static String getCorrectWordIdsKey(Context context) {
         return KEY_CORRECT_WORD_IDS + "_" + getCurrentUserKey(context);
+    }
+
+    private static String getWordsSortKey(Context context) {
+        return KEY_WORDS_SORT + "_" + getCurrentUserKey(context);
     }
 
     private static String normalizeUserKey(String username) {

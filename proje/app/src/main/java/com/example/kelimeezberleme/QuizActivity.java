@@ -46,6 +46,7 @@ public class QuizActivity extends AppCompatActivity {
     boolean ttsReady = false;
 
     TextView tvEngWord, tvFeedback, tvSampleSentence, tvPronunciation, tvReviewTitle;
+    TextView tvLevel;
     ImageView ivQuizImage;
     ImageButton btnPronunciation, btnSlowPronunciation;
     LinearLayout bubbleContainer;
@@ -91,6 +92,7 @@ public class QuizActivity extends AppCompatActivity {
         tvFeedback = findViewById(R.id.tvFeedback);
         tvSampleSentence = findViewById(R.id.tvSampleSentence);
         tvPronunciation = findViewById(R.id.tvPronunciation);
+        tvLevel = findViewById(R.id.tvLevel);
         tvReviewTitle = findViewById(R.id.tvReviewTitle);
         ivQuizImage = findViewById(R.id.ivQuizImage);
         btnPronunciation = findViewById(R.id.btnPronunciation);
@@ -180,6 +182,7 @@ public class QuizActivity extends AppCompatActivity {
         tvReviewTitle.setVisibility(reviewMode ? View.VISIBLE : View.GONE);
         tvEngWord.setText(currentWord.eng);
         tvPronunciation.setText(getPronunciationText(currentWord.eng));
+        tvLevel.setText(getLevelText(currentWord.stepCount));
         tvFeedback.setVisibility(View.INVISIBLE);
         resetPronunciationControls();
 
@@ -242,15 +245,16 @@ public class QuizActivity extends AppCompatActivity {
             selectedCard.setCardBackgroundColor(getResources().getColor(android.R.color.holo_green_light));
             setBubbleColor(question.originalIndex, Color.rgb(34, 197, 94));
             question.everAnsweredCorrect = true;
-            if (!reviewMode) {
-                correctCount++;
+            if (!reviewMode && !question.everWrong) {
                 question.answeredCorrect = true;
+                correctCount++;
             }
         } else {
             tvFeedback.setText(reviewMode ? "Tekrar not edildi." : "Yanl\u0131\u015f.");
             tvFeedback.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
             selectedCard.setCardBackgroundColor(getResources().getColor(android.R.color.holo_red_light));
             markCorrectOption(currentWord.tur);
+            question.everWrong = true;
             if (!reviewMode) {
                 question.answeredCorrect = false;
                 reviewQuestions.add(question);
@@ -284,8 +288,9 @@ public class QuizActivity extends AppCompatActivity {
 
     private void finishQuiz() {
         for (QuizQuestion question : quizQuestions) {
-            db.updateWordProgress(question.word.id, question.word.stepCount, question.answeredCorrect);
-            if (question.everAnsweredCorrect) {
+            boolean shouldAdvance = question.answeredCorrect && !question.everWrong;
+            db.updateWordProgress(question.word.id, question.word.stepCount, shouldAdvance);
+            if (shouldAdvance) {
                 AppSettings.recordCorrectWord(this, question.word.id);
             }
         }
@@ -366,6 +371,14 @@ public class QuizActivity extends AppCompatActivity {
     }
 
     @NonNull
+    private String getLevelText(int stepCount) {
+        if (stepCount <= 0) {
+            return "Seviye 0";
+        }
+        return "Seviye " + stepCount;
+    }
+
+    @NonNull
     private String getPronunciationText(@NonNull String word) {
         switch (word) {
             case "Apple": return "/AP-uhl/";
@@ -439,6 +452,7 @@ public class QuizActivity extends AppCompatActivity {
         final int originalIndex;
         boolean answeredCorrect = false;
         boolean everAnsweredCorrect = false;
+        boolean everWrong = false;
 
         QuizQuestion(Word word, DatabaseHelper.SampleSentence sample, int originalIndex) {
             this.word = word;

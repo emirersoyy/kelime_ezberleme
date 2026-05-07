@@ -4,17 +4,32 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 
 public class WordsListActivity extends AppCompatActivity {
     RecyclerView rvWords;
+    Spinner spSort;
     DatabaseHelper db;
+    WordAdapter adapter;
+    List<Word> allWords = new ArrayList<>();
+
+    private static final String SORT_ALPHA_ASC = "alpha_asc";
+    private static final String SORT_ALPHA_DESC = "alpha_desc";
+    private static final String SORT_LEVEL_DESC = "level_desc";
+    private static final String SORT_LEVEL_ASC = "level_asc";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,6 +39,7 @@ public class WordsListActivity extends AppCompatActivity {
         db = new DatabaseHelper(this);
         rvWords = findViewById(R.id.rvWords);
         rvWords.setLayoutManager(new LinearLayoutManager(this));
+        spSort = findViewById(R.id.spSort);
 
         findViewById(R.id.btnBack).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -32,9 +48,84 @@ public class WordsListActivity extends AppCompatActivity {
             }
         });
 
-        List<Word> wordList = db.getAllWords();
-        WordAdapter adapter = new WordAdapter(wordList);
+        setupSortSpinner();
+        allWords = db.getAllWords();
+        adapter = new WordAdapter(new ArrayList<>());
         rvWords.setAdapter(adapter);
+        applySorting(AppSettings.getWordsSortOrder(this));
+    }
+
+    private void setupSortSpinner() {
+        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(
+                this,
+                android.R.layout.simple_spinner_item,
+                new String[]{"A-Z", "Z-A", "Yüksek seviye", "Düşük seviye"}
+        );
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spSort.setAdapter(spinnerAdapter);
+
+        String savedSort = AppSettings.getWordsSortOrder(this);
+        spSort.setSelection(getSortPosition(savedSort), false);
+
+        spSort.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String sortOrder = getSortKey(position);
+                AppSettings.setWordsSortOrder(WordsListActivity.this, sortOrder);
+                applySorting(sortOrder);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+    }
+
+    private void applySorting(String sortOrder) {
+        List<Word> sorted = new ArrayList<>(allWords);
+        switch (sortOrder) {
+            case SORT_ALPHA_DESC:
+                Collections.sort(sorted, (a, b) -> compareEng(b, a));
+                break;
+            case SORT_LEVEL_DESC:
+                Collections.sort(sorted, Comparator.comparingInt((Word w) -> w.stepCount).reversed().thenComparing(this::compareEngSafe));
+                break;
+            case SORT_LEVEL_ASC:
+                Collections.sort(sorted, Comparator.comparingInt((Word w) -> w.stepCount).thenComparing(this::compareEngSafe));
+                break;
+            case SORT_ALPHA_ASC:
+            default:
+                Collections.sort(sorted, this::compareEngSafe);
+                break;
+        }
+        adapter.updateWords(sorted);
+    }
+
+    private int compareEng(Word left, Word right) {
+        return compareEngSafe(left, right);
+    }
+
+    private int compareEngSafe(Word left, Word right) {
+        String a = left == null || left.eng == null ? "" : left.eng.toLowerCase(Locale.US);
+        String b = right == null || right.eng == null ? "" : right.eng.toLowerCase(Locale.US);
+        return a.compareTo(b);
+    }
+
+    private String getSortKey(int position) {
+        switch (position) {
+            case 1: return SORT_ALPHA_DESC;
+            case 2: return SORT_LEVEL_DESC;
+            case 3: return SORT_LEVEL_ASC;
+            case 0:
+            default: return SORT_ALPHA_ASC;
+        }
+    }
+
+    private int getSortPosition(String sortOrder) {
+        if (SORT_ALPHA_DESC.equals(sortOrder)) return 1;
+        if (SORT_LEVEL_DESC.equals(sortOrder)) return 2;
+        if (SORT_LEVEL_ASC.equals(sortOrder)) return 3;
+        return 0;
     }
 
     class WordAdapter extends RecyclerView.Adapter<WordAdapter.WordViewHolder> {
@@ -42,6 +133,11 @@ public class WordsListActivity extends AppCompatActivity {
 
         WordAdapter(List<Word> words) {
             this.words = words;
+        }
+
+        void updateWords(List<Word> newWords) {
+            this.words = newWords;
+            notifyDataSetChanged();
         }
 
         @NonNull
@@ -56,6 +152,7 @@ public class WordsListActivity extends AppCompatActivity {
             Word word = words.get(position);
             holder.tvEng.setText(word.eng);
             holder.tvTur.setText(word.tur);
+            holder.tvLevel.setText(getLevelText(word.stepCount));
             List<String> samples = db.getDisplaySamplesForWord(word);
             holder.tvSample.setText(formatSamples(samples));
             WordImageLoader.load(holder.ivWord, word.pic);
@@ -91,8 +188,15 @@ public class WordsListActivity extends AppCompatActivity {
             return builder.toString();
         }
 
+        private String getLevelText(int stepCount) {
+            if (stepCount <= 0) {
+                return "Seviye 0";
+            }
+            return "Seviye " + stepCount;
+        }
+
         class WordViewHolder extends RecyclerView.ViewHolder {
-            TextView tvEng, tvTur, tvSample, tvToggle;
+            TextView tvEng, tvTur, tvSample, tvLevel, tvToggle;
             ImageView ivWord;
             View detailsContainer;
 
@@ -101,6 +205,7 @@ public class WordsListActivity extends AppCompatActivity {
                 tvEng = itemView.findViewById(R.id.tvEng);
                 tvTur = itemView.findViewById(R.id.tvTur);
                 tvSample = itemView.findViewById(R.id.tvSample);
+                tvLevel = itemView.findViewById(R.id.tvLevel);
                 tvToggle = itemView.findViewById(R.id.tvToggle);
                 ivWord = itemView.findViewById(R.id.ivWord);
                 detailsContainer = itemView.findViewById(R.id.detailsContainer);
