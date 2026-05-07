@@ -18,7 +18,7 @@ import javax.crypto.spec.PBEKeySpec;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String DATABASE_NAME = "KelimeEzberleme.db";
-    public static final int DATABASE_VERSION = 10;
+    public static final int DATABASE_VERSION = 12;
     private static final String PASSWORD_HASH_PREFIX = "pbkdf2";
     private static final int PASSWORD_HASH_ITERATIONS = 120000;
     private static final int PASSWORD_SALT_BYTES = 16;
@@ -517,8 +517,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ensureCurrentSchema(dbWrite);
         for (String[] w : seedWords) {
             insertSeedWordIfMissing(dbWrite, w[0], w[1], w[2]);
+            syncSeedWordVisuals(dbWrite, w[0], w[1], w[2]);
             syncSeedWordSamples(dbWrite, w[0], w[1], w[2]);
         }
+    }
+
+    private void syncSeedWordVisuals(SQLiteDatabase dbWrite, String english, String turkish, String category) {
+        ContentValues values = new ContentValues();
+        values.put(COL_PICTURE, "word:" + english.toLowerCase(Locale.US));
+        values.put(COL_TUR_WORD, turkish);
+        values.put(COL_CATEGORY, category);
+        dbWrite.update(
+                TABLE_WORDS,
+                values,
+                "lower(trim(" + COL_ENG_WORD + ")) = lower(trim(?))",
+                new String[]{english}
+        );
     }
 
     private void syncSeedWordSamples(SQLiteDatabase dbWrite, String english, String turkish, String category) {

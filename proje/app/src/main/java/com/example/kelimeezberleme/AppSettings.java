@@ -9,6 +9,8 @@ import java.util.Set;
 public final class AppSettings {
     public static final String PREFS_NAME = "AppSettings";
     public static final String KEY_CURRENT_USER = "current_user";
+    public static final String KEY_REMEMBER_LOGIN = "remember_login";
+    public static final String KEY_REMEMBERED_USER = "remembered_user";
     public static final String KEY_THEME_MODE = "theme_mode";
     public static final String KEY_QUIZ_LIMIT = "quiz_limit";
     public static final String KEY_CORRECT_WORD_IDS = "correct_word_ids";
@@ -33,6 +35,33 @@ public final class AppSettings {
 
     public static void clearCurrentUser(Context context) {
         prefs(context).edit().remove(KEY_CURRENT_USER).apply();
+    }
+
+    public static void setRememberedLogin(Context context, String username, boolean remember) {
+        SharedPreferences.Editor editor = prefs(context).edit();
+        if (remember && username != null && !username.trim().isEmpty()) {
+            editor.putBoolean(KEY_REMEMBER_LOGIN, true);
+            editor.putString(KEY_REMEMBERED_USER, username.trim());
+        } else {
+            editor.remove(KEY_REMEMBER_LOGIN);
+            editor.remove(KEY_REMEMBERED_USER);
+        }
+        editor.apply();
+    }
+
+    public static boolean isRememberedLoginEnabled(Context context) {
+        return prefs(context).getBoolean(KEY_REMEMBER_LOGIN, false);
+    }
+
+    public static String getRememberedUser(Context context) {
+        return prefs(context).getString(KEY_REMEMBERED_USER, "");
+    }
+
+    public static void clearRememberedLogin(Context context) {
+        prefs(context).edit()
+                .remove(KEY_REMEMBER_LOGIN)
+                .remove(KEY_REMEMBERED_USER)
+                .apply();
     }
 
     public static int getQuizLimit(Context context) {

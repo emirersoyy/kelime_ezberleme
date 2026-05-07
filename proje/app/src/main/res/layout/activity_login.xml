@@ -108,12 +108,22 @@
                         android:singleLine="true" />
                 </com.google.android.material.textfield.TextInputLayout>
 
+                <CheckBox
+                    android:id="@+id/cbRememberMe"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:buttonTint="@color/primary"
+                    android:minHeight="40dp"
+                    android:text="Beni hatırla"
+                    android:textColor="@color/text_primary" />
+
                 <TextView
                     android:id="@+id/tvForgotPassword"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="end"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="2dp"
                     android:minHeight="40dp"
                     android:paddingHorizontal="4dp"
                     android:paddingVertical="10dp"
