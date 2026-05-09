@@ -114,4 +114,16 @@
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnResetData"
+        style="@style/App.Button.Outlined"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_marginTop="16dp"
+        android:text="Verilerimi Sıfırla"
+        android:textColor="@color/accent"
+        android:textStyle="bold"
+        app:icon="@android:drawable/ic_menu_delete"
+        app:iconTint="@color/accent" />
+
 </LinearLayout>

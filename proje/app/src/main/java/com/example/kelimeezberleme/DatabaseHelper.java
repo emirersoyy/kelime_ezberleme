@@ -257,6 +257,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.update(TABLE_WORDS, values, COL_WORD_ID + "=?", new String[]{String.valueOf(wordId)});
     }
 
+    public void resetAnalysisStatistics() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COL_TOTAL_ATTEMPTS, 0);
+        values.put(COL_CORRECT_ATTEMPTS, 0);
+        db.update(TABLE_WORDS, values, null, null);
+    }
+
     private long calculateNextDate(int step) {
         long now = System.currentTimeMillis();
         long day = 24 * 60 * 60 * 1000L;

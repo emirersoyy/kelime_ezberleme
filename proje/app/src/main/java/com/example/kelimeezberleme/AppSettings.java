@@ -105,6 +105,10 @@ public final class AppSettings {
         return new HashSet<>(prefs(context).getStringSet(getCorrectWordIdsKey(context), new HashSet<>()));
     }
 
+    public static void clearCorrectWordIds(Context context) {
+        prefs(context).edit().remove(getCorrectWordIdsKey(context)).apply();
+    }
+
     public static String getCurrentUserKey(Context context) {
         String currentUser = getCurrentUser(context);
         if (currentUser == null || currentUser.trim().isEmpty()) {

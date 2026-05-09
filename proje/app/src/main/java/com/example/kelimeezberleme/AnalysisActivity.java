@@ -17,7 +17,11 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
@@ -25,10 +29,10 @@ import java.util.List;
 import java.util.Map;
 
 public class AnalysisActivity extends AppCompatActivity {
-    DatabaseHelper db;
-    LinearLayout llCategoryStats;
-    TextView tvOverallStats;
-    View reportView;
+    private DatabaseHelper db;
+    private LinearLayout llCategoryStats;
+    private TextView tvOverallStats;
+    private View reportView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,11 +46,14 @@ public class AnalysisActivity extends AppCompatActivity {
 
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
         findViewById(R.id.btnPrint).setOnClickListener(v -> printReport());
+        findViewById(R.id.btnResetData).setOnClickListener(v -> confirmReset());
 
         calculateAndShowStats();
     }
 
     private void calculateAndShowStats() {
+        llCategoryStats.removeAllViews();
+
         List<Word> words = db.getAllWords();
         if (words.isEmpty()) {
             tvOverallStats.setText("Henüz çözülmüş kelime yok.");
@@ -60,7 +67,9 @@ public class AnalysisActivity extends AppCompatActivity {
             if (w.totalAttempts > 0) {
                 totalSolved += w.totalAttempts;
                 String cat = w.category == null ? "Genel" : w.category;
-                if (!stats.containsKey(cat)) stats.put(cat, new int[]{0, 0});
+                if (!stats.containsKey(cat)) {
+                    stats.put(cat, new int[]{0, 0});
+                }
                 stats.get(cat)[0] += w.totalAttempts;
                 stats.get(cat)[1] += w.correctAttempts;
             }
@@ -74,7 +83,7 @@ public class AnalysisActivity extends AppCompatActivity {
     }
 
     private void addCategoryRow(String name, int total, int correct) {
-        int percent = (int) (((double) correct / total) * 100);
+        int percent = total == 0 ? 0 : (int) (((double) correct / total) * 100);
 
         TextView text = new TextView(this);
         text.setText(name + ": %" + percent + " Başarı (" + correct + "/" + total + ")");
@@ -89,6 +98,21 @@ public class AnalysisActivity extends AppCompatActivity {
 
         llCategoryStats.addView(text);
         llCategoryStats.addView(pb);
+    }
+
+    private void confirmReset() {
+        new AlertDialog.Builder(this)
+                .setTitle("Verileri sıfırla")
+                .setMessage("Emin misiniz? Analiz geçmişi sıfırlanacak.")
+                .setNegativeButton("İptal", null)
+                .setPositiveButton("Evet, sıfırla", (dialog, which) -> resetAnalysisData())
+                .show();
+    }
+
+    private void resetAnalysisData() {
+        db.resetAnalysisStatistics();
+        calculateAndShowStats();
+        Toast.makeText(this, "Analiz geçmişi sıfırlandı", Toast.LENGTH_SHORT).show();
     }
 
     private void printReport() {
