@@ -523,7 +523,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         SQLiteDatabase dbWrite = this.getWritableDatabase();
         ensureCurrentSchema(dbWrite);
+        SeedWordCatalog.removeOldGeneratedWords(dbWrite);
         for (String[] w : seedWords) {
+            insertSeedWordIfMissing(dbWrite, w[0], w[1], w[2]);
+            syncSeedWordVisuals(dbWrite, w[0], w[1], w[2]);
+            syncSeedWordSamples(dbWrite, w[0], w[1], w[2]);
+        }
+        for (String[] w : SeedWordCatalog.extraWords()) {
             insertSeedWordIfMissing(dbWrite, w[0], w[1], w[2]);
             syncSeedWordVisuals(dbWrite, w[0], w[1], w[2]);
             syncSeedWordSamples(dbWrite, w[0], w[1], w[2]);
@@ -532,7 +538,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     private void syncSeedWordVisuals(SQLiteDatabase dbWrite, String english, String turkish, String category) {
         ContentValues values = new ContentValues();
-        values.put(COL_PICTURE, "word:" + english.toLowerCase(Locale.US));
+        values.put(COL_PICTURE, SeedWordCatalog.pictureRefForWord(english, category));
         values.put(COL_TUR_WORD, turkish);
         values.put(COL_CATEGORY, category);
         dbWrite.update(
@@ -577,7 +583,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ContentValues cv = new ContentValues();
         cv.put(COL_ENG_WORD, english);
         cv.put(COL_TUR_WORD, turkish);
-        cv.put(COL_PICTURE, "word:" + english.toLowerCase(Locale.US));
+        cv.put(COL_PICTURE, SeedWordCatalog.pictureRefForWord(english, category));
         cv.put(COL_CATEGORY, category);
         cv.put(COL_STEP_COUNT, 0);
         cv.put(COL_NEXT_QUIZ_DATE, System.currentTimeMillis());
@@ -664,7 +670,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             case "Happy": return new String[]{"She felt happy after hearing the news.", "The happy child smiled all day.", "I am happy to see you."};
             case "Sad": return new String[]{"He felt sad when the game ended.", "The sad story made her quiet.", "She looked sad after saying goodbye."};
             case "Beautiful": return new String[]{"The garden looks beautiful in spring.", "She wore a beautiful dress.", "That song has a beautiful melody."};
-            case "Big": return new String[]{"They live in a big house.", "A big truck stopped outside.", "The big box was hard to carry."};
+            case "Big": return new String[]{"They live in a big house.", "A big vehicle stopped outside.", "The big box was hard to carry."};
             case "Small": return new String[]{"A small bird sat on the branch.", "She bought a small notebook.", "The room is small but bright."};
             case "New": return new String[]{"He bought a new jacket.", "The new student joined our class.", "This is my new phone."};
             case "Old": return new String[]{"The old bridge crosses the river.", "She found an old photo album.", "My grandfather owns an old radio."};
