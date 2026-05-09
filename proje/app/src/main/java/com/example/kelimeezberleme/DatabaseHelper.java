@@ -538,7 +538,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     private void syncSeedWordVisuals(SQLiteDatabase dbWrite, String english, String turkish, String category) {
         ContentValues values = new ContentValues();
-        values.put(COL_PICTURE, "word:" + english.toLowerCase(Locale.US));
+        values.put(COL_PICTURE, SeedWordCatalog.pictureRefForWord(english, category));
         values.put(COL_TUR_WORD, turkish);
         values.put(COL_CATEGORY, category);
         dbWrite.update(
@@ -583,7 +583,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ContentValues cv = new ContentValues();
         cv.put(COL_ENG_WORD, english);
         cv.put(COL_TUR_WORD, turkish);
-        cv.put(COL_PICTURE, "word:" + english.toLowerCase(Locale.US));
+        cv.put(COL_PICTURE, SeedWordCatalog.pictureRefForWord(english, category));
         cv.put(COL_CATEGORY, category);
         cv.put(COL_STEP_COUNT, 0);
         cv.put(COL_NEXT_QUIZ_DATE, System.currentTimeMillis());

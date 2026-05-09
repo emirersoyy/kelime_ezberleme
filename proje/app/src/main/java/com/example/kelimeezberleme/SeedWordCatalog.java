@@ -10,6 +10,208 @@ import java.util.Set;
 final class SeedWordCatalog {
     private SeedWordCatalog() {}
 
+    static String pictureRefForWord(String english, String category) {
+        if (!hasCuratedImage(english)) {
+            return "";
+        }
+        return "drawable:" + drawableNameForWord(english);
+    }
+
+    private static boolean hasCuratedImage(String english) {
+        String word = english == null ? "" : english.trim().toLowerCase(Locale.US);
+        switch (word) {
+            case "above":
+            case "address":
+            case "airport":
+            case "album":
+            case "along":
+            case "analysis":
+            case "apartment":
+            case "apple":
+            case "application":
+            case "appointment":
+            case "architecture":
+            case "area":
+            case "arena":
+            case "artist":
+            case "atmosphere":
+            case "audience":
+            case "backpack":
+            case "bakery":
+            case "battery":
+            case "beach":
+            case "bedroom":
+            case "biology":
+            case "bird":
+            case "black":
+            case "blanket":
+            case "book":
+            case "boundary":
+            case "bread":
+            case "breakfast":
+            case "brown":
+            case "building":
+            case "cabinet":
+            case "camera":
+            case "candy":
+            case "capital":
+            case "cat":
+            case "certificate":
+            case "chair":
+            case "chemical":
+            case "chemistry":
+            case "city":
+            case "classroom":
+            case "climate":
+            case "coast":
+            case "component":
+            case "computer":
+            case "connection":
+            case "country":
+            case "courtyard":
+            case "cream":
+            case "dance":
+            case "database":
+            case "destination":
+            case "dictionary":
+            case "direction":
+            case "director":
+            case "discovery":
+            case "distance":
+            case "dog":
+            case "door":
+            case "education":
+            case "electricity":
+            case "elevator":
+            case "emergency":
+            case "energy":
+            case "engine":
+            case "environment":
+            case "equipment":
+            case "example":
+            case "exercise":
+            case "experiment":
+            case "extension":
+            case "facility":
+            case "festival":
+            case "field":
+            case "floor":
+            case "flower":
+            case "front":
+            case "fruit":
+            case "function":
+            case "furniture":
+            case "garden":
+            case "glass":
+            case "grain":
+            case "green":
+            case "grocery":
+            case "guidance":
+            case "history":
+            case "hospital":
+            case "house":
+            case "household":
+            case "image":
+            case "information":
+            case "ingredient":
+            case "instruction":
+            case "instrument":
+            case "internet":
+            case "journal":
+            case "journey":
+            case "keyboard":
+            case "knife":
+            case "knowledge":
+            case "laboratory":
+            case "landmark":
+            case "landscape":
+            case "lecture":
+            case "library":
+            case "lifestyle":
+            case "literature":
+            case "location":
+            case "machine":
+            case "maintenance":
+            case "material":
+            case "measurement":
+            case "mechanism":
+            case "medicine":
+            case "message":
+            case "metal":
+            case "microscope":
+            case "money":
+            case "mountain":
+            case "movement":
+            case "music":
+            case "navigation":
+            case "network":
+            case "north":
+            case "notebook":
+            case "operation":
+            case "orientation":
+            case "paint":
+            case "passenger":
+            case "password":
+            case "pen":
+            case "performance":
+            case "pharmacy":
+            case "phone":
+            case "photograph":
+            case "place":
+            case "plate":
+            case "platform":
+            case "pressure":
+            case "printer":
+            case "publication":
+            case "question":
+            case "radio":
+            case "reference":
+            case "refrigerator":
+            case "research":
+            case "restaurant":
+            case "school":
+            case "science":
+            case "shelter":
+            case "software":
+            case "south":
+            case "station":
+            case "storage":
+            case "substance":
+            case "sugar":
+            case "system":
+            case "table":
+            case "teacher":
+            case "technique":
+            case "technology":
+            case "temperature":
+            case "traffic":
+            case "train":
+            case "translation":
+            case "transportation":
+            case "treatment":
+            case "university":
+            case "vegetable":
+            case "vehicle":
+            case "version":
+            case "vocabulary":
+            case "weather":
+            case "white":
+            case "wildlife":
+            case "window":
+            case "world":
+            case "zoology":
+                return true;
+            default:
+                return false;
+        }
+    }
+    private static String drawableNameForWord(String english) {
+        String clean = english == null ? "" : english.trim().toLowerCase(Locale.US).replaceAll("[^a-z0-9]+", "_");
+        clean = clean.replaceAll("^_+|_+$", "");
+        if (clean.isEmpty()) clean = "general";
+        return "word_img_" + clean;
+    }
+
     static List<String[]> extraWords() {
         List<String[]> words = new ArrayList<>();
         Set<String> seen = new HashSet<>();
