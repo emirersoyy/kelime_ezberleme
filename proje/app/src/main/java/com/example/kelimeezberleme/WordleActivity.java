@@ -360,9 +360,14 @@ public class WordleActivity extends AppCompatActivity {
         boolean hasPuzzle = hasPuzzleForDate(dateKey);
         int background = getCalendarDayColor(dateKey);
         btn.setBackgroundTintList(ColorStateList.valueOf(background));
-        btn.setTextColor(hasPuzzle && getGameStatus(dateKey) == null
-                ? ContextCompat.getColor(this, R.color.text_primary)
-                : Color.WHITE);
+        String status = getGameStatus(dateKey);
+        if (!hasPuzzle) {
+            btn.setTextColor(Color.WHITE);
+        } else if (status == null) {
+            btn.setTextColor(ContextCompat.getColor(this, R.color.calendar_unplayed_text));
+        } else {
+            btn.setTextColor(Color.WHITE);
+        }
         btn.setEnabled(hasPuzzle);
         btn.setAlpha(1.0f);
 
