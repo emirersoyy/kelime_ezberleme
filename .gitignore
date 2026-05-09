@@ -1,0 +1,23 @@
+*.iml
+.gradle
+/local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+.DS_Store
+/build
+/capture
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+
+# Proje klasörü içindeki build ve idea klasörlerini yoksay
+proje/build/
+proje/app/build/
+proje/.gradle/
+proje/.idea/
+proje/local.properties

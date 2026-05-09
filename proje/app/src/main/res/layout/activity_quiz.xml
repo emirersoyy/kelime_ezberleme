@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <ImageButton
+            android:id="@+id/btnBack"
+            style="@style/App.IconButton"
+            android:contentDescription="Geri d&#246;n"
+            android:src="@drawable/ic_arrow_back_24"
+            app:tint="@color/text_primary" />
+
+        <HorizontalScrollView
+            android:id="@+id/progressScroll"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="10dp"
+            android:fillViewport="false"
+            android:overScrollMode="never"
+            android:scrollbars="none">
+
+            <FrameLayout
+                android:id="@+id/progressFrame"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:clipChildren="false"
+                android:clipToPadding="false"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp">
+
+                <LinearLayout
+                    android:id="@+id/bubbleContainer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
+                    android:clipChildren="false"
+                    android:clipToPadding="false"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal" />
+
+                <View
+                    android:id="@+id/currentBubbleRing"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center_vertical"
+                    android:background="@drawable/current_bubble_ring" />
+            </FrameLayout>
+        </HorizontalScrollView>
+
+        <TextView
+            android:id="@+id/tvReviewTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center"
+            android:text="Yanl&#305;&#351;lar&#305;n&#305; g&#246;zden ge&#231;ir"
+            android:textColor="@color/accent"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardQuestion"
+            style="@style/App.Card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="24dp">
+
+                <ImageView
+                    android:id="@+id/ivQuizImage"
+                    android:layout_width="match_parent"
+                    android:layout_height="170dp"
+                    android:adjustViewBounds="true"
+                    android:scaleType="fitCenter" />
+
+                <TextView
+                    android:id="@+id/tvEngWord"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:text="Word"
+                    android:textColor="@color/primary"
+                    android:textSize="32sp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <ImageButton
+                        android:id="@+id/btnSlowPronunciation"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_marginEnd="8dp"
+                        android:background="@drawable/modern_icon_button_bg"
+                        android:contentDescription="Yava&#351; telaffuz"
+                        android:padding="9dp"
+                        android:src="@drawable/ic_slow_motion_24"
+                        android:visibility="gone"
+                        app:tint="@color/text_secondary" />
+
+                    <ImageButton
+                        android:id="@+id/btnPronunciation"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:background="@drawable/modern_icon_button_bg"
+                        android:contentDescription="Telaffuzu dinle"
+                        android:padding="9dp"
+                        android:src="@drawable/ic_volume_24"
+                        app:tint="@color/primary" />
+
+                    <TextView
+                        android:id="@+id/tvPronunciation"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:text="/word/"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="16sp" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvLevel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/soft_chip_bg"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="6dp"
+                    android:text="Seviye 0"
+                    android:textColor="@color/primary"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvSampleSentence"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:gravity="center"
+                    android:lineSpacingExtra="3dp"
+                    android:textColor="@color/text_primary"
+                    android:textSize="16sp"
+                    android:visibility="gone" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:orientation="vertical">
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardOption1"
+                android:layout_width="match_parent"
+                android:layout_height="66dp"
+                android:layout_marginBottom="10dp"
+                android:clickable="true"
+                android:focusable="true"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:strokeColor="@color/divider"
+                app:strokeWidth="1dp">
+
+                <TextView
+                    android:id="@+id/tvOption1"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="Se&#231;enek 1"
+                    android:textColor="@color/text_primary"
+                    android:textSize="18sp" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardOption2"
+                android:layout_width="match_parent"
+                android:layout_height="66dp"
+                android:layout_marginBottom="10dp"
+                android:clickable="true"
+                android:focusable="true"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:strokeColor="@color/divider"
+                app:strokeWidth="1dp">
+
+                <TextView
+                    android:id="@+id/tvOption2"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="Se&#231;enek 2"
+                    android:textColor="@color/text_primary"
+                    android:textSize="18sp" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardOption3"
+                android:layout_width="match_parent"
+                android:layout_height="66dp"
+                android:layout_marginBottom="10dp"
+                android:clickable="true"
+                android:focusable="true"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:strokeColor="@color/divider"
+                app:strokeWidth="1dp">
+
+                <TextView
+                    android:id="@+id/tvOption3"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="Se&#231;enek 3"
+                    android:textColor="@color/text_primary"
+                    android:textSize="18sp" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardOption4"
+                android:layout_width="match_parent"
+                android:layout_height="66dp"
+                android:clickable="true"
+                android:focusable="true"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:strokeColor="@color/divider"
+                app:strokeWidth="1dp">
+
+                <TextView
+                    android:id="@+id/tvOption4"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="Se&#231;enek 4"
+                    android:textColor="@color/text_primary"
+                    android:textSize="18sp" />
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvFeedback"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:gravity="center"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:visibility="invisible" />
+    </LinearLayout>
+</ScrollView>

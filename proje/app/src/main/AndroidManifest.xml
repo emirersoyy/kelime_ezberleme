@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+
+    <application
+        android:name=".KelimeEzberlemeApplication"
+        android:allowBackup="true"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.KelimeEzberleme">
+        
+        <activity
+            android:name=".LoginActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        
+        <activity 
+            android:name=".RegisterActivity"
+            android:parentActivityName=".LoginActivity" />
+        <activity 
+            android:name=".ForgotPasswordActivity"
+            android:parentActivityName=".LoginActivity" />
+        <activity android:name=".AddWordActivity" />
+        <activity android:name=".SettingsActivity" />
+        <activity android:name=".WordsListActivity" />
+        <activity android:name=".QuizActivity" />
+        <activity android:name=".QuizResultActivity" />
+        <activity android:name=".AnalysisActivity" />
+        <activity android:name=".WordleActivity" />
+        <activity android:name=".MainActivity" />
+        
+    </application>
+
+</manifest>
