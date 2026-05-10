@@ -123,14 +123,14 @@
                 app:iconTint="@color/accent" />
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnSettingsMenu"
+                android:id="@+id/btnAccountMenu"
                 style="@style/App.Button.Text"
                 android:layout_width="match_parent"
                 android:layout_height="54dp"
-                android:text="Ayarlar"
+                android:text="Hesap"
                 android:textColor="@color/text_secondary"
                 android:textSize="16sp"
-                app:icon="@android:drawable/ic_menu_preferences"
+                app:icon="@android:drawable/ic_menu_myplaces"
                 app:iconGravity="textStart"
                 app:iconTint="@color/text_secondary" />
         </LinearLayout>
