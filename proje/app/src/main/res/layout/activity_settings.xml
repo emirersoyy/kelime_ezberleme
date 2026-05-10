@@ -161,18 +161,5 @@
 
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnLogout"
-            style="@style/App.Button.Text"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginTop="22dp"
-            android:text="Hesaptan Çıkış Yap"
-            android:textColor="@color/accent"
-            android:textStyle="bold"
-            app:icon="@android:drawable/ic_lock_power_off"
-            app:iconTint="@color/accent" />
-
     </LinearLayout>
 </ScrollView>
