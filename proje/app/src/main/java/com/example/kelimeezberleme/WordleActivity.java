@@ -30,7 +30,8 @@ import java.util.Map;
 public class WordleActivity extends AppCompatActivity {
     private static final String TAG = "WordleActivity";
     private static final int MAX_ATTEMPTS = 5;
-    private static final int WORDLE_WORD_LENGTH = 5;
+    private static final int MIN_WORDLE_WORD_LENGTH = 4;
+    private static final int MAX_WORDLE_WORD_LENGTH = 7;
     private static final String WORDLE_PREFS = "WordlePrefs";
     private static final String STATUS_CORRECT = "correct";
     private static final String STATUS_FAILED = "failed";
@@ -142,7 +143,7 @@ public class WordleActivity extends AppCompatActivity {
         }
 
         if (targetWord == null) {
-            Toast.makeText(this, "Wordle için 5 harfli kelime bulunamadı.", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Wordle için 4-7 harfli kelime bulunamadı.", Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -665,7 +666,7 @@ public class WordleActivity extends AppCompatActivity {
         if (isGameOver || currentAttempt >= MAX_ATTEMPTS || currentGuess.length() != wordLength) return;
         String guess = currentGuess.toString();
         if (!db.isValidWordleGuess(guess)) {
-            Toast.makeText(this, "Tahmin İngilizce sözlükte olan 5 harfli bir kelime olmalı.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Tahmin İngilizce sözlükte olan 4-7 harfli bir kelime olmalı.", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -753,7 +754,11 @@ public class WordleActivity extends AppCompatActivity {
     }
 
     private boolean isValidWord(String word) {
-        return word != null && word.length() == WORDLE_WORD_LENGTH;
+        return word != null && isValidWordleLength(word.length());
+    }
+
+    private boolean isValidWordleLength(int length) {
+        return length >= MIN_WORDLE_WORD_LENGTH && length <= MAX_WORDLE_WORD_LENGTH;
     }
 
     private void setKeyboardEnabled(boolean enabled) {

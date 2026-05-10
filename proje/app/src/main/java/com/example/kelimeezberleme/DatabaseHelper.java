@@ -401,7 +401,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public String getRandomWordForWordle() {
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT " + COL_ENG_WORD + " FROM " + TABLE_WORDS + " WHERE length(trim(" + COL_ENG_WORD + ")) = 5 ORDER BY RANDOM() LIMIT 1", null);
+        Cursor cursor = db.rawQuery("SELECT " + COL_ENG_WORD + " FROM " + TABLE_WORDS + " WHERE length(trim(" + COL_ENG_WORD + ")) BETWEEN 4 AND 7 ORDER BY RANDOM() LIMIT 1", null);
         String word = null;
         if (cursor.moveToFirst()) {
             word = cursor.getString(0).toUpperCase(Locale.US);
@@ -431,7 +431,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery(
                 "SELECT " + COL_ENG_WORD + " FROM " + TABLE_WORDS +
                         " WHERE " + COL_WORD_ID + " IN (" + placeholders + ")" +
-                        " AND length(trim(" + COL_ENG_WORD + ")) = 5" +
+                        " AND length(trim(" + COL_ENG_WORD + ")) BETWEEN 4 AND 7" +
                         " ORDER BY RANDOM() LIMIT 1",
                 cleanIds.toArray(new String[0])
         );
@@ -444,13 +444,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public boolean isValidWordleGuess(String guess) {
-        if (guess == null || guess.trim().length() != 5) return false;
+        if (guess == null) return false;
+        int length = guess.trim().length();
+        if (length < 4 || length > 7) return false;
 
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(
                 "SELECT 1 FROM " + TABLE_WORDS +
                         " WHERE lower(trim(" + COL_ENG_WORD + ")) = lower(trim(?))" +
-                        " AND length(trim(" + COL_ENG_WORD + ")) = 5" +
+                        " AND length(trim(" + COL_ENG_WORD + ")) BETWEEN 4 AND 7" +
                         " LIMIT 1",
                 new String[]{guess}
         );
