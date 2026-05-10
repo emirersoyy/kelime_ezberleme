@@ -306,9 +306,10 @@ public class QuizActivity extends AppCompatActivity {
 
     private void confirmExit() {
         new AlertDialog.Builder(this)
-                .setMessage("Bu testteki t\u00fcm ilerlemen kaybolacak, ana men\u00fcye d\u00f6nmek istedi\u011fine emin misin?")
-                .setNegativeButton("Vazge\u00e7", null)
-                .setPositiveButton("Ana men\u00fcye d\u00f6n", (dialog, which) -> finish())
+                .setTitle("Sınavdan çıkılsın mı?")
+                .setMessage("Bu testteki ilerlemen kaybolacak, sınavdan çıkmak istediğine emin misin?")
+                .setNegativeButton("Vazgeç", null)
+                .setPositiveButton("Evet", (dialog, which) -> finish())
                 .show();
     }
 

@@ -52,9 +52,6 @@ public class MainActivity extends AppCompatActivity {
 
         findViewById(R.id.btnAiMenu).setOnClickListener(v ->
                 startActivity(new Intent(MainActivity.this, AiAssistantActivity.class)));
-
-        findViewById(R.id.btnAccountMenu).setOnClickListener(v ->
-                startActivity(new Intent(MainActivity.this, AccountActivity.class)));
     }
 
     private void startQuiz() {

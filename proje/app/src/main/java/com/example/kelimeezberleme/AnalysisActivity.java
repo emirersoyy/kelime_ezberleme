@@ -22,6 +22,8 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.card.MaterialCardView;
+
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -31,6 +33,7 @@ import java.util.List;
 
 public class AnalysisActivity extends AppCompatActivity {
     private DatabaseHelper db;
+    private LinearLayout llSummaryChips;
     private LinearLayout llCategoryStats;
     private TextView tvOverallStats;
 
@@ -40,6 +43,7 @@ public class AnalysisActivity extends AppCompatActivity {
         setContentView(R.layout.activity_analysis);
 
         db = new DatabaseHelper(this);
+        llSummaryChips = findViewById(R.id.llSummaryChips);
         llCategoryStats = findViewById(R.id.llCategoryStats);
         tvOverallStats = findViewById(R.id.tvOverallStats);
 
@@ -51,6 +55,7 @@ public class AnalysisActivity extends AppCompatActivity {
     }
 
     private void calculateAndShowStats() {
+        llSummaryChips.removeAllViews();
         llCategoryStats.removeAllViews();
 
         List<Word> words = db.getAllWords();
@@ -81,9 +86,48 @@ public class AnalysisActivity extends AppCompatActivity {
                 + " • Öğrenilmekte " + learning.size()
                 + " • Öğrenilmiş " + learned.size());
 
+        addMetricChip("Toplam", String.valueOf(words.size()), R.color.primary);
+        addMetricChip("Öğreniliyor", String.valueOf(learning.size()), R.color.accent);
+        addMetricChip("Öğrenildi", String.valueOf(learned.size()), R.color.success);
+
         addStatusSection("Öğrenilmekte Olan", learning, R.color.accent);
         addStatusSection("Öğrenilmiş", learned, R.color.success);
         addStatusSection("Daha Başlanmamış", notStarted, R.color.text_secondary);
+    }
+
+    private void addMetricChip(String label, String value, int colorResId) {
+        int color = getResources().getColor(colorResId);
+        MaterialCardView card = new MaterialCardView(this);
+        LinearLayout.LayoutParams cardParams = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
+        cardParams.rightMargin = 10;
+        card.setLayoutParams(cardParams);
+        card.setCardBackgroundColor(getResources().getColor(R.color.surface));
+        card.setCardElevation(dp(2f));
+        card.setRadius(dp(18));
+        card.setStrokeColor(getResources().getColor(R.color.divider));
+        card.setStrokeWidth(1);
+        card.setUseCompatPadding(true);
+        card.setPreventCornerOverlap(true);
+
+        LinearLayout content = new LinearLayout(this);
+        content.setOrientation(LinearLayout.VERTICAL);
+        content.setPadding(18, 16, 18, 16);
+
+        TextView valueText = new TextView(this);
+        valueText.setText(value);
+        valueText.setTextColor(color);
+        valueText.setTextSize(22);
+        valueText.setTypeface(Typeface.DEFAULT_BOLD);
+
+        TextView labelText = new TextView(this);
+        labelText.setText(label);
+        labelText.setTextColor(getResources().getColor(R.color.text_primary));
+        labelText.setTextSize(13);
+
+        content.addView(valueText);
+        content.addView(labelText);
+        card.addView(content);
+        llSummaryChips.addView(card);
     }
 
     private void addEmptyState(String message) {
@@ -98,48 +142,119 @@ public class AnalysisActivity extends AppCompatActivity {
     private void addStatusSection(String title, List<Word> items, int accentColorResId) {
         int accentColor = getResources().getColor(accentColorResId);
 
+        MaterialCardView sectionCard = new MaterialCardView(this);
+        LinearLayout.LayoutParams sectionParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        sectionParams.bottomMargin = 14;
+        sectionCard.setLayoutParams(sectionParams);
+        sectionCard.setCardBackgroundColor(getResources().getColor(R.color.surface));
+        sectionCard.setCardElevation(dp(2f));
+        sectionCard.setRadius(dp(18));
+        sectionCard.setStrokeColor(getResources().getColor(R.color.divider));
+        sectionCard.setStrokeWidth(1);
+        sectionCard.setUseCompatPadding(true);
+        sectionCard.setPreventCornerOverlap(true);
+
+        LinearLayout sectionContent = new LinearLayout(this);
+        sectionContent.setOrientation(LinearLayout.VERTICAL);
+        sectionContent.setPadding(18, 16, 18, 10);
+
         TextView header = new TextView(this);
         header.setText(title + " (" + items.size() + ")");
         header.setTextColor(accentColor);
         header.setTextSize(16);
         header.setTypeface(Typeface.DEFAULT_BOLD);
-        header.setPadding(0, 16, 0, 8);
-        llCategoryStats.addView(header);
+        sectionContent.addView(header);
 
         if (items.isEmpty()) {
-            addEmptyState("Bu bölümde kelime yok.");
+            TextView empty = new TextView(this);
+            empty.setText("Bu bölümde kelime yok.");
+            empty.setTextColor(getResources().getColor(R.color.text_secondary));
+            empty.setTextSize(14);
+            empty.setPadding(0, 10, 0, 4);
+            sectionContent.addView(empty);
+            sectionCard.addView(sectionContent);
+            llCategoryStats.addView(sectionCard);
             return;
         }
 
+        TextView subtitle = new TextView(this);
+        subtitle.setText("İngilizce • Türkçe • Kategori • Seviye");
+        subtitle.setTextColor(getResources().getColor(R.color.text_secondary));
+        subtitle.setTextSize(12);
+        subtitle.setPadding(0, 2, 0, 12);
+        sectionContent.addView(subtitle);
+
         for (Word word : items) {
-            addWordRow(word, accentColor);
+            sectionContent.addView(createWordCard(word, accentColor));
         }
+
+        sectionCard.addView(sectionContent);
+        llCategoryStats.addView(sectionCard);
     }
 
-    private void addWordRow(Word word, int accentColor) {
+    private MaterialCardView createWordCard(Word word, int accentColor) {
         String category = word.category == null || word.category.trim().isEmpty() ? "Genel" : word.category.trim();
         String english = word.eng == null || word.eng.trim().isEmpty() ? "-" : word.eng.trim();
         String turkish = word.tur == null || word.tur.trim().isEmpty() ? "-" : word.tur.trim();
 
-        TextView text = new TextView(this);
-        text.setText(english + "  •  " + turkish + "\n"
-                + "Kategori: " + category + "   |   Quiz seviyesi: " + Math.max(word.stepCount, 0));
-        text.setTextColor(getResources().getColor(R.color.text_primary));
-        text.setTextSize(15);
-        text.setPadding(16, 14, 16, 14);
-        text.setBackgroundResource(R.drawable.soft_chip_bg);
-        text.setLineSpacing(0f, 1.15f);
-        text.setIncludeFontPadding(false);
-        llCategoryStats.addView(text);
+        MaterialCardView card = new MaterialCardView(this);
+        LinearLayout.LayoutParams cardParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        cardParams.bottomMargin = 10;
+        card.setLayoutParams(cardParams);
+        card.setCardBackgroundColor(getResources().getColor(R.color.background));
+        card.setCardElevation(dp(0.5f));
+        card.setRadius(dp(14));
+        card.setStrokeColor(getResources().getColor(R.color.divider));
+        card.setStrokeWidth(1);
+        card.setUseCompatPadding(true);
+        card.setPreventCornerOverlap(true);
 
-        View divider = new View(this);
-        divider.setBackgroundColor(accentColor);
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, 1);
-        params.topMargin = 10;
-        params.bottomMargin = 10;
-        divider.setLayoutParams(params);
-        llCategoryStats.addView(divider);
+        LinearLayout content = new LinearLayout(this);
+        content.setOrientation(LinearLayout.VERTICAL);
+        content.setPadding(16, 14, 16, 14);
+
+        LinearLayout topRow = new LinearLayout(this);
+        topRow.setOrientation(LinearLayout.HORIZONTAL);
+        topRow.setGravity(android.view.Gravity.CENTER_VERTICAL);
+
+        TextView englishText = new TextView(this);
+        englishText.setText(english);
+        englishText.setTextColor(getResources().getColor(R.color.text_primary));
+        englishText.setTextSize(16);
+        englishText.setTypeface(Typeface.DEFAULT_BOLD);
+        LinearLayout.LayoutParams englishParams = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
+        englishText.setLayoutParams(englishParams);
+
+        TextView levelText = new TextView(this);
+        levelText.setText("Seviye " + Math.max(word.stepCount, 0));
+        levelText.setTextColor(accentColor);
+        levelText.setTextSize(12);
+        levelText.setTypeface(Typeface.DEFAULT_BOLD);
+        levelText.setPadding(14, 8, 14, 8);
+        levelText.setBackgroundResource(R.drawable.soft_chip_bg);
+
+        topRow.addView(englishText);
+        topRow.addView(levelText);
+
+        TextView turkishText = new TextView(this);
+        turkishText.setText(turkish);
+        turkishText.setTextColor(getResources().getColor(R.color.text_secondary));
+        turkishText.setTextSize(14);
+        turkishText.setPadding(0, 6, 0, 0);
+
+        TextView metaText = new TextView(this);
+        metaText.setText("Kategori: " + category);
+        metaText.setTextColor(getResources().getColor(R.color.text_secondary));
+        metaText.setTextSize(12);
+        metaText.setPadding(0, 8, 0, 0);
+
+        content.addView(topRow);
+        content.addView(turkishText);
+        content.addView(metaText);
+        card.addView(content);
+        return card;
     }
 
     private void confirmReset() {
@@ -246,5 +361,9 @@ public class AnalysisActivity extends AppCompatActivity {
             }
         }
         return lines;
+    }
+
+    private float dp(float value) {
+        return value * getResources().getDisplayMetrics().density;
     }
 }

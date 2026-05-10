@@ -1,106 +1,117 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background"
-    android:fillViewport="true">
+    android:orientation="vertical">
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingHorizontal="@dimen/screen_padding"
-        android:paddingVertical="24dp">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
 
-        <ImageButton
-            android:id="@+id/btnBack"
-            style="@style/App.IconButton"
-            android:contentDescription="Geri dön"
-            android:src="@drawable/ic_arrow_back_24"
-            app:tint="@color/text_secondary" />
-
-        <TextView
-            style="@style/App.TitleText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="14dp"
-            android:text="Hesap" />
-
-        <TextView
-            style="@style/App.SubtitleText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="Ayarlar, şifre ve oturum işlemleri" />
-
-        <com.google.android.material.card.MaterialCardView
-            style="@style/App.Card"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
-            app:cardUseCompatPadding="true">
+            android:orientation="vertical"
+            android:paddingHorizontal="@dimen/screen_padding"
+            android:paddingVertical="24dp">
 
-            <LinearLayout
+            <ImageButton
+                android:id="@+id/btnBack"
+                style="@style/App.IconButton"
+                android:contentDescription="Geri dön"
+                android:src="@drawable/ic_arrow_back_24"
+                app:tint="@color/text_secondary" />
+
+            <TextView
+                style="@style/App.TitleText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:text="Hesap" />
+
+            <TextView
+                style="@style/App.SubtitleText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Ayarlar, şifre ve oturum işlemleri" />
+
+            <com.google.android.material.card.MaterialCardView
+                style="@style/App.Card"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="20dp">
+                android:layout_marginTop="18dp"
+                app:cardUseCompatPadding="true">
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Kullanıcı"
-                    android:textColor="@color/text_primary"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
+                    android:orientation="vertical"
+                    android:padding="20dp">
 
-                <TextView
-                    android:id="@+id/tvCurrentUser"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="15sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Kullanıcı"
+                        android:textColor="@color/text_primary"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnAccountSettings"
-            style="@style/App.Button.Outlined"
-            android:layout_width="match_parent"
-            android:layout_height="58dp"
-            android:layout_marginTop="16dp"
-            android:text="Ayarlar"
-            android:textSize="16sp"
-            app:icon="@android:drawable/ic_menu_preferences"
-            app:iconGravity="textStart"
-            app:iconTint="@color/primary" />
+                    <TextView
+                        android:id="@+id/tvCurrentUser"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnAccountResetPassword"
-            style="@style/App.Button.Outlined"
-            android:layout_width="match_parent"
-            android:layout_height="58dp"
-            android:layout_marginTop="10dp"
-            android:text="Şifremi Unuttum"
-            android:textSize="16sp"
-            app:icon="@android:drawable/ic_lock_lock"
-            app:iconGravity="textStart"
-            app:iconTint="@color/accent" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnAccountSettings"
+                style="@style/App.Button.Outlined"
+                android:layout_width="match_parent"
+                android:layout_height="58dp"
+                android:layout_marginTop="16dp"
+                android:text="Ayarlar"
+                android:textSize="16sp"
+                app:icon="@android:drawable/ic_menu_preferences"
+                app:iconGravity="textStart"
+                app:iconTint="@color/primary" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnAccountLogout"
-            style="@style/App.Button.Text"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginTop="18dp"
-            android:text="Çıkış Yap"
-            android:textColor="@color/accent"
-            android:textStyle="bold"
-            app:icon="@android:drawable/ic_lock_power_off"
-            app:iconTint="@color/accent" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnAccountResetPassword"
+                style="@style/App.Button.Outlined"
+                android:layout_width="match_parent"
+                android:layout_height="58dp"
+                android:layout_marginTop="10dp"
+                android:text="Şifremi Unuttum"
+                android:textSize="16sp"
+                app:icon="@android:drawable/ic_lock_lock"
+                app:iconGravity="textStart"
+                app:iconTint="@color/accent" />
 
-    </LinearLayout>
-</ScrollView>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnAccountLogout"
+                style="@style/App.Button.Text"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="18dp"
+                android:text="Çıkış Yap"
+                android:textColor="@color/accent"
+                android:textStyle="bold"
+                app:icon="@android:drawable/ic_lock_power_off"
+                app:iconTint="@color/accent" />
+        </LinearLayout>
+    </ScrollView>
+
+    <com.example.kelimeezberleme.BottomNavBarView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+</LinearLayout>

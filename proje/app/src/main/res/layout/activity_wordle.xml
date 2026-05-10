@@ -1,59 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background"
-    android:fillViewport="true">
+    android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center_horizontal"
-        android:orientation="vertical">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:paddingHorizontal="@dimen/screen_padding"
+        android:paddingVertical="@dimen/screen_padding_top">
 
-        <!-- Üst Bar -->
-        <FrameLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="72dp"
-            android:paddingHorizontal="16dp"
-            android:paddingVertical="12dp">
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
             <ImageButton
                 android:id="@+id/btnBack"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_gravity="start|center_vertical"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:padding="12dp"
+                style="@style/App.IconButton"
                 android:src="@drawable/ic_arrow_back_24"
                 app:tint="@color/text_secondary" />
 
-            <TextView
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:text="Wordle"
-                android:textColor="@color/primary"
-                android:textSize="24sp"
-                android:textStyle="bold" />
+                android:layout_marginStart="14dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    style="@style/App.TitleText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Wordle" />
+            </LinearLayout>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSelectedDate"
                 style="@style/App.Button.Outlined"
                 android:layout_width="wrap_content"
                 android:layout_height="44dp"
-                android:layout_gravity="end|center_vertical"
                 android:minHeight="0dp"
                 android:paddingHorizontal="12dp"
                 android:textAllCaps="false"
                 android:textSize="13sp" />
-        </FrameLayout>
+        </LinearLayout>
 
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
+            android:layout_marginTop="12dp"
             android:background="#EEEEEE" />
 
         <LinearLayout
@@ -64,7 +65,6 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- Oyun Izgarası -->
             <GridLayout
                 android:id="@+id/glWordle"
                 android:layout_width="wrap_content"
@@ -73,7 +73,6 @@
                 android:alignmentMode="alignMargins"
                 android:useDefaultMargins="true" />
 
-            <!-- Sonuç Yazısı (Buraya taşındı) -->
             <TextView
                 android:id="@+id/tvResult"
                 android:layout_width="wrap_content"
@@ -92,11 +91,10 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="#DDDDDD"
                 android:layout_marginTop="12dp"
-                android:layout_marginBottom="14dp" />
+                android:layout_marginBottom="14dp"
+                android:background="#DDDDDD" />
 
-            <!-- Sanal Klavye -->
             <LinearLayout
                 android:id="@+id/llKeyboard"
                 android:layout_width="match_parent"
@@ -120,4 +118,9 @@
 
         </LinearLayout>
     </LinearLayout>
-</ScrollView>
+
+    <com.example.kelimeezberleme.BottomNavBarView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+</LinearLayout>

@@ -4,15 +4,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:paddingHorizontal="@dimen/screen_padding"
+    android:paddingTop="@dimen/screen_padding_top">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingHorizontal="@dimen/screen_padding"
-        android:paddingTop="@dimen/screen_padding_top"
         android:paddingBottom="18dp">
 
         <ImageButton
@@ -43,27 +43,24 @@
         </LinearLayout>
     </LinearLayout>
 
-    <com.google.android.material.card.MaterialCardView
-        style="@style/App.Card"
+    <Spinner
+        android:id="@+id/spSort"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginBottom="10dp">
-
-        <Spinner
-            android:id="@+id/spSort"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="8dp" />
-    </com.google.android.material.card.MaterialCardView>
+        android:background="@drawable/soft_chip_bg"
+        android:padding="8dp" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvWords"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginTop="10dp"
         android:layout_weight="1"
         android:clipToPadding="false"
-        android:paddingHorizontal="8dp"
-        android:paddingBottom="16dp" />
+        android:paddingBottom="12dp" />
+
+    <com.example.kelimeezberleme.BottomNavBarView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
 </LinearLayout>
