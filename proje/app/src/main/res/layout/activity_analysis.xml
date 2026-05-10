@@ -38,7 +38,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
-                android:text="Konu bazlı ilerlemeni takip et" />
+                android:text="Kelime durumunu ve seviyeni takip et" />
         </LinearLayout>
 
         <ImageButton
@@ -67,7 +67,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Genel Başarı"
+                android:text="Genel Durum"
                 android:textColor="@color/text_secondary"
                 android:textSize="14sp"
                 android:textStyle="bold" />
@@ -79,7 +79,7 @@
                 android:layout_marginTop="8dp"
                 android:background="@drawable/soft_chip_bg"
                 android:padding="14dp"
-                android:text="Toplam 0 kelime çözüldü."
+                android:text="Toplam 0 kelime"
                 android:textColor="@color/text_primary"
                 android:textSize="17sp"
                 android:textStyle="bold" />
@@ -93,7 +93,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Konu Bazlı Başarı Oranları"
+                android:text="Durum Listesi"
                 android:textColor="@color/text_secondary"
                 android:textSize="14sp"
                 android:textStyle="bold" />

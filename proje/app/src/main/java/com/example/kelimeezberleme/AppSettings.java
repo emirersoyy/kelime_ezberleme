@@ -19,7 +19,7 @@ public final class AppSettings {
     public static final String KEY_QUIZ_LIMIT = "quiz_limit";
     public static final String KEY_CORRECT_WORD_IDS = "correct_word_ids";
     public static final int MIN_QUIZ_LIMIT = 5;
-    public static final int MAX_QUIZ_LIMIT = 15;
+    public static final int MAX_QUIZ_LIMIT = 30;
     public static final int DEFAULT_QUIZ_LIMIT = 10;
 
     private AppSettings() {

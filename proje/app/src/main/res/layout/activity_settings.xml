@@ -149,7 +149,7 @@
                     android:stepSize="1"
                     android:value="10"
                     android:valueFrom="5"
-                    android:valueTo="15" />
+                    android:valueTo="30" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnSaveSettings"
