@@ -39,5 +39,27 @@ public class AccountActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         });
+
+        findViewById(R.id.btnHomeMenu).setOnClickListener(v -> {
+            Intent intent = new Intent(AccountActivity.this, MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+            startActivity(intent);
+            finish();
+        });
+
+        findViewById(R.id.btnAccountMenu).setOnClickListener(v -> recreate());
+
+        updateBottomNavState();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        updateBottomNavState();
+    }
+
+    private void updateBottomNavState() {
+        findViewById(R.id.btnHomeMenu).setAlpha(0.55f);
+        findViewById(R.id.btnAccountMenu).setAlpha(1f);
     }
 }
