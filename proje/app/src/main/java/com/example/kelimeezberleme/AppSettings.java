@@ -13,6 +13,9 @@ public final class AppSettings {
     public static final String KEY_REMEMBERED_USER = "remembered_user";
     public static final String KEY_THEME_MODE = "theme_mode";
     public static final String KEY_WORDS_SORT = "words_sort";
+    public static final String KEY_WORDCHAIN_WORDS = "wordchain_words";
+    public static final String KEY_WORDCHAIN_STORY = "wordchain_story";
+    public static final String KEY_WORDCHAIN_IMAGE_PATH = "wordchain_image_path";
     public static final String KEY_QUIZ_LIMIT = "quiz_limit";
     public static final String KEY_CORRECT_WORD_IDS = "correct_word_ids";
     public static final int MIN_QUIZ_LIMIT = 5;
@@ -63,6 +66,26 @@ public final class AppSettings {
                 .remove(KEY_REMEMBER_LOGIN)
                 .remove(KEY_REMEMBERED_USER)
                 .apply();
+    }
+
+    public static void saveWordChainState(Context context, String words, String story, String imagePath) {
+        prefs(context).edit()
+                .putString(KEY_WORDCHAIN_WORDS, words == null ? "" : words)
+                .putString(KEY_WORDCHAIN_STORY, story == null ? "" : story)
+                .putString(KEY_WORDCHAIN_IMAGE_PATH, imagePath == null ? "" : imagePath)
+                .apply();
+    }
+
+    public static String getWordChainWords(Context context) {
+        return prefs(context).getString(KEY_WORDCHAIN_WORDS, "");
+    }
+
+    public static String getWordChainStory(Context context) {
+        return prefs(context).getString(KEY_WORDCHAIN_STORY, "");
+    }
+
+    public static String getWordChainImagePath(Context context) {
+        return prefs(context).getString(KEY_WORDCHAIN_IMAGE_PATH, "");
     }
 
     public static String getWordsSortOrder(Context context) {
