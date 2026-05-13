@@ -2,10 +2,12 @@ package com.example.kelimeezberleme;
 
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -82,11 +84,8 @@ public class AccountActivity extends BottomNavActivity {
         MaterialButton btnShowPasswordReset = dialogView.findViewById(R.id.btnShowPasswordReset);
         TextInputLayout tilUsername = dialogView.findViewById(R.id.tilEditUsername);
         TextInputLayout tilFullName = dialogView.findViewById(R.id.tilEditFullName);
-        TextInputLayout tilPassword = dialogView.findViewById(R.id.tilEditPassword);
         TextInputEditText etUsername = dialogView.findViewById(R.id.etEditUsername);
         TextInputEditText etFullName = dialogView.findViewById(R.id.etEditFullName);
-        TextInputEditText etPassword = dialogView.findViewById(R.id.etEditPassword);
-        TextView tvPasswordResetHint = dialogView.findViewById(R.id.tvPasswordResetHint);
 
         DatabaseHelper.UserProfile profile = db.getUserProfile(currentUser);
         String profileUsername = profile == null ? currentUser : profile.username;
@@ -96,12 +95,7 @@ public class AccountActivity extends BottomNavActivity {
         applyProfileImage(dialogProfileImage, selectedProfileImagePath);
 
         btnChooseProfileImage.setOnClickListener(v -> openProfileImagePicker());
-        btnShowPasswordReset.setOnClickListener(v -> {
-            tilPassword.setVisibility(View.VISIBLE);
-            tvPasswordResetHint.setVisibility(View.VISIBLE);
-            btnShowPasswordReset.setVisibility(View.GONE);
-            etPassword.requestFocus();
-        });
+        btnShowPasswordReset.setOnClickListener(v -> showResetPasswordDialog(getText(etUsername)));
 
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle("Profili Düzenle")
@@ -113,11 +107,9 @@ public class AccountActivity extends BottomNavActivity {
         dialog.setOnShowListener(d -> dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
             tilUsername.setError(null);
             tilFullName.setError(null);
-            tilPassword.setError(null);
 
             String newUsername = getText(etUsername);
             String fullName = getText(etFullName);
-            String newPassword = getText(etPassword);
 
             String usernameError = AccountSecurity.validateUsername(newUsername);
             if (usernameError != null) {
@@ -128,15 +120,8 @@ public class AccountActivity extends BottomNavActivity {
                 tilUsername.setError("Bu kullanıcı adı zaten kullanılıyor.");
                 return;
             }
-            if (!newPassword.isEmpty()) {
-                String passwordError = AccountSecurity.validatePassword(newUsername, newPassword);
-                if (passwordError != null) {
-                    tilPassword.setError(passwordError);
-                    return;
-                }
-            }
 
-            if (db.updateUserProfile(currentUser, newUsername, fullName, newPassword, selectedProfileImagePath)) {
+            if (db.updateUserProfile(currentUser, newUsername, fullName, "", selectedProfileImagePath)) {
                 updateStoredUsername(currentUser, newUsername);
                 currentUser = newUsername;
                 loadProfile();
@@ -149,6 +134,52 @@ public class AccountActivity extends BottomNavActivity {
 
         dialog.setOnDismissListener(d -> dialogProfileImage = null);
         dialog.show();
+        applyRoundedDialogCorners(dialog);
+    }
+
+    private void showResetPasswordDialog(String usernameForValidation) {
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_reset_password, null);
+        TextInputLayout tilPassword = dialogView.findViewById(R.id.tilResetPassword);
+        TextInputEditText etPassword = dialogView.findViewById(R.id.etResetPassword);
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle("Şifremi Sıfırla")
+                .setView(dialogView)
+                .setNegativeButton("Vazgeç", null)
+                .setPositiveButton("Kaydet", null)
+                .create();
+
+        dialog.setOnShowListener(d -> dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+            tilPassword.setError(null);
+            String newPassword = getText(etPassword);
+            String username = usernameForValidation == null || usernameForValidation.trim().isEmpty()
+                    ? currentUser
+                    : usernameForValidation.trim();
+            String passwordError = AccountSecurity.validatePassword(username, newPassword);
+            if (passwordError != null) {
+                tilPassword.setError(passwordError);
+                return;
+            }
+
+            if (db.updatePassword(currentUser, newPassword)) {
+                Toast.makeText(this, "Şifre güncellendi.", Toast.LENGTH_SHORT).show();
+                dialog.dismiss();
+            } else {
+                Toast.makeText(this, "Şifre güncellenemedi.", Toast.LENGTH_SHORT).show();
+            }
+        }));
+
+        dialog.show();
+        applyRoundedDialogCorners(dialog);
+    }
+
+    private void applyRoundedDialogCorners(AlertDialog dialog) {
+        Window window = dialog.getWindow();
+        if (window != null) {
+            window.setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+            window.getDecorView().setBackgroundResource(R.drawable.dialog_rounded_bg);
+            window.getDecorView().setPadding(dp(4), dp(4), dp(4), dp(4));
+        }
     }
 
     private void openProfileImagePicker() {
