@@ -19,7 +19,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
-public class WordsListActivity extends AppCompatActivity {
+public class WordsListActivity extends BottomNavActivity {
     RecyclerView rvWords;
     Spinner spSort;
     DatabaseHelper db;

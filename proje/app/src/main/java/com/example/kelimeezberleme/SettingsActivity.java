@@ -7,7 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.slider.Slider;
 import com.google.android.material.button.MaterialButtonToggleGroup;
 
-public class SettingsActivity extends AppCompatActivity {
+public class SettingsActivity extends BottomNavActivity {
     Slider sliderQuestionLimit;
     TextView tvQuestionLimitValue;
     MaterialButtonToggleGroup toggleTheme;

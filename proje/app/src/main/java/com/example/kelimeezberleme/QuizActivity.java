@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-public class QuizActivity extends AppCompatActivity {
+public class QuizActivity extends BottomNavActivity {
     private static final int BUBBLE_SIZE_DP = 18;
     private static final int RING_SIZE_DP = 30;
     private static final int MIN_BUBBLE_GAP_DP = 3;

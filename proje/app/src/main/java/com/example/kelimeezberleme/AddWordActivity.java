@@ -10,7 +10,7 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-public class AddWordActivity extends AppCompatActivity {
+public class AddWordActivity extends BottomNavActivity {
     EditText etEngWord, etTurWord, etSamples, etCategory;
     Button btnSave, btnSelectImage;
     TextView tvImagePath;

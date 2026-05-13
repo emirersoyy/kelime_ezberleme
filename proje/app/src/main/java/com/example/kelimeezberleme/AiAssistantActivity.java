@@ -39,7 +39,7 @@ import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class AiAssistantActivity extends AppCompatActivity {
+public class AiAssistantActivity extends BottomNavActivity {
     private static final String TAG = "AiAssistantActivity";
     private static final String TEXT_ENDPOINT = "https://text.pollinations.ai/openai";
     private static final String IMAGE_ENDPOINT = "https://image.pollinations.ai/prompt/";

@@ -31,7 +31,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-public class AnalysisActivity extends AppCompatActivity {
+public class AnalysisActivity extends BottomNavActivity {
     private DatabaseHelper db;
     private LinearLayout llSummaryChips;
     private LinearLayout llCategoryStats;

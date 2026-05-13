@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-public class WordleActivity extends AppCompatActivity {
+public class WordleActivity extends BottomNavActivity {
     private static final String TAG = "WordleActivity";
     private static final int MAX_ATTEMPTS = 5;
     private static final int MIN_WORDLE_WORD_LENGTH = 4;
