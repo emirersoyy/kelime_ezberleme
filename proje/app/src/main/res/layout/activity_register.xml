@@ -14,17 +14,9 @@
         android:paddingHorizontal="@dimen/screen_padding"
         android:paddingVertical="32dp">
 
-        <ImageButton
-            android:id="@+id/btnBack"
-            style="@style/App.IconButton"
-            android:layout_gravity="start"
-            android:src="@drawable/ic_arrow_back_24"
-            app:tint="@color/text_secondary" />
-
         <TextView
             android:layout_width="64dp"
             android:layout_height="64dp"
-            android:layout_marginTop="8dp"
             android:background="@drawable/login_badge_bg"
             android:gravity="center"
             android:text="H"

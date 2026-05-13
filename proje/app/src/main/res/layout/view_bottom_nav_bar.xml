@@ -8,27 +8,35 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnBottomHome"
-        style="@style/App.Button.Outlined"
+        style="@style/App.Button.Text"
         android:layout_width="0dp"
-        android:layout_height="48dp"
+        android:layout_height="52dp"
         android:layout_weight="1"
-        android:text="Ana Sayfa"
-        android:textSize="14sp"
-        app:icon="@android:drawable/ic_menu_view"
+        android:backgroundTint="@android:color/transparent"
+        android:minWidth="0dp"
+        android:paddingHorizontal="0dp"
+        android:text=""
+        app:icon="@drawable/ic_home_outline_24"
+        app:iconSize="32dp"
         app:iconGravity="textStart"
-        app:iconTint="@color/primary" />
+        app:iconPadding="0dp"
+        app:iconTint="@null" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnBottomAccount"
-        style="@style/App.Button.Outlined"
+        style="@style/App.Button.Text"
         android:layout_width="0dp"
-        android:layout_height="48dp"
+        android:layout_height="52dp"
         android:layout_marginStart="10dp"
         android:layout_weight="1"
-        android:text="Hesap"
-        android:textSize="14sp"
-        app:icon="@android:drawable/ic_menu_myplaces"
+        android:backgroundTint="@android:color/transparent"
+        android:minWidth="0dp"
+        android:paddingHorizontal="0dp"
+        android:text=""
+        app:icon="@drawable/ic_account_outline_24"
+        app:iconSize="32dp"
         app:iconGravity="textStart"
-        app:iconTint="@color/primary" />
+        app:iconPadding="0dp"
+        app:iconTint="@null" />
 
 </LinearLayout>

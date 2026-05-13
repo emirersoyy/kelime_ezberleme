@@ -37,24 +37,31 @@ public class BottomNavBarView extends MaterialCardView {
 
         setCardBackgroundColor(getResources().getColor(R.color.surface));
         setCardElevation(dp(4f));
-        setRadius(dp(20));
+        setRadius(getResources().getDimension(R.dimen.radius_xl));
         setStrokeColor(getResources().getColor(R.color.divider));
         setStrokeWidth(1);
         setUseCompatPadding(true);
         setPreventCornerOverlap(true);
 
+        btnHome.setIconResource(R.drawable.ic_home_outline_24);
+        btnAccount.setIconResource(R.drawable.ic_account_outline_24);
+        btnHome.setAlpha(1f);
+        btnAccount.setAlpha(1f);
+
         String screen = context.getClass().getSimpleName();
         if ("MainActivity".equals(screen)) {
-            btnHome.setEnabled(false);
-            btnHome.setAlpha(0.55f);
+            btnHome.setIconResource(R.drawable.ic_home_filled_24);
+            btnHome.setOnClickListener(null);
         } else {
+            btnHome.setIconResource(R.drawable.ic_home_outline_24);
             btnHome.setOnClickListener(v -> navigateWithQuizWarning(context, MainActivity.class));
         }
 
         if ("AccountActivity".equals(screen)) {
-            btnAccount.setEnabled(false);
-            btnAccount.setAlpha(0.55f);
+            btnAccount.setIconResource(R.drawable.ic_account_filled_24);
+            btnAccount.setOnClickListener(null);
         } else {
+            btnAccount.setIconResource(R.drawable.ic_account_outline_24);
             btnAccount.setOnClickListener(v -> navigateWithQuizWarning(context, AccountActivity.class));
         }
     }

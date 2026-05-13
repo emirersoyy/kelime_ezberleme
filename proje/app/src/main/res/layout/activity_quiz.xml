@@ -18,18 +18,10 @@
             android:orientation="vertical"
             android:padding="20dp">
 
-            <ImageButton
-                android:id="@+id/btnBack"
-                style="@style/App.IconButton"
-                android:contentDescription="Geri dön"
-                android:src="@drawable/ic_arrow_back_24"
-                app:tint="@color/text_primary" />
-
             <HorizontalScrollView
                 android:id="@+id/progressScroll"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
-                android:layout_marginTop="10dp"
                 android:fillViewport="false"
                 android:overScrollMode="never"
                 android:scrollbars="none">
@@ -182,7 +174,7 @@
                     android:layout_marginBottom="10dp"
                     android:clickable="true"
                     android:focusable="true"
-                    app:cardCornerRadius="16dp"
+                    app:cardCornerRadius="@dimen/radius_md"
                     app:cardElevation="2dp"
                     app:strokeColor="@color/divider"
                     app:strokeWidth="1dp">
@@ -204,7 +196,7 @@
                     android:layout_marginBottom="10dp"
                     android:clickable="true"
                     android:focusable="true"
-                    app:cardCornerRadius="16dp"
+                    app:cardCornerRadius="@dimen/radius_md"
                     app:cardElevation="2dp"
                     app:strokeColor="@color/divider"
                     app:strokeWidth="1dp">
@@ -226,7 +218,7 @@
                     android:layout_marginBottom="10dp"
                     android:clickable="true"
                     android:focusable="true"
-                    app:cardCornerRadius="16dp"
+                    app:cardCornerRadius="@dimen/radius_md"
                     app:cardElevation="2dp"
                     app:strokeColor="@color/divider"
                     app:strokeWidth="1dp">
@@ -247,7 +239,7 @@
                     android:layout_height="66dp"
                     android:clickable="true"
                     android:focusable="true"
-                    app:cardCornerRadius="16dp"
+                    app:cardCornerRadius="@dimen/radius_md"
                     app:cardElevation="2dp"
                     app:strokeColor="@color/divider"
                     app:strokeWidth="1dp">
@@ -275,9 +267,5 @@
 
         </LinearLayout>
     </ScrollView>
-
-    <com.example.kelimeezberleme.BottomNavBarView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
 
 </LinearLayout>

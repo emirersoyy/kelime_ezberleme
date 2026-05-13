@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 
-public class QuizResultActivity extends AppCompatActivity {
+public class QuizResultActivity extends BottomNavActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

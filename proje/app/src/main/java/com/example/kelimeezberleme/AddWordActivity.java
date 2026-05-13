@@ -10,7 +10,7 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-public class AddWordActivity extends AppCompatActivity {
+public class AddWordActivity extends BottomNavActivity {
     EditText etEngWord, etTurWord, etSamples, etCategory;
     Button btnSave, btnSelectImage;
     TextView tvImagePath;
@@ -32,7 +32,6 @@ public class AddWordActivity extends AppCompatActivity {
         btnSelectImage = findViewById(R.id.btnSelectImage);
         tvImagePath = findViewById(R.id.tvImagePath);
 
-        findViewById(R.id.btnBack).setOnClickListener(v -> finish());
         btnSelectImage.setOnClickListener(v -> selectImage());
         btnSave.setOnClickListener(v -> saveWord());
     }

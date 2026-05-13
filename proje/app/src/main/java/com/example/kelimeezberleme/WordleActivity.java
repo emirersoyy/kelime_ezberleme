@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-public class WordleActivity extends AppCompatActivity {
+public class WordleActivity extends BottomNavActivity {
     private static final String TAG = "WordleActivity";
     private static final int MAX_ATTEMPTS = 5;
     private static final int MIN_WORDLE_WORD_LENGTH = 4;
@@ -76,7 +76,6 @@ public class WordleActivity extends AppCompatActivity {
         tvResult = findViewById(R.id.tvResult);
         btnSelectedDate = findViewById(R.id.btnSelectedDate);
 
-        findViewById(R.id.btnBack).setOnClickListener(v -> finish());
         btnSelectedDate.setOnClickListener(v -> showCalendarDialog());
 
         selectedDate = getTodayKey();
@@ -269,7 +268,7 @@ public class WordleActivity extends AppCompatActivity {
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
         ));
-        card.setRadius(dp(22));
+        card.setRadius(getResources().getDimension(R.dimen.radius_lg));
         card.setCardElevation(dp(10));
         card.setCardBackgroundColor(ContextCompat.getColor(this, R.color.surface));
         card.addView(root);
@@ -299,7 +298,7 @@ public class WordleActivity extends AppCompatActivity {
         btn.setInsetTop(0);
         btn.setInsetBottom(0);
         btn.setPadding(0, 0, 0, dp(2));
-        btn.setCornerRadius(dp(20));
+        btn.setCornerRadius(Math.round(getResources().getDimension(R.dimen.radius_lg)));
         btn.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.surface_variant)));
         btn.setTextColor(ContextCompat.getColor(this, R.color.primary));
         btn.setLayoutParams(new LinearLayout.LayoutParams(dp(40), dp(40)));
@@ -354,7 +353,7 @@ public class WordleActivity extends AppCompatActivity {
         btn.setInsetTop(0);
         btn.setInsetBottom(0);
         btn.setPadding(0, 0, 0, 0);
-        btn.setCornerRadius(dp(12));
+        btn.setCornerRadius(Math.round(getResources().getDimension(R.dimen.radius_sm)));
         btn.setStrokeWidth(dateKey.equals(selectedDate) ? dp(2) : 0);
         btn.setStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.primary)));
 
@@ -538,7 +537,7 @@ public class WordleActivity extends AppCompatActivity {
                 params.width = cellSize; params.height = cellSize;
                 params.setMargins(margin, margin, margin, margin);
                 card.setLayoutParams(params);
-                card.setRadius(12f);
+                card.setRadius(getResources().getDimension(R.dimen.radius_xs));
                 card.setStrokeWidth(2);
                 card.setStrokeColor(Color.LTGRAY);
                 card.setCardBackgroundColor(Color.WHITE);
@@ -617,7 +616,7 @@ public class WordleActivity extends AppCompatActivity {
         btn.setSingleLine(true);
         btn.setTextSize(text.length() > 1 ? 11 : 15);
         btn.setTypeface(null, Typeface.BOLD);
-        btn.setCornerRadius(dp(8));
+        btn.setCornerRadius(Math.round(getResources().getDimension(R.dimen.radius_xs)));
         btn.setStrokeWidth(dp(1));
         resetKeyStyle(btn);
         return btn;

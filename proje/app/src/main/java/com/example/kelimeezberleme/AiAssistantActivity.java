@@ -6,7 +6,6 @@ import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -40,7 +39,7 @@ import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class AiAssistantActivity extends AppCompatActivity {
+public class AiAssistantActivity extends BottomNavActivity {
     private static final String TAG = "AiAssistantActivity";
     private static final String TEXT_ENDPOINT = "https://text.pollinations.ai/openai";
     private static final String IMAGE_ENDPOINT = "https://image.pollinations.ai/prompt/";
@@ -73,9 +72,6 @@ public class AiAssistantActivity extends AppCompatActivity {
         tvStatus = findViewById(R.id.tvStatus);
         progressBar = findViewById(R.id.progressBar);
         btnGenerate = findViewById(R.id.btnGenerate);
-
-        ImageButton btnBack = findViewById(R.id.btnBack);
-        btnBack.setOnClickListener(v -> finish());
 
         btnGenerate.setOnClickListener(v -> generateStoryChain());
         restoreSavedStory();

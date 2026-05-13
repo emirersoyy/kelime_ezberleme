@@ -27,13 +27,6 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         etNewPassword = findViewById(R.id.etNewPassword);
         btnUpdate = findViewById(R.id.btnUpdatePassword);
 
-        findViewById(R.id.btnForgotBack).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
-
         etNewPassword.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 updatePassword();

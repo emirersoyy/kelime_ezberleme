@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-public class QuizActivity extends AppCompatActivity {
+public class QuizActivity extends BottomNavActivity {
     private static final int BUBBLE_SIZE_DP = 18;
     private static final int RING_SIZE_DP = 30;
     private static final int MIN_BUBBLE_GAP_DP = 3;
@@ -111,7 +111,6 @@ public class QuizActivity extends AppCompatActivity {
         tvOptions[2] = findViewById(R.id.tvOption3);
         tvOptions[3] = findViewById(R.id.tvOption4);
 
-        findViewById(R.id.btnBack).setOnClickListener(v -> confirmExit());
         btnPronunciation.setOnClickListener(v -> {
             btnSlowPronunciation.setVisibility(View.VISIBLE);
             playPronunciation(slowPronunciation);

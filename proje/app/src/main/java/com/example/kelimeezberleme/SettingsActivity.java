@@ -7,7 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.slider.Slider;
 import com.google.android.material.button.MaterialButtonToggleGroup;
 
-public class SettingsActivity extends AppCompatActivity {
+public class SettingsActivity extends BottomNavActivity {
     Slider sliderQuestionLimit;
     TextView tvQuestionLimitValue;
     MaterialButtonToggleGroup toggleTheme;
@@ -26,8 +26,6 @@ public class SettingsActivity extends AppCompatActivity {
         updateQuestionLimitText(currentLimit);
 
         sliderQuestionLimit.addOnChangeListener((slider, value, fromUser) -> updateQuestionLimitText(Math.round(value)));
-
-        findViewById(R.id.btnBack).setOnClickListener(v -> finish());
 
         setupThemeSelection();
 
