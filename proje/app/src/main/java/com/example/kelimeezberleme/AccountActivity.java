@@ -139,8 +139,12 @@ public class AccountActivity extends BottomNavActivity {
 
     private void showResetPasswordDialog(String usernameForValidation) {
         View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_reset_password, null);
-        TextInputLayout tilPassword = dialogView.findViewById(R.id.tilResetPassword);
-        TextInputEditText etPassword = dialogView.findViewById(R.id.etResetPassword);
+        TextInputLayout tilCurrentPassword = dialogView.findViewById(R.id.tilCurrentPassword);
+        TextInputLayout tilNewPassword = dialogView.findViewById(R.id.tilNewPassword);
+        TextInputLayout tilConfirmPassword = dialogView.findViewById(R.id.tilConfirmPassword);
+        TextInputEditText etCurrentPassword = dialogView.findViewById(R.id.etCurrentPassword);
+        TextInputEditText etNewPassword = dialogView.findViewById(R.id.etNewPassword);
+        TextInputEditText etConfirmPassword = dialogView.findViewById(R.id.etConfirmPassword);
 
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle("Şifremi Sıfırla")
@@ -150,14 +154,28 @@ public class AccountActivity extends BottomNavActivity {
                 .create();
 
         dialog.setOnShowListener(d -> dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
-            tilPassword.setError(null);
-            String newPassword = getText(etPassword);
+            tilCurrentPassword.setError(null);
+            tilNewPassword.setError(null);
+            tilConfirmPassword.setError(null);
+
+            String currentPassword = getText(etCurrentPassword);
+            String newPassword = getText(etNewPassword);
+            String confirmPassword = getText(etConfirmPassword);
             String username = usernameForValidation == null || usernameForValidation.trim().isEmpty()
                     ? currentUser
                     : usernameForValidation.trim();
+
+            if (!db.checkUser(currentUser, currentPassword)) {
+                tilCurrentPassword.setError("Eski şifre hatalı.");
+                return;
+            }
             String passwordError = AccountSecurity.validatePassword(username, newPassword);
             if (passwordError != null) {
-                tilPassword.setError(passwordError);
+                tilNewPassword.setError(passwordError);
+                return;
+            }
+            if (!newPassword.equals(confirmPassword)) {
+                tilConfirmPassword.setError("Yeni şifreler eşleşmiyor.");
                 return;
             }
 
