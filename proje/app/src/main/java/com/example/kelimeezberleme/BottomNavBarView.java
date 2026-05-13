@@ -5,8 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
-import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.OvershootInterpolator;
 
 import androidx.annotation.Nullable;
 
@@ -16,8 +14,6 @@ import com.google.android.material.card.MaterialCardView;
 public class BottomNavBarView extends MaterialCardView {
     private MaterialButton btnHome;
     private MaterialButton btnAccount;
-    private final AccelerateDecelerateInterpolator ease = new AccelerateDecelerateInterpolator();
-    private final OvershootInterpolator overshoot = new OvershootInterpolator(1.35f);
 
     public BottomNavBarView(Context context) {
         super(context);
@@ -51,10 +47,6 @@ public class BottomNavBarView extends MaterialCardView {
         btnAccount.setIconResource(R.drawable.ic_account_outline_24);
         btnHome.setAlpha(1f);
         btnAccount.setAlpha(1f);
-        btnHome.setScaleX(1f);
-        btnHome.setScaleY(1f);
-        btnAccount.setScaleX(1f);
-        btnAccount.setScaleY(1f);
 
         String screen = context.getClass().getSimpleName();
         if ("MainActivity".equals(screen)) {
@@ -62,8 +54,7 @@ public class BottomNavBarView extends MaterialCardView {
             btnHome.setOnClickListener(null);
         } else {
             btnHome.setIconResource(R.drawable.ic_home_outline_24);
-            btnHome.setOnClickListener(v -> navigateWithQuizWarning(context, MainActivity.class, btnHome,
-                    R.drawable.ic_home_filled_24, R.drawable.ic_home_outline_24));
+            btnHome.setOnClickListener(v -> navigateWithQuizWarning(context, MainActivity.class));
         }
 
         if ("AccountActivity".equals(screen)) {
@@ -71,8 +62,7 @@ public class BottomNavBarView extends MaterialCardView {
             btnAccount.setOnClickListener(null);
         } else {
             btnAccount.setIconResource(R.drawable.ic_account_outline_24);
-            btnAccount.setOnClickListener(v -> navigateWithQuizWarning(context, AccountActivity.class, btnAccount,
-                    R.drawable.ic_account_filled_24, R.drawable.ic_account_outline_24));
+            btnAccount.setOnClickListener(v -> navigateWithQuizWarning(context, AccountActivity.class));
         }
     }
 
@@ -82,34 +72,16 @@ public class BottomNavBarView extends MaterialCardView {
         context.startActivity(intent);
     }
 
-    private void navigateWithQuizWarning(Context context, Class<?> target, MaterialButton button, int filledIconRes, int outlineIconRes) {
+    private void navigateWithQuizWarning(Context context, Class<?> target) {
         if (isQuizScreen(context)) {
             new AlertDialog.Builder(context)
                     .setTitle("Sınavdan çıkılsın mı?")
                     .setMessage("Bu testteki ilerlemen kaybolacak, sınavdan çıkmak istediğine emin misin?")
                     .setNegativeButton("Vazgeç", null)
-                    .setPositiveButton("Evet", (dialog, which) -> animateAndNavigate(context, target, button, filledIconRes, outlineIconRes))
+                    .setPositiveButton("Evet", (dialog, which) -> navigate(context, target))
                     .show();
             return;
         }
-        animateAndNavigate(context, target, button, filledIconRes, outlineIconRes);
-    }
-
-    private void animateAndNavigate(Context context, Class<?> target, MaterialButton button, int filledIconRes, int outlineIconRes) {
-        button.setClickable(false);
-        button.setIconResource(filledIconRes);
-        button.animate()
-                .scaleX(0.94f)
-                .scaleY(0.94f)
-                .setDuration(60)
-                .setInterpolator(ease)
-                .withEndAction(() -> button.animate()
-                        .scaleX(1f)
-                        .scaleY(1f)
-                        .setDuration(120)
-                        .setInterpolator(overshoot)
-                        .start())
-                .start();
         navigate(context, target);
     }
 
