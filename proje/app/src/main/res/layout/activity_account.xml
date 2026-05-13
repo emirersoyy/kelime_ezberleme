@@ -107,6 +107,7 @@
                 android:textStyle="bold"
                 app:icon="@android:drawable/ic_lock_power_off"
                 app:iconTint="@color/accent" />
+
         </LinearLayout>
     </ScrollView>
 

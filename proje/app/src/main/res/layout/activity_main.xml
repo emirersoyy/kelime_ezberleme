@@ -35,7 +35,7 @@
                         android:layout_width="48dp"
                         android:layout_height="48dp"
                         android:layout_gravity="center"
-                        android:contentDescription="Hesap fotoÄŸrafÄ±"
+                        android:contentDescription="Hesap fotoğrafı"
                         android:scaleType="centerCrop"
                         android:src="@android:drawable/ic_menu_myplaces" />
                 </FrameLayout>
@@ -52,7 +52,7 @@
                         style="@style/App.TitleText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="GÃ¼naydÄ±n" />
+                        android:text="Günaydın" />
 
                     <TextView
                         android:id="@+id/tvCurrentUser"
@@ -60,7 +60,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
-                        android:text="KullanÄ±cÄ± adÄ±" />
+                        android:text="Kullanıcı adı" />
                 </LinearLayout>
             </LinearLayout>
 

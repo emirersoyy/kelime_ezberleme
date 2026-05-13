@@ -52,12 +52,30 @@ public class MainActivity extends AppCompatActivity {
 
         findViewById(R.id.btnAiMenu).setOnClickListener(v ->
                 startActivity(new Intent(MainActivity.this, AiAssistantActivity.class)));
+
+        findViewById(R.id.btnHomeMenu).setOnClickListener(v -> recreate());
+
+        findViewById(R.id.btnAccountMenu).setOnClickListener(v ->
+                startActivity(new Intent(MainActivity.this, AccountActivity.class)));
+
+        updateBottomNavState();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        updateBottomNavState();
     }
 
     private void startQuiz() {
         Intent intent = new Intent(MainActivity.this, QuizActivity.class);
         intent.putExtra("limit", AppSettings.getQuizLimit(this));
         startActivity(intent);
+    }
+
+    private void updateBottomNavState() {
+        findViewById(R.id.btnHomeMenu).setAlpha(1f);
+        findViewById(R.id.btnAccountMenu).setAlpha(0.55f);
     }
 
     private String buildGreeting(String user) {
