@@ -2,6 +2,8 @@ package com.example.kelimeezberleme;
 
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.content.res.AssetFileDescriptor;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -16,8 +18,13 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 public class AccountActivity extends BottomNavActivity {
     private static final int REQUEST_PICK_PROFILE_IMAGE = 42;
+    private static final long MAX_PROFILE_IMAGE_BYTES = 2L * 1024L * 1024L;
+    private static final int MAX_PROFILE_IMAGE_SIDE = 2048;
 
     private DatabaseHelper db;
     private ImageView imgAccountProfile;
@@ -80,7 +87,6 @@ public class AccountActivity extends BottomNavActivity {
     private void showEditProfileDialog() {
         View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_edit_profile, null);
         dialogProfileImage = dialogView.findViewById(R.id.imgEditProfile);
-        MaterialButton btnChooseProfileImage = dialogView.findViewById(R.id.btnChooseProfileImage);
         MaterialButton btnShowPasswordReset = dialogView.findViewById(R.id.btnShowPasswordReset);
         TextInputLayout tilUsername = dialogView.findViewById(R.id.tilEditUsername);
         TextInputLayout tilFullName = dialogView.findViewById(R.id.tilEditFullName);
@@ -94,7 +100,7 @@ public class AccountActivity extends BottomNavActivity {
         etFullName.setText(profile == null ? "" : profile.fullName);
         applyProfileImage(dialogProfileImage, selectedProfileImagePath);
 
-        btnChooseProfileImage.setOnClickListener(v -> openProfileImagePicker());
+        dialogProfileImage.setOnClickListener(v -> showProfileImageOptions());
         btnShowPasswordReset.setOnClickListener(v -> showResetPasswordDialog(getText(etUsername)));
 
         AlertDialog dialog = new AlertDialog.Builder(this)
@@ -208,11 +214,34 @@ public class AccountActivity extends BottomNavActivity {
         startActivityForResult(intent, REQUEST_PICK_PROFILE_IMAGE);
     }
 
+    private void showProfileImageOptions() {
+        String[] options = selectedProfileImagePath == null || selectedProfileImagePath.trim().isEmpty()
+                ? new String[]{"Galeriden Seç"}
+                : new String[]{"Galeriden Seç", "Mevcut Resmi Kaldır"};
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setItems(options, (selectionDialog, which) -> {
+                    if (which == 0) {
+                        openProfileImagePicker();
+                        return;
+                    }
+                    selectedProfileImagePath = "";
+                    if (dialogProfileImage != null) {
+                        applyProfileImage(dialogProfileImage, selectedProfileImagePath);
+                    }
+                })
+                .create();
+        dialog.show();
+        applyRoundedDialogCorners(dialog);
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_PICK_PROFILE_IMAGE && resultCode == RESULT_OK && data != null && data.getData() != null) {
             Uri uri = data.getData();
+            if (!isProfileImageAllowed(uri)) {
+                return;
+            }
             try {
                 getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
             } catch (SecurityException ignored) {
@@ -223,6 +252,47 @@ public class AccountActivity extends BottomNavActivity {
                 applyProfileImage(dialogProfileImage, selectedProfileImagePath);
             }
         }
+    }
+
+    private boolean isProfileImageAllowed(Uri uri) {
+        if (getUriSize(uri) > MAX_PROFILE_IMAGE_BYTES) {
+            showProfileImageWarning("Seçilen resim dosyası çok büyük.");
+            return false;
+        }
+
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        try (InputStream inputStream = getContentResolver().openInputStream(uri)) {
+            BitmapFactory.decodeStream(inputStream, null, options);
+        } catch (IOException ignored) {
+            showProfileImageWarning("Resim okunamadı.");
+            return false;
+        }
+
+        if (options.outWidth <= 0 || options.outHeight <= 0) {
+            showProfileImageWarning("Geçerli bir resim seç.");
+            return false;
+        }
+        if (options.outWidth > MAX_PROFILE_IMAGE_SIDE || options.outHeight > MAX_PROFILE_IMAGE_SIDE) {
+            showProfileImageWarning("Seçilen resmin çözünürlüğü çok yüksek.");
+            return false;
+        }
+        return true;
+    }
+
+    private long getUriSize(Uri uri) {
+        try (AssetFileDescriptor descriptor = getContentResolver().openAssetFileDescriptor(uri, "r")) {
+            if (descriptor != null) {
+                return descriptor.getLength();
+            }
+        } catch (IOException ignored) {
+            return -1L;
+        }
+        return -1L;
+    }
+
+    private void showProfileImageWarning(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 
     private void updateStoredUsername(String oldUsername, String newUsername) {

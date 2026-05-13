@@ -15,60 +15,18 @@
         android:paddingEnd="18dp"
         android:paddingBottom="8dp">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <ImageView
-                android:id="@+id/imgEditProfile"
-                android:layout_width="76dp"
-                android:layout_height="76dp"
-                android:background="@drawable/profile_avatar_bg"
-                android:contentDescription="Profil resmi"
-                android:padding="14dp"
-                android:scaleType="centerCrop"
-                android:src="@drawable/ic_person_circle_24" />
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="14dp"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Profil bilgileri"
-                    android:textColor="@color/text_primary"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="3dp"
-                    android:text="Hesabında görünen bilgileri düzenle."
-                    android:textColor="@color/text_secondary"
-                    android:textSize="13sp" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnChooseProfileImage"
-                    style="@style/App.Button.Text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="42dp"
-                    android:layout_marginTop="6dp"
-                    android:minWidth="0dp"
-                    android:paddingStart="0dp"
-                    android:paddingEnd="8dp"
-                    android:text="Resmi Değiştir"
-                    android:textColor="@color/primary"
-                    app:icon="@android:drawable/ic_menu_camera"
-                    app:iconTint="@color/primary" />
-            </LinearLayout>
-        </LinearLayout>
+        <ImageView
+            android:id="@+id/imgEditProfile"
+            android:layout_width="88dp"
+            android:layout_height="88dp"
+            android:layout_gravity="center_horizontal"
+            android:background="@drawable/profile_avatar_bg"
+            android:clickable="true"
+            android:contentDescription="Profil resmi"
+            android:focusable="true"
+            android:padding="16dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_person_circle_24" />
 
         <TextView
             android:layout_width="match_parent"
