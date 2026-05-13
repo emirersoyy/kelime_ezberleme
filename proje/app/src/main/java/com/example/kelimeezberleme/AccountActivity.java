@@ -14,8 +14,6 @@ public class AccountActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_account);
 
-        findViewById(R.id.btnBack).setOnClickListener(v -> finish());
-
         TextView tvCurrentUser = findViewById(R.id.tvCurrentUser);
         String currentUser = AppSettings.getCurrentUser(this);
         tvCurrentUser.setText(currentUser == null || currentUser.trim().isEmpty() ? "Bilinmiyor" : currentUser);

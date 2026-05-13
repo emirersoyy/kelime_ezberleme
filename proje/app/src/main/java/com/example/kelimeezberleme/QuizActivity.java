@@ -111,7 +111,6 @@ public class QuizActivity extends AppCompatActivity {
         tvOptions[2] = findViewById(R.id.tvOption3);
         tvOptions[3] = findViewById(R.id.tvOption4);
 
-        findViewById(R.id.btnBack).setOnClickListener(v -> confirmExit());
         btnPronunciation.setOnClickListener(v -> {
             btnSlowPronunciation.setVisibility(View.VISIBLE);
             playPronunciation(slowPronunciation);

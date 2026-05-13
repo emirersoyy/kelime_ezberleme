@@ -19,32 +19,10 @@
             android:paddingHorizontal="@dimen/screen_padding"
             android:paddingVertical="24dp">
 
-            <ImageButton
-                android:id="@+id/btnBack"
-                style="@style/App.IconButton"
-                android:contentDescription="Geri dön"
-                android:src="@drawable/ic_arrow_back_24"
-                app:tint="@color/text_secondary" />
-
-            <TextView
-                style="@style/App.TitleText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                android:text="Hesap" />
-
-            <TextView
-                style="@style/App.SubtitleText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="Ayarlar, şifre ve oturum işlemleri" />
-
             <com.google.android.material.card.MaterialCardView
                 style="@style/App.Card"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="18dp"
                 app:cardUseCompatPadding="true">
 
                 <LinearLayout

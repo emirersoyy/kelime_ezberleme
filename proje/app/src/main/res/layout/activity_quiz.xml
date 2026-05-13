@@ -18,18 +18,10 @@
             android:orientation="vertical"
             android:padding="20dp">
 
-            <ImageButton
-                android:id="@+id/btnBack"
-                style="@style/App.IconButton"
-                android:contentDescription="Geri dön"
-                android:src="@drawable/ic_arrow_back_24"
-                app:tint="@color/text_primary" />
-
             <HorizontalScrollView
                 android:id="@+id/progressScroll"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
-                android:layout_marginTop="10dp"
                 android:fillViewport="false"
                 android:overScrollMode="never"
                 android:scrollbars="none">

@@ -41,13 +41,6 @@ public class WordsListActivity extends AppCompatActivity {
         rvWords.setLayoutManager(new LinearLayoutManager(this));
         spSort = findViewById(R.id.spSort);
 
-        findViewById(R.id.btnBack).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
-
         setupSortSpinner();
         allWords = db.getAllWords();
         adapter = new WordAdapter(new ArrayList<>());

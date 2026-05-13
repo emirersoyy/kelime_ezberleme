@@ -6,7 +6,6 @@ import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -73,9 +72,6 @@ public class AiAssistantActivity extends AppCompatActivity {
         tvStatus = findViewById(R.id.tvStatus);
         progressBar = findViewById(R.id.progressBar);
         btnGenerate = findViewById(R.id.btnGenerate);
-
-        ImageButton btnBack = findViewById(R.id.btnBack);
-        btnBack.setOnClickListener(v -> finish());
 
         btnGenerate.setOnClickListener(v -> generateStoryChain());
         restoreSavedStory();

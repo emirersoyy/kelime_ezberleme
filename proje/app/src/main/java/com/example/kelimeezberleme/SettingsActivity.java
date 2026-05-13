@@ -27,8 +27,6 @@ public class SettingsActivity extends AppCompatActivity {
 
         sliderQuestionLimit.addOnChangeListener((slider, value, fromUser) -> updateQuestionLimitText(Math.round(value)));
 
-        findViewById(R.id.btnBack).setOnClickListener(v -> finish());
-
         setupThemeSelection();
 
         findViewById(R.id.btnSaveSettings).setOnClickListener(v -> {

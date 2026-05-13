@@ -47,7 +47,6 @@ public class AnalysisActivity extends AppCompatActivity {
         llCategoryStats = findViewById(R.id.llCategoryStats);
         tvOverallStats = findViewById(R.id.tvOverallStats);
 
-        findViewById(R.id.btnBack).setOnClickListener(v -> finish());
         findViewById(R.id.btnPrint).setOnClickListener(v -> printReport());
         findViewById(R.id.btnResetData).setOnClickListener(v -> confirmReset());
 

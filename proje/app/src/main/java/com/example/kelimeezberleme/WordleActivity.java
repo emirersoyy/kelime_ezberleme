@@ -76,7 +76,6 @@ public class WordleActivity extends AppCompatActivity {
         tvResult = findViewById(R.id.tvResult);
         btnSelectedDate = findViewById(R.id.btnSelectedDate);
 
-        findViewById(R.id.btnBack).setOnClickListener(v -> finish());
         btnSelectedDate.setOnClickListener(v -> showCalendarDialog());
 
         selectedDate = getTodayKey();

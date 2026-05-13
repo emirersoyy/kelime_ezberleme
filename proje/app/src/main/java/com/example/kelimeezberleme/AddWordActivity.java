@@ -32,7 +32,6 @@ public class AddWordActivity extends AppCompatActivity {
         btnSelectImage = findViewById(R.id.btnSelectImage);
         tvImagePath = findViewById(R.id.tvImagePath);
 
-        findViewById(R.id.btnBack).setOnClickListener(v -> finish());
         btnSelectImage.setOnClickListener(v -> selectImage());
         btnSave.setOnClickListener(v -> saveWord());
     }
