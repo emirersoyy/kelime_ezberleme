@@ -268,7 +268,7 @@ public class WordleActivity extends BottomNavActivity {
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
         ));
-        card.setRadius(dp(22));
+        card.setRadius(getResources().getDimension(R.dimen.radius_lg));
         card.setCardElevation(dp(10));
         card.setCardBackgroundColor(ContextCompat.getColor(this, R.color.surface));
         card.addView(root);
@@ -298,7 +298,7 @@ public class WordleActivity extends BottomNavActivity {
         btn.setInsetTop(0);
         btn.setInsetBottom(0);
         btn.setPadding(0, 0, 0, dp(2));
-        btn.setCornerRadius(dp(20));
+        btn.setCornerRadius(Math.round(getResources().getDimension(R.dimen.radius_lg)));
         btn.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.surface_variant)));
         btn.setTextColor(ContextCompat.getColor(this, R.color.primary));
         btn.setLayoutParams(new LinearLayout.LayoutParams(dp(40), dp(40)));
@@ -353,7 +353,7 @@ public class WordleActivity extends BottomNavActivity {
         btn.setInsetTop(0);
         btn.setInsetBottom(0);
         btn.setPadding(0, 0, 0, 0);
-        btn.setCornerRadius(dp(12));
+        btn.setCornerRadius(Math.round(getResources().getDimension(R.dimen.radius_sm)));
         btn.setStrokeWidth(dateKey.equals(selectedDate) ? dp(2) : 0);
         btn.setStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.primary)));
 
@@ -537,7 +537,7 @@ public class WordleActivity extends BottomNavActivity {
                 params.width = cellSize; params.height = cellSize;
                 params.setMargins(margin, margin, margin, margin);
                 card.setLayoutParams(params);
-                card.setRadius(12f);
+                card.setRadius(getResources().getDimension(R.dimen.radius_xs));
                 card.setStrokeWidth(2);
                 card.setStrokeColor(Color.LTGRAY);
                 card.setCardBackgroundColor(Color.WHITE);
@@ -616,7 +616,7 @@ public class WordleActivity extends BottomNavActivity {
         btn.setSingleLine(true);
         btn.setTextSize(text.length() > 1 ? 11 : 15);
         btn.setTypeface(null, Typeface.BOLD);
-        btn.setCornerRadius(dp(8));
+        btn.setCornerRadius(Math.round(getResources().getDimension(R.dimen.radius_xs)));
         btn.setStrokeWidth(dp(1));
         resetKeyStyle(btn);
         return btn;

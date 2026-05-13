@@ -37,7 +37,7 @@ public class BottomNavBarView extends MaterialCardView {
 
         setCardBackgroundColor(getResources().getColor(R.color.surface));
         setCardElevation(dp(4f));
-        setRadius(dp(20));
+        setRadius(getResources().getDimension(R.dimen.radius_xl));
         setStrokeColor(getResources().getColor(R.color.divider));
         setStrokeWidth(1);
         setUseCompatPadding(true);

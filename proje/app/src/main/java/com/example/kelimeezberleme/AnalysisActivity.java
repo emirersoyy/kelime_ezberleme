@@ -102,7 +102,7 @@ public class AnalysisActivity extends BottomNavActivity {
         card.setLayoutParams(cardParams);
         card.setCardBackgroundColor(getResources().getColor(R.color.surface));
         card.setCardElevation(dp(2f));
-        card.setRadius(dp(18));
+        card.setRadius(getResources().getDimension(R.dimen.radius_lg));
         card.setStrokeColor(getResources().getColor(R.color.divider));
         card.setStrokeWidth(1);
         card.setUseCompatPadding(true);
@@ -148,7 +148,7 @@ public class AnalysisActivity extends BottomNavActivity {
         sectionCard.setLayoutParams(sectionParams);
         sectionCard.setCardBackgroundColor(getResources().getColor(R.color.surface));
         sectionCard.setCardElevation(dp(2f));
-        sectionCard.setRadius(dp(18));
+        sectionCard.setRadius(getResources().getDimension(R.dimen.radius_lg));
         sectionCard.setStrokeColor(getResources().getColor(R.color.divider));
         sectionCard.setStrokeWidth(1);
         sectionCard.setUseCompatPadding(true);
@@ -204,7 +204,7 @@ public class AnalysisActivity extends BottomNavActivity {
         card.setLayoutParams(cardParams);
         card.setCardBackgroundColor(getResources().getColor(R.color.background));
         card.setCardElevation(dp(0.5f));
-        card.setRadius(dp(14));
+        card.setRadius(getResources().getDimension(R.dimen.radius_sm));
         card.setStrokeColor(getResources().getColor(R.color.divider));
         card.setStrokeWidth(1);
         card.setUseCompatPadding(true);
