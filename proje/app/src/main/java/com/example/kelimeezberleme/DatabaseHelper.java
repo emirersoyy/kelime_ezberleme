@@ -18,7 +18,7 @@ import javax.crypto.spec.PBEKeySpec;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String DATABASE_NAME = "KelimeEzberleme.db";
-    public static final int DATABASE_VERSION = 12;
+    public static final int DATABASE_VERSION = 13;
     private static final String PASSWORD_HASH_PREFIX = "pbkdf2";
     private static final int PASSWORD_HASH_ITERATIONS = 120000;
     private static final int PASSWORD_SALT_BYTES = 16;
@@ -28,6 +28,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COL_USER_ID = "UserID";
     public static final String COL_USER_NAME = "UserName";
     public static final String COL_PASSWORD = "Password";
+    public static final String COL_FULL_NAME = "FullName";
+    public static final String COL_PROFILE_IMAGE = "ProfileImagePath";
 
     public static final String TABLE_WORDS = "Words";
     public static final String COL_WORD_ID = "WordID";
@@ -51,7 +53,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE " + TABLE_USERS + " (UserID INTEGER PRIMARY KEY AUTOINCREMENT, UserName TEXT, Password TEXT)");
+        db.execSQL("CREATE TABLE " + TABLE_USERS + " (UserID INTEGER PRIMARY KEY AUTOINCREMENT, UserName TEXT, Password TEXT, FullName TEXT DEFAULT '', ProfileImagePath TEXT DEFAULT '')");
         db.execSQL("CREATE TABLE " + TABLE_WORDS + " (" +
                 COL_WORD_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 COL_ENG_WORD + " TEXT, " +
@@ -93,6 +95,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ensureColumn(db, TABLE_WORDS, COL_TOTAL_ATTEMPTS, "INTEGER DEFAULT 0");
         ensureColumn(db, TABLE_WORDS, COL_CORRECT_ATTEMPTS, "INTEGER DEFAULT 0");
         ensureColumn(db, TABLE_SAMPLES, COL_SAMPLE_USED, "INTEGER DEFAULT 0");
+        ensureColumn(db, TABLE_USERS, COL_FULL_NAME, "TEXT DEFAULT ''");
+        ensureColumn(db, TABLE_USERS, COL_PROFILE_IMAGE, "TEXT DEFAULT ''");
     }
 
     private void ensureColumn(SQLiteDatabase db, String tableName, String columnName, String columnDefinition) {
@@ -327,6 +331,61 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         contentValues.put(COL_PASSWORD, hashPassword(newPassword));
         int result = db.update(TABLE_USERS, contentValues, "LOWER(" + COL_USER_NAME + ") = LOWER(?)", new String[]{username == null ? "" : username.trim()});
         return result > 0;
+    }
+
+    public UserProfile getUserProfile(String username) {
+        String cleanUsername = username == null ? "" : username.trim();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT " + COL_USER_NAME + ", " + COL_FULL_NAME + ", " + COL_PROFILE_IMAGE +
+                        " FROM " + TABLE_USERS + " WHERE LOWER(" + COL_USER_NAME + ") = LOWER(?) LIMIT 1",
+                new String[]{cleanUsername});
+
+        UserProfile profile = null;
+        if (cursor.moveToFirst()) {
+            profile = new UserProfile(cursor.getString(0), cursor.getString(1), cursor.getString(2));
+        }
+        cursor.close();
+        return profile;
+    }
+
+    public boolean isUsernameTakenByOtherUser(String username, String currentUsername) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT 1 FROM " + TABLE_USERS +
+                        " WHERE LOWER(" + COL_USER_NAME + ") = LOWER(?) AND LOWER(" + COL_USER_NAME + ") != LOWER(?) LIMIT 1",
+                new String[]{
+                        username == null ? "" : username.trim(),
+                        currentUsername == null ? "" : currentUsername.trim()
+                });
+        boolean exists = cursor.moveToFirst();
+        cursor.close();
+        return exists;
+    }
+
+    public boolean updateUserProfile(String currentUsername, String newUsername, String fullName, String newPassword, String profileImagePath) {
+        String cleanCurrentUsername = currentUsername == null ? "" : currentUsername.trim();
+        String cleanNewUsername = newUsername == null ? "" : newUsername.trim();
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(COL_USER_NAME, cleanNewUsername);
+        contentValues.put(COL_FULL_NAME, fullName == null ? "" : fullName.trim());
+        contentValues.put(COL_PROFILE_IMAGE, profileImagePath == null ? "" : profileImagePath);
+        if (newPassword != null && !newPassword.isEmpty()) {
+            contentValues.put(COL_PASSWORD, hashPassword(newPassword));
+        }
+        int result = db.update(TABLE_USERS, contentValues, "LOWER(" + COL_USER_NAME + ") = LOWER(?)", new String[]{cleanCurrentUsername});
+        return result > 0;
+    }
+
+    public static class UserProfile {
+        public final String username;
+        public final String fullName;
+        public final String profileImagePath;
+
+        public UserProfile(String username, String fullName, String profileImagePath) {
+            this.username = username == null ? "" : username;
+            this.fullName = fullName == null ? "" : fullName;
+            this.profileImagePath = profileImagePath == null ? "" : profileImagePath;
+        }
     }
 
     private String hashPassword(String password) {
