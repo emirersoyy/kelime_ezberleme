@@ -3,36 +3,81 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:fillViewport="false">
+    android:fillViewport="false"
+    android:overScrollMode="never">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingTop="8dp">
+        android:paddingStart="2dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="2dp"
+        android:paddingBottom="2dp">
 
-        <ImageView
-            android:id="@+id/imgEditProfile"
-            android:layout_width="86dp"
-            android:layout_height="86dp"
-            android:layout_gravity="center_horizontal"
-            android:background="@drawable/profile_avatar_bg"
-            android:contentDescription="Profil resmi"
-            android:padding="16dp"
-            android:scaleType="centerCrop"
-            android:src="@drawable/ic_person_circle_24" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnChooseProfileImage"
-            style="@style/App.Button.Text"
-            android:layout_width="wrap_content"
-            android:layout_height="44dp"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="6dp"
-            android:text="Profil Resmi Seç"
-            android:textColor="@color/primary"
-            app:icon="@android:drawable/ic_menu_camera"
-            app:iconTint="@color/primary" />
+            <ImageView
+                android:id="@+id/imgEditProfile"
+                android:layout_width="76dp"
+                android:layout_height="76dp"
+                android:background="@drawable/profile_avatar_bg"
+                android:contentDescription="Profil resmi"
+                android:padding="14dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_person_circle_24" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="14dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Profil bilgileri"
+                    android:textColor="@color/text_primary"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="3dp"
+                    android:text="Hesabında görünen bilgileri düzenle."
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnChooseProfileImage"
+                    style="@style/App.Button.Text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="42dp"
+                    android:layout_marginTop="6dp"
+                    android:minWidth="0dp"
+                    android:paddingStart="0dp"
+                    android:paddingEnd="8dp"
+                    android:text="Resmi Değiştir"
+                    android:textColor="@color/primary"
+                    app:icon="@android:drawable/ic_menu_camera"
+                    app:iconTint="@color/primary" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:text="Hesap"
+            android:textColor="@color/text_primary"
+            android:textSize="13sp"
+            android:textStyle="bold" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilEditUsername"
@@ -55,7 +100,7 @@
             style="@style/App.TextInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="12dp"
             android:hint="Gerçek ad">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -66,13 +111,26 @@
                 android:maxLines="1" />
         </com.google.android.material.textfield.TextInputLayout>
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnShowPasswordReset"
+            style="@style/App.Button.Outlined"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginTop="16dp"
+            android:text="Şifremi Sıfırla"
+            android:textColor="@color/text_primary"
+            app:icon="@android:drawable/ic_lock_lock"
+            app:iconGravity="textStart"
+            app:iconTint="@color/accent" />
+
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilEditPassword"
             style="@style/App.TextInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="12dp"
             android:hint="Yeni şifre"
+            android:visibility="gone"
             app:endIconMode="password_toggle">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -84,11 +142,13 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <TextView
+            android:id="@+id/tvPasswordResetHint"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
-            android:text="Şifreyi değiştirmek istemiyorsan boş bırak."
+            android:text="Yeni şifre kaydedildiğinde bir sonraki girişte kullanılacak."
             android:textColor="@color/text_secondary"
-            android:textSize="12sp" />
+            android:textSize="12sp"
+            android:visibility="gone" />
     </LinearLayout>
 </ScrollView>

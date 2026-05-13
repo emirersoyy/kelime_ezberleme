@@ -79,12 +79,14 @@ public class AccountActivity extends BottomNavActivity {
         View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_edit_profile, null);
         dialogProfileImage = dialogView.findViewById(R.id.imgEditProfile);
         MaterialButton btnChooseProfileImage = dialogView.findViewById(R.id.btnChooseProfileImage);
+        MaterialButton btnShowPasswordReset = dialogView.findViewById(R.id.btnShowPasswordReset);
         TextInputLayout tilUsername = dialogView.findViewById(R.id.tilEditUsername);
         TextInputLayout tilFullName = dialogView.findViewById(R.id.tilEditFullName);
         TextInputLayout tilPassword = dialogView.findViewById(R.id.tilEditPassword);
         TextInputEditText etUsername = dialogView.findViewById(R.id.etEditUsername);
         TextInputEditText etFullName = dialogView.findViewById(R.id.etEditFullName);
         TextInputEditText etPassword = dialogView.findViewById(R.id.etEditPassword);
+        TextView tvPasswordResetHint = dialogView.findViewById(R.id.tvPasswordResetHint);
 
         DatabaseHelper.UserProfile profile = db.getUserProfile(currentUser);
         String profileUsername = profile == null ? currentUser : profile.username;
@@ -94,6 +96,12 @@ public class AccountActivity extends BottomNavActivity {
         applyProfileImage(dialogProfileImage, selectedProfileImagePath);
 
         btnChooseProfileImage.setOnClickListener(v -> openProfileImagePicker());
+        btnShowPasswordReset.setOnClickListener(v -> {
+            tilPassword.setVisibility(View.VISIBLE);
+            tvPasswordResetHint.setVisibility(View.VISIBLE);
+            btnShowPasswordReset.setVisibility(View.GONE);
+            etPassword.requestFocus();
+        });
 
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle("Profili Düzenle")
