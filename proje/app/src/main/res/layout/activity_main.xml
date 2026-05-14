@@ -64,15 +64,6 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                android:layout_marginBottom="22dp"
-                android:text="Bugünkü kelime pratiğini sakin ve düzenli ilerlet"
-                android:textColor="@color/text_secondary"
-                android:textSize="14sp" />
-
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnStartQuiz"
                 style="@style/App.Button.Primary"
