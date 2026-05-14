@@ -46,7 +46,6 @@ public class AccountActivity extends BottomNavActivity {
         MaterialButton btnEditProfile = findViewById(R.id.btnEditProfile);
 
         MaterialButton btnSettings = findViewById(R.id.btnAccountSettings);
-        MaterialButton btnResetPassword = findViewById(R.id.btnAccountResetPassword);
         MaterialButton btnLogout = findViewById(R.id.btnAccountLogout);
 
         loadProfile();
@@ -54,9 +53,6 @@ public class AccountActivity extends BottomNavActivity {
 
         btnSettings.setOnClickListener(v ->
                 startActivity(new Intent(AccountActivity.this, SettingsActivity.class)));
-
-        btnResetPassword.setOnClickListener(v ->
-                startActivity(new Intent(AccountActivity.this, ForgotPasswordActivity.class)));
 
         btnLogout.setOnClickListener(v -> {
             AppSettings.clearCurrentUser(this);

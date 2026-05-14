@@ -97,18 +97,6 @@
                 app:iconTint="@color/primary" />
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnAccountResetPassword"
-                style="@style/App.Button.Outlined"
-                android:layout_width="match_parent"
-                android:layout_height="58dp"
-                android:layout_marginTop="10dp"
-                android:text="Şifremi Unuttum"
-                android:textSize="16sp"
-                app:icon="@android:drawable/ic_lock_lock"
-                app:iconGravity="textStart"
-                app:iconTint="@color/accent" />
-
-            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnAccountLogout"
                 style="@style/App.Button.Text"
                 android:layout_width="match_parent"
