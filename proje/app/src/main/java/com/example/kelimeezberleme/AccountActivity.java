@@ -77,7 +77,6 @@ public class AccountActivity extends BottomNavActivity {
 
     private LinearLayout llEmbeddedSummaryChips;
     private LinearLayout llEmbeddedCategoryStats;
-    private TextView tvEmbeddedOverallStats;
 
     private Spinner spEmbeddedSort;
     private RecyclerView rvEmbeddedWords;
@@ -129,7 +128,6 @@ public class AccountActivity extends BottomNavActivity {
 
         llEmbeddedSummaryChips = findViewById(R.id.llEmbeddedSummaryChips);
         llEmbeddedCategoryStats = findViewById(R.id.llEmbeddedCategoryStats);
-        tvEmbeddedOverallStats = findViewById(R.id.tvEmbeddedOverallStats);
         ImageButton btnEmbeddedPrint = findViewById(R.id.btnEmbeddedPrint);
         MaterialButton btnEmbeddedResetData = findViewById(R.id.btnEmbeddedResetData);
 
@@ -197,7 +195,6 @@ public class AccountActivity extends BottomNavActivity {
 
         List<Word> words = db.getAllWords();
         if (words.isEmpty()) {
-            tvEmbeddedOverallStats.setText("Henüz kelime eklenmemiş.");
             addEmbeddedEmptyState("Gösterilecek veri yok.");
             return;
         }
@@ -217,11 +214,6 @@ public class AccountActivity extends BottomNavActivity {
                 learned.add(word);
             }
         }
-
-        tvEmbeddedOverallStats.setText("Toplam " + words.size()
-                + " kelime • Başlanmamış " + notStarted.size()
-                + " • Öğrenilmekte " + learning.size()
-                + " • Öğrenilmiş " + learned.size());
 
         addMetricChip("Toplam", String.valueOf(words.size()), R.color.primary);
         addMetricChip("Öğreniliyor", String.valueOf(learning.size()), R.color.accent);
@@ -449,7 +441,6 @@ public class AccountActivity extends BottomNavActivity {
                         Canvas canvas = page.getCanvas();
 
                         canvas.drawText("KELIME EZBERLEME SISTEMI - ANALIZ RAPORU", left, top, titlePaint);
-                        canvas.drawText(tvEmbeddedOverallStats.getText().toString(), left, 100, bodyPaint);
                         canvas.drawText("Sayfa " + pageNumber, 500, 24, bodyPaint);
 
                         int y = contentStartY;
@@ -479,7 +470,6 @@ public class AccountActivity extends BottomNavActivity {
 
     private List<String> collectPrintableLines() {
         List<String> lines = new ArrayList<>();
-        lines.add(tvEmbeddedOverallStats.getText().toString());
         for (int i = 0; i < llEmbeddedCategoryStats.getChildCount(); i++) {
             View child = llEmbeddedCategoryStats.getChildAt(i);
             if (child instanceof MaterialCardView) {
