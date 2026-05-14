@@ -1,5 +1,6 @@
 package com.example.kelimeezberleme;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -40,6 +41,8 @@ public class WordsListActivity extends BottomNavActivity {
         rvWords = findViewById(R.id.rvWords);
         rvWords.setLayoutManager(new LinearLayoutManager(this));
         spSort = findViewById(R.id.spSort);
+        findViewById(R.id.btnAddWordFromWords).setOnClickListener(v ->
+                startActivity(new Intent(WordsListActivity.this, AddWordActivity.class)));
 
         setupSortSpinner();
         allWords = db.getAllWords();

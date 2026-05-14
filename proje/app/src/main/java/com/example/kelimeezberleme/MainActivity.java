@@ -40,9 +40,6 @@ public class MainActivity extends BottomNavActivity {
 
         findViewById(R.id.btnStartQuiz).setOnClickListener(v -> startQuiz());
 
-        findViewById(R.id.btnAddWordMenu).setOnClickListener(v ->
-                startActivity(new Intent(MainActivity.this, AddWordActivity.class)));
-
         findViewById(R.id.btnWordsListMenu).setOnClickListener(v ->
                 startActivity(new Intent(MainActivity.this, WordsListActivity.class)));
 
