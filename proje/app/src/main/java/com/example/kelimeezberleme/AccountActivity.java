@@ -509,6 +509,7 @@ public class AccountActivity extends BottomNavActivity {
 
     private void setupWordsSection() {
         rvEmbeddedWords.setLayoutManager(new LinearLayoutManager(this));
+        rvEmbeddedWords.setNestedScrollingEnabled(false);
         wordAdapter = new WordAdapter(new ArrayList<>());
         rvEmbeddedWords.setAdapter(wordAdapter);
 
