@@ -29,21 +29,12 @@
             android:scaleType="centerCrop"
             android:src="@drawable/ic_person_circle_24" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
-            android:text="Hesap"
-            android:textColor="@color/text_primary"
-            android:textSize="13sp"
-            android:textStyle="bold" />
-
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilEditUsername"
             style="@style/App.TextInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="18dp"
             android:hint="Kullanıcı adı">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -81,5 +72,21 @@
             app:icon="@android:drawable/ic_lock_lock"
             app:iconGravity="textStart"
             app:iconTint="@color/accent" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnDialogLogout"
+            style="@style/App.Button.Text"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="14dp"
+            android:backgroundTint="@color/danger_soft"
+            android:text="Çıkış Yap"
+            android:textColor="@color/danger"
+            android:textStyle="bold"
+            app:icon="@android:drawable/ic_lock_power_off"
+            app:iconTint="@color/danger"
+            app:rippleColor="@color/danger_soft"
+            app:strokeColor="@color/danger"
+            app:strokeWidth="1dp" />
     </LinearLayout>
 </ScrollView>

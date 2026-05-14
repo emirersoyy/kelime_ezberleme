@@ -93,7 +93,6 @@ public class AccountActivity extends BottomNavActivity {
         db = new DatabaseHelper(this);
         bindProfileHeader();
         bindEmbeddedSections();
-        bindFooterActions();
 
         loadProfile();
         setupWordsSection();
@@ -144,18 +143,6 @@ public class AccountActivity extends BottomNavActivity {
         btnEmbeddedResetData.setOnClickListener(v -> confirmReset());
         btnEmbeddedAddWord.setOnClickListener(v ->
                 startActivity(new Intent(AccountActivity.this, AddWordActivity.class)));
-    }
-
-    private void bindFooterActions() {
-        MaterialButton btnLogout = findViewById(R.id.btnAccountLogout);
-        btnLogout.setOnClickListener(v -> {
-            AppSettings.clearCurrentUser(this);
-            AppSettings.clearRememberedLogin(this);
-            Intent intent = new Intent(AccountActivity.this, LoginActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-            finish();
-        });
     }
 
     private void showSection(boolean analysis) {
@@ -606,6 +593,7 @@ public class AccountActivity extends BottomNavActivity {
         View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_edit_profile, null);
         dialogProfileImage = dialogView.findViewById(R.id.imgEditProfile);
         MaterialButton btnShowPasswordReset = dialogView.findViewById(R.id.btnShowPasswordReset);
+        MaterialButton btnDialogLogout = dialogView.findViewById(R.id.btnDialogLogout);
         TextInputLayout tilUsername = dialogView.findViewById(R.id.tilEditUsername);
         TextInputLayout tilFullName = dialogView.findViewById(R.id.tilEditFullName);
         TextInputEditText etUsername = dialogView.findViewById(R.id.etEditUsername);
@@ -627,6 +615,16 @@ public class AccountActivity extends BottomNavActivity {
                 .setNegativeButton("Vazgeç", null)
                 .setPositiveButton("Kaydet", null)
                 .create();
+
+        btnDialogLogout.setOnClickListener(v -> {
+            dialog.dismiss();
+            AppSettings.clearCurrentUser(this);
+            AppSettings.clearRememberedLogin(this);
+            Intent intent = new Intent(AccountActivity.this, LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+        });
 
         dialog.setOnShowListener(d -> dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
             tilUsername.setError(null);

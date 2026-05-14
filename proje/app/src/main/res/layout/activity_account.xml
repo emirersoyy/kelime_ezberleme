@@ -146,29 +146,4 @@
         </FrameLayout>
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/surface"
-        android:orientation="vertical"
-        android:paddingHorizontal="@dimen/screen_padding"
-        android:paddingTop="12dp"
-        android:paddingBottom="18dp">
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnAccountLogout"
-            style="@style/App.Button.Text"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:backgroundTint="@color/danger_soft"
-            android:text="Çıkış Yap"
-            android:textColor="@color/danger"
-            android:textStyle="bold"
-            app:icon="@android:drawable/ic_lock_power_off"
-            app:iconTint="@color/danger"
-            app:rippleColor="@color/danger_soft"
-            app:strokeColor="@color/danger"
-            app:strokeWidth="1dp" />
-
-</LinearLayout>
 </LinearLayout>
