@@ -78,30 +78,6 @@
                 android:orientation="vertical">
 
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnWordsListMenu"
-                    style="@style/App.Button.Outlined"
-                    android:layout_width="match_parent"
-                    android:layout_height="58dp"
-                    android:layout_marginBottom="10dp"
-                    android:text="Kelimelerim"
-                    android:textSize="16sp"
-                    app:icon="@android:drawable/ic_menu_sort_by_size"
-                    app:iconGravity="textStart"
-                    app:iconTint="@color/primary" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnAnalysisMenu"
-                    style="@style/App.Button.Outlined"
-                    android:layout_width="match_parent"
-                    android:layout_height="58dp"
-                    android:layout_marginBottom="10dp"
-                    android:text="Analiz Raporu"
-                    android:textSize="16sp"
-                    app:icon="@android:drawable/ic_menu_report_image"
-                    app:iconGravity="textStart"
-                    app:iconTint="@color/accent" />
-
-                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnWordleMenu"
                     style="@style/App.Button.Outlined"
                     android:layout_width="match_parent"
