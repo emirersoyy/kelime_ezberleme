@@ -32,7 +32,9 @@ public class MainActivity extends BottomNavActivity {
         ImageView ivProfileAvatar = findViewById(R.id.ivProfileAvatar);
 
         String currentUser = AppSettings.getCurrentUser(this);
-        tvGreeting.setText(buildGreeting(currentUser));
+        DatabaseHelper.UserProfile profile = db.getUserProfile(currentUser);
+        String displayName = getDisplayName(profile, currentUser);
+        tvGreeting.setText(buildGreeting(displayName));
         tvCurrentUser.setText(currentUser == null || currentUser.trim().isEmpty() ? "Kullanıcı" : currentUser.trim());
         ivProfileAvatar.setContentDescription("Hesap fotoğrafı");
 
@@ -60,22 +62,32 @@ public class MainActivity extends BottomNavActivity {
         startActivity(intent);
     }
 
-    private String buildGreeting(String user) {
+    private String buildGreeting(String displayName) {
         int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
         String prefix;
         if (hour >= 5 && hour < 12) {
             prefix = "Günaydın";
-        } else if (hour >= 12 && hour < 18) {
+        } else if (hour >= 12 && hour < 17) {
             prefix = "İyi günler";
-        } else if (hour >= 18 && hour < 22) {
+        } else if (hour >= 17 && hour < 22) {
             prefix = "İyi akşamlar";
         } else {
             prefix = "İyi geceler";
         }
 
-        if (user == null || user.trim().isEmpty()) {
+        if (displayName == null || displayName.trim().isEmpty()) {
             return prefix;
         }
-        return prefix + ", " + user.trim();
+        return prefix + ", " + displayName.trim();
+    }
+
+    private String getDisplayName(DatabaseHelper.UserProfile profile, String username) {
+        if (profile != null && profile.fullName != null && !profile.fullName.trim().isEmpty()) {
+            return profile.fullName.trim();
+        }
+        if (profile != null && profile.username != null && !profile.username.trim().isEmpty()) {
+            return profile.username.trim();
+        }
+        return username == null ? "" : username.trim();
     }
 }
