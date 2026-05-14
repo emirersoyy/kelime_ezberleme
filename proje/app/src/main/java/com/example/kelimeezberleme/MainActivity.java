@@ -1,6 +1,7 @@
 package com.example.kelimeezberleme;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.ImageView;
@@ -37,6 +38,7 @@ public class MainActivity extends BottomNavActivity {
         tvGreeting.setText(buildGreeting(displayName));
         tvCurrentUser.setText(currentUser == null || currentUser.trim().isEmpty() ? "Kullanıcı" : currentUser.trim());
         ivProfileAvatar.setContentDescription("Hesap fotoğrafı");
+        applyProfileImage(ivProfileAvatar, profile == null ? "" : profile.profileImagePath);
 
         findViewById(R.id.btnStartQuiz).setOnClickListener(v -> startQuiz());
 
@@ -86,5 +88,19 @@ public class MainActivity extends BottomNavActivity {
             return profile.username.trim();
         }
         return username == null ? "" : username.trim();
+    }
+
+    private void applyProfileImage(ImageView imageView, String imagePath) {
+        if (imagePath == null || imagePath.trim().isEmpty()) {
+            imageView.setPadding(dp(12), dp(12), dp(12), dp(12));
+            imageView.setImageResource(R.drawable.ic_person_circle_24);
+            return;
+        }
+        imageView.setPadding(0, 0, 0, 0);
+        imageView.setImageURI(Uri.parse(imagePath));
+    }
+
+    private int dp(int value) {
+        return Math.round(value * getResources().getDisplayMetrics().density);
     }
 }

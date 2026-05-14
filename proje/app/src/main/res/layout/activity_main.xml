@@ -25,20 +25,15 @@
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
-                <FrameLayout
+                <ImageView
+                    android:id="@+id/ivProfileAvatar"
                     android:layout_width="56dp"
                     android:layout_height="56dp"
-                    android:background="@drawable/login_badge_bg">
-
-                    <ImageView
-                        android:id="@+id/ivProfileAvatar"
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:layout_gravity="center"
-                        android:contentDescription="Hesap fotoÄŸrafÄ±"
-                        android:scaleType="centerCrop"
-                        android:src="@android:drawable/ic_menu_myplaces" />
-                </FrameLayout>
+                    android:background="@drawable/profile_avatar_bg"
+                    android:contentDescription="Hesap fotoğrafı"
+                    android:padding="12dp"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_person_circle_24" />
 
                 <LinearLayout
                     android:layout_width="0dp"
