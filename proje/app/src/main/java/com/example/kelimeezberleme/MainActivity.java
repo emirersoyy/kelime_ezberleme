@@ -8,19 +8,21 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import java.util.Calendar;
 
 public class MainActivity extends BottomNavActivity {
     private static final String TAG = "MainActivity";
+    private DatabaseHelper db;
+    private TextView tvGreeting;
+    private TextView tvCurrentUser;
+    private ImageView ivProfileAvatar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        DatabaseHelper db = new DatabaseHelper(this);
+        db = new DatabaseHelper(this);
         try {
             db.seedDatabase();
         } catch (RuntimeException e) {
@@ -28,17 +30,11 @@ public class MainActivity extends BottomNavActivity {
             Toast.makeText(this, "Varsayılan kelimeler hazırlanamadı.", Toast.LENGTH_SHORT).show();
         }
 
-        TextView tvGreeting = findViewById(R.id.tvGreeting);
-        TextView tvCurrentUser = findViewById(R.id.tvCurrentUser);
-        ImageView ivProfileAvatar = findViewById(R.id.ivProfileAvatar);
-
-        String currentUser = AppSettings.getCurrentUser(this);
-        DatabaseHelper.UserProfile profile = db.getUserProfile(currentUser);
-        String displayName = getDisplayName(profile, currentUser);
-        tvGreeting.setText(buildGreeting(displayName));
-        tvCurrentUser.setText(currentUser == null || currentUser.trim().isEmpty() ? "Kullanıcı" : currentUser.trim());
+        tvGreeting = findViewById(R.id.tvGreeting);
+        tvCurrentUser = findViewById(R.id.tvCurrentUser);
+        ivProfileAvatar = findViewById(R.id.ivProfileAvatar);
         ivProfileAvatar.setContentDescription("Hesap fotoğrafı");
-        applyProfileImage(ivProfileAvatar, profile == null ? "" : profile.profileImagePath);
+        refreshHeader();
 
         findViewById(R.id.btnStartQuiz).setOnClickListener(v -> startQuiz());
 
@@ -53,6 +49,12 @@ public class MainActivity extends BottomNavActivity {
 
         findViewById(R.id.btnAiMenu).setOnClickListener(v ->
                 startActivity(new Intent(MainActivity.this, AiAssistantActivity.class)));
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        refreshHeader();
     }
 
     private void startQuiz() {
@@ -88,6 +90,15 @@ public class MainActivity extends BottomNavActivity {
             return profile.username.trim();
         }
         return username == null ? "" : username.trim();
+    }
+
+    private void refreshHeader() {
+        String currentUser = AppSettings.getCurrentUser(this);
+        DatabaseHelper.UserProfile profile = db.getUserProfile(currentUser);
+        String displayName = getDisplayName(profile, currentUser);
+        tvGreeting.setText(buildGreeting(displayName));
+        tvCurrentUser.setText(currentUser == null || currentUser.trim().isEmpty() ? "Kullanıcı" : currentUser.trim());
+        applyProfileImage(ivProfileAvatar, profile == null ? "" : profile.profileImagePath);
     }
 
     private void applyProfileImage(ImageView imageView, String imagePath) {

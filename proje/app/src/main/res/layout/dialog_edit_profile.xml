@@ -21,6 +21,7 @@
             android:layout_height="88dp"
             android:layout_gravity="center_horizontal"
             android:background="@drawable/profile_avatar_bg"
+            android:clipToOutline="true"
             android:clickable="true"
             android:contentDescription="Profil resmi"
             android:focusable="true"

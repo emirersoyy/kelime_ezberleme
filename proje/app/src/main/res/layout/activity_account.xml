@@ -37,6 +37,7 @@
                         android:layout_width="64dp"
                         android:layout_height="64dp"
                         android:background="@drawable/profile_avatar_bg"
+                        android:clipToOutline="true"
                         android:contentDescription="Profil resmi"
                         android:padding="12dp"
                         android:scaleType="centerCrop"
