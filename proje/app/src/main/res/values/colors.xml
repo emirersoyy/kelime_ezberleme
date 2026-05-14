@@ -7,6 +7,8 @@
     <color name="surface">#FFFFFF</color>
     <color name="surface_variant">#EAF2FF</color>
     <color name="success">#10B981</color>
+    <color name="danger">#DC2626</color>
+    <color name="danger_soft">#FEE2E2</color>
     <color name="divider">#D8E0EE</color>
     <color name="text_primary">#172033</color>
     <color name="text_secondary">#667085</color>
