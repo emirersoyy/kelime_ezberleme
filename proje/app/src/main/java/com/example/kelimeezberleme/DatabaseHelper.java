@@ -205,18 +205,40 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         List<Word> words = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
         long currentTime = System.currentTimeMillis();
-        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_WORDS +
+
+        // First bring in every overdue review item so missed study days do not skip scheduled repetitions.
+        Cursor dueCursor = db.rawQuery("SELECT * FROM " + TABLE_WORDS +
                         " WHERE " + COL_NEXT_QUIZ_DATE + " <= ? AND " + COL_STEP_COUNT + " < 6" +
+                        " AND " + COL_TOTAL_ATTEMPTS + " > 0" +
+                        " ORDER BY " + COL_NEXT_QUIZ_DATE + " ASC",
+                new String[]{String.valueOf(currentTime)});
+        appendWordsFromCursor(words, dueCursor);
+
+        // Then add only unseen/new words according to the configured new-question limit.
+        Cursor newCursor = db.rawQuery("SELECT * FROM " + TABLE_WORDS +
+                        " WHERE " + COL_STEP_COUNT + " = 0 AND " + COL_TOTAL_ATTEMPTS + " = 0" +
                         " ORDER BY RANDOM() LIMIT ?",
-                new String[]{String.valueOf(currentTime), String.valueOf(limit)});
-        if (cursor != null && cursor.moveToFirst()) {
+                new String[]{String.valueOf(Math.max(0, limit))});
+        appendWordsFromCursor(words, newCursor);
+
+        return words;
+    }
+
+    private void appendWordsFromCursor(List<Word> target, Cursor cursor) {
+        if (cursor == null) {
+            return;
+        }
+        try {
+            if (!cursor.moveToFirst()) {
+                return;
+            }
             do {
-                words.add(new Word(cursor.getInt(0), cursor.getString(1), cursor.getString(2), cursor.getString(3),
+                target.add(new Word(cursor.getInt(0), cursor.getString(1), cursor.getString(2), cursor.getString(3),
                         cursor.getInt(4), cursor.getLong(5), cursor.getString(6), cursor.getInt(7), cursor.getInt(8)));
             } while (cursor.moveToNext());
+        } finally {
             cursor.close();
         }
-        return words;
     }
 
     public List<String> getRandomWrongAnswers(int correctWordId) {
