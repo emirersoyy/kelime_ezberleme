@@ -2,41 +2,27 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/background"
-    android:orientation="vertical"
-    android:paddingHorizontal="@dimen/screen_padding"
-    android:paddingTop="@dimen/screen_padding_top">
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingBottom="18dp">
+        android:paddingBottom="12dp">
 
-        <LinearLayout
+        <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:orientation="vertical">
-
-            <TextView
-                style="@style/App.TitleText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Kelimelerim" />
-
-            <TextView
-                style="@style/App.SubtitleText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:text="Kaydettiğin kelimeleri ve örnekleri incele" />
-        </LinearLayout>
+            android:text="Kategori listesi"
+            android:textColor="@color/text_secondary"
+            android:textSize="14sp"
+            android:textStyle="bold" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnAddWordFromWords"
+            android:id="@+id/btnEmbeddedAddWord"
             style="@style/App.Button.Text"
             android:layout_width="48dp"
             android:layout_height="48dp"
@@ -53,19 +39,18 @@
     </LinearLayout>
 
     <Spinner
-        android:id="@+id/spSort"
+        android:id="@+id/spEmbeddedSort"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/soft_chip_bg"
         android:padding="8dp" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvWords"
+        android:id="@+id/rvEmbeddedWords"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:layout_weight="1"
         android:clipToPadding="false"
+        android:nestedScrollingEnabled="false"
         android:paddingBottom="12dp" />
-
 </LinearLayout>

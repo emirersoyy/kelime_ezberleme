@@ -124,7 +124,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Günlük Soru Sayısı"
+                            android:text="Yeni Soru Sayısı"
                             android:textColor="@color/text_primary"
                             android:textSize="16sp" />
 
@@ -148,7 +148,7 @@
                         android:stepSize="1"
                         android:value="10"
                         android:valueFrom="5"
-                        android:valueTo="30" />
+                        android:valueTo="15" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnSaveSettings"
