@@ -112,6 +112,8 @@ public class AccountActivity extends BottomNavActivity {
     private int analysisWindowStart = 0;
     private int analysisWindowEnd = 0;
     private boolean analysisWindowUpdateLocked = false;
+    private boolean skipInitialResumeRefresh = false;
+    private boolean wordsContentLoaded = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -124,17 +126,25 @@ public class AccountActivity extends BottomNavActivity {
 
         loadProfile();
         setupWordsSection();
-        setupAnalysisSection();
         showSection(true);
-        refreshEmbeddedContent();
+        refreshAnalysisContent();
+        skipInitialResumeRefresh = true;
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        if (skipInitialResumeRefresh) {
+            skipInitialResumeRefresh = false;
+            return;
+        }
         loadProfile();
         analysisSortAscending = true;
-        refreshEmbeddedContent();
+        refreshAnalysisContent();
+        wordsContentLoaded = false;
+        if (!showingAnalysis) {
+            refreshWordsContent();
+        }
         updateTabStyles();
     }
 
@@ -193,6 +203,9 @@ public class AccountActivity extends BottomNavActivity {
         showingAnalysis = analysis;
         layoutAnalysisSection.setVisibility(analysis ? View.VISIBLE : View.GONE);
         layoutWordsSection.setVisibility(analysis ? View.GONE : View.VISIBLE);
+        if (!analysis && !wordsContentLoaded) {
+            refreshWordsContent();
+        }
         updateTabStyles();
     }
 
@@ -227,15 +240,6 @@ public class AccountActivity extends BottomNavActivity {
             tvCurrentUser.setVisibility(View.VISIBLE);
         }
         applyProfileImage(imgAccountProfile, selectedProfileImagePath);
-    }
-
-    private void refreshEmbeddedContent() {
-        refreshAnalysisContent();
-        refreshWordsContent();
-    }
-
-    private void setupAnalysisSection() {
-        refreshAnalysisContent();
     }
 
     private void refreshAnalysisContent() {
@@ -606,7 +610,6 @@ public class AccountActivity extends BottomNavActivity {
         String english = word.eng == null || word.eng.trim().isEmpty() ? "-" : word.eng.trim();
         String turkish = word.tur == null || word.tur.trim().isEmpty() ? "-" : word.tur.trim();
         boolean showLevelBadge = ANALYSIS_FILTER_ALL.equals(selectedAnalysisFilter);
-        List<String> samples = db.getDisplaySamplesForWord(word);
 
         MaterialCardView card = new MaterialCardView(this);
         LinearLayout.LayoutParams cardParams = new LinearLayout.LayoutParams(
@@ -671,10 +674,9 @@ public class AccountActivity extends BottomNavActivity {
         detailsTextColumn.setOrientation(LinearLayout.VERTICAL);
 
         TextView sampleText = new TextView(this);
-        sampleText.setText(formatSamples(samples));
         sampleText.setTextColor(getResources().getColor(R.color.text_primary));
         sampleText.setTextSize(13);
-        sampleText.setVisibility(samples == null || samples.isEmpty() ? View.GONE : View.VISIBLE);
+        sampleText.setVisibility(View.GONE);
 
         ImageView wordImage = new ImageView(this);
         LinearLayout.LayoutParams imageParams = new LinearLayout.LayoutParams(dp(76), dp(76));
@@ -683,7 +685,7 @@ public class AccountActivity extends BottomNavActivity {
         wordImage.setBackgroundResource(R.drawable.soft_chip_bg);
         wordImage.setClipToOutline(true);
         wordImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        WordImageLoader.load(wordImage, word.pic);
+        wordImage.setVisibility(View.GONE);
 
         detailsTextColumn.addView(sampleText);
         detailsContainer.addView(detailsTextColumn);
@@ -696,6 +698,14 @@ public class AccountActivity extends BottomNavActivity {
         card.addView(content);
         card.setOnClickListener(v -> {
             word.expanded = !word.expanded;
+            if (word.expanded && sampleText.getTag() == null) {
+                List<String> samples = db.getDisplaySamplesForWord(word);
+                sampleText.setText(formatSamples(samples));
+                sampleText.setVisibility(samples == null || samples.isEmpty() ? View.GONE : View.VISIBLE);
+                WordImageLoader.load(wordImage, word.pic);
+                wordImage.setVisibility(View.VISIBLE);
+                sampleText.setTag(Boolean.TRUE);
+            }
             detailsContainer.setVisibility(word.expanded ? View.VISIBLE : View.GONE);
         });
         return card;
@@ -959,6 +969,7 @@ public class AccountActivity extends BottomNavActivity {
             allCategories.add(new CategoryItem(entry.getKey(), entry.getValue()));
         }
         applyWordSorting(AppSettings.getWordsSortOrder(this));
+        wordsContentLoaded = true;
     }
 
     private void applyWordSorting(String sortOrder) {
