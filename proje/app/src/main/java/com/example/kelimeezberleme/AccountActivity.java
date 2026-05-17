@@ -107,6 +107,8 @@ public class AccountActivity extends BottomNavActivity {
     private HorizontalScrollView hsvStickySummaryChips;
     private View viewEmbeddedFadeLeft;
     private View viewEmbeddedFadeRight;
+    private View viewStickyFadeLeft;
+    private View viewStickyFadeRight;
 
     private Spinner spEmbeddedSort;
     private RecyclerView rvEmbeddedWords;
@@ -187,6 +189,8 @@ public class AccountActivity extends BottomNavActivity {
         hsvStickySummaryChips = findViewById(R.id.hsvStickySummaryChips);
         viewEmbeddedFadeLeft = findViewById(R.id.viewEmbeddedFadeLeft);
         viewEmbeddedFadeRight = findViewById(R.id.viewEmbeddedFadeRight);
+        viewStickyFadeLeft = findViewById(R.id.viewStickyFadeLeft);
+        viewStickyFadeRight = findViewById(R.id.viewStickyFadeRight);
         btnEmbeddedLoadMoreAnalysis = findViewById(R.id.btnEmbeddedLoadMoreAnalysis);
         ImageButton btnEmbeddedPrint = findViewById(R.id.btnEmbeddedPrint);
 
@@ -207,6 +211,8 @@ public class AccountActivity extends BottomNavActivity {
         });
         hsvEmbeddedSummaryChips.setOnScrollChangeListener((v, scrollX, scrollY, oldScrollX, oldScrollY) ->
                 updateSummaryChipFadeState());
+        hsvStickySummaryChips.setOnScrollChangeListener((v, scrollX, scrollY, oldScrollX, oldScrollY) ->
+                updateStickySummaryChipFadeState());
         btnEmbeddedAddWord.setOnClickListener(v ->
                 startActivity(new Intent(AccountActivity.this, AddWordActivity.class)));
         btnEmbeddedLoadMoreAnalysis.setVisibility(View.GONE);
@@ -327,6 +333,7 @@ public class AccountActivity extends BottomNavActivity {
         updateAnalysisSortView();
         hsvEmbeddedSummaryChips.post(this::updateSummaryChipFadeState);
         syncStickyFilterScroll();
+        hsvStickySummaryChips.post(this::updateStickySummaryChipFadeState);
         svAccountRoot.post(this::updateStickyAnalysisFiltersState);
         addAnalysisWordCards(filteredWords);
     }
@@ -828,7 +835,10 @@ public class AccountActivity extends BottomNavActivity {
         if (hsvEmbeddedSummaryChips == null || hsvStickySummaryChips == null) {
             return;
         }
-        hsvStickySummaryChips.post(() -> hsvStickySummaryChips.scrollTo(hsvEmbeddedSummaryChips.getScrollX(), 0));
+        hsvStickySummaryChips.post(() -> {
+            hsvStickySummaryChips.scrollTo(hsvEmbeddedSummaryChips.getScrollX(), 0);
+            updateStickySummaryChipFadeState();
+        });
     }
 
     private void updateStickyAnalysisFiltersState() {
@@ -845,15 +855,26 @@ public class AccountActivity extends BottomNavActivity {
         if (hsvEmbeddedSummaryChips == null || viewEmbeddedFadeLeft == null || viewEmbeddedFadeRight == null) {
             return;
         }
-        int childWidth = hsvEmbeddedSummaryChips.getChildCount() > 0
-                ? hsvEmbeddedSummaryChips.getChildAt(0).getWidth()
-                : 0;
-        int viewportWidth = hsvEmbeddedSummaryChips.getWidth();
-        int maxScroll = Math.max(0, childWidth - viewportWidth);
-        int scrollX = hsvEmbeddedSummaryChips.getScrollX();
+        updateFadeState(hsvEmbeddedSummaryChips, viewEmbeddedFadeLeft, viewEmbeddedFadeRight);
+    }
 
-        viewEmbeddedFadeLeft.setVisibility(scrollX <= 0 ? View.GONE : View.VISIBLE);
-        viewEmbeddedFadeRight.setVisibility(scrollX >= maxScroll ? View.GONE : View.VISIBLE);
+    private void updateStickySummaryChipFadeState() {
+        if (hsvStickySummaryChips == null || viewStickyFadeLeft == null || viewStickyFadeRight == null) {
+            return;
+        }
+        updateFadeState(hsvStickySummaryChips, viewStickyFadeLeft, viewStickyFadeRight);
+    }
+
+    private void updateFadeState(HorizontalScrollView scrollView, View fadeLeft, View fadeRight) {
+        int childWidth = scrollView.getChildCount() > 0
+                ? scrollView.getChildAt(0).getWidth()
+                : 0;
+        int viewportWidth = scrollView.getWidth();
+        int maxScroll = Math.max(0, childWidth - viewportWidth);
+        int scrollX = scrollView.getScrollX();
+
+        fadeLeft.setVisibility(scrollX <= 0 ? View.GONE : View.VISIBLE);
+        fadeRight.setVisibility(scrollX >= maxScroll ? View.GONE : View.VISIBLE);
     }
 
     private void confirmReset() {
