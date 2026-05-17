@@ -139,7 +139,7 @@ public class AiAssistantActivity extends BottomNavActivity {
 
     @NonNull
     private List<Word> pickRandomWords(int count) {
-        List<Word> allWords = db.getAllWords();
+        List<Word> allWords = WordleWordBank.mergeDisplayWords(db.getAllWords());
         List<Word> pool = new ArrayList<>();
         for (Word word : allWords) {
             if (word != null && !TextUtils.isEmpty(word.eng)) {

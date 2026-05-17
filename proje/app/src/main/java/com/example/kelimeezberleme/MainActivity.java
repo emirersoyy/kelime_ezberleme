@@ -104,7 +104,7 @@ public class MainActivity extends BottomNavActivity {
     }
 
     private void refreshStats() {
-        List<Word> words = db.getAllWords();
+        List<Word> words = WordleWordBank.mergeDisplayWords(db.getAllWords());
         int total = words.size();
         int learned = 0;
         int due = 0;
@@ -113,7 +113,7 @@ public class MainActivity extends BottomNavActivity {
         for (Word word : words) {
             if (word.stepCount >= 6) {
                 learned++;
-            } else if (word.nextQuizDate <= now) {
+            } else if (word.totalAttempts > 0 && word.stepCount > 0 && word.nextQuizDate <= now) {
                 due++;
             }
         }

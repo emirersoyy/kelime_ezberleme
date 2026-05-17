@@ -11,9 +11,6 @@ final class SeedWordCatalog {
     private SeedWordCatalog() {}
 
     static String pictureRefForWord(String english, String category) {
-        if (!hasCuratedImage(english)) {
-            return "";
-        }
         return "drawable:" + drawableNameForWord(english);
     }
 

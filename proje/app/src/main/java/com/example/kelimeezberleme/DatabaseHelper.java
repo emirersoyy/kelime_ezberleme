@@ -524,65 +524,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public String getRandomWordForWordle() {
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT " + COL_ENG_WORD + " FROM " + TABLE_WORDS + " WHERE length(trim(" + COL_ENG_WORD + ")) = 5 ORDER BY RANDOM() LIMIT 1", null);
-        String word = null;
-        if (cursor.moveToFirst()) {
-            word = cursor.getString(0).toUpperCase(Locale.US);
-        }
-        cursor.close();
-        return word;
+        return WordleWordBank.pickRandomWord(getAllWords(), null);
     }
 
     public String getRandomWordForWordle(Set<String> eligibleWordIds) {
-        if (eligibleWordIds == null || eligibleWordIds.isEmpty()) return null;
-
-        List<String> cleanIds = new ArrayList<>();
-        for (String id : eligibleWordIds) {
-            if (id != null && id.matches("\\d+")) {
-                cleanIds.add(id);
-            }
-        }
-        if (cleanIds.isEmpty()) return null;
-
-        StringBuilder placeholders = new StringBuilder();
-        for (int i = 0; i < cleanIds.size(); i++) {
-            if (i > 0) placeholders.append(",");
-            placeholders.append("?");
-        }
-
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(
-                        "SELECT " + COL_ENG_WORD + " FROM " + TABLE_WORDS +
-                        " WHERE " + COL_WORD_ID + " IN (" + placeholders + ")" +
-                        " AND length(trim(" + COL_ENG_WORD + ")) = 5" +
-                        " ORDER BY RANDOM() LIMIT 1",
-                cleanIds.toArray(new String[0])
-        );
-        String word = null;
-        if (cursor.moveToFirst()) {
-            word = cursor.getString(0).toUpperCase(Locale.US);
-        }
-        cursor.close();
-        return word;
+        return WordleWordBank.pickRandomWord(getAllWords(), eligibleWordIds);
     }
 
     public boolean isValidWordleGuess(String guess) {
-        if (guess == null) return false;
-        int length = guess.trim().length();
-        if (length != 5) return false;
-
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(
-                "SELECT 1 FROM " + TABLE_WORDS +
-                        " WHERE lower(trim(" + COL_ENG_WORD + ")) = lower(trim(?))" +
-                        " AND length(trim(" + COL_ENG_WORD + ")) = 5" +
-                        " LIMIT 1",
-                new String[]{guess}
-        );
-        boolean exists = cursor.moveToFirst();
-        cursor.close();
-        return exists;
+        return WordleWordBank.containsGuess(getAllWords(), guess);
     }
     public void seedDatabase() {
         String[][] seedWords = {
@@ -968,7 +918,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     private String[] pickTemplates(String[] templates, String value) {
-        String[] samples = new String[3];
+        int sampleCount = Math.abs(value.hashCode()) % 2 == 0 ? 1 : 2;
+        String[] samples = new String[sampleCount];
         int start = Math.abs(value.hashCode()) % templates.length;
         for (int i = 0; i < samples.length; i++) {
             String template = templates[(start + (i * 2)) % templates.length];

@@ -45,7 +45,7 @@ public class WordsListActivity extends BottomNavActivity {
                 startActivity(new Intent(WordsListActivity.this, AddWordActivity.class)));
 
         setupSortSpinner();
-        allWords = db.getAllWords();
+        allWords = WordleWordBank.mergeDisplayWords(db.getAllWords());
         adapter = new WordAdapter(new ArrayList<>());
         rvWords.setAdapter(adapter);
         applySorting(AppSettings.getWordsSortOrder(this));
@@ -147,9 +147,11 @@ public class WordsListActivity extends BottomNavActivity {
         public void onBindViewHolder(@NonNull WordViewHolder holder, int position) {
             Word word = words.get(position);
             holder.tvEng.setText(word.eng);
-            holder.tvTur.setText(word.tur);
-            holder.tvLevel.setText(getLevelText(word.stepCount));
-            List<String> samples = db.getDisplaySamplesForWord(word);
+            holder.tvTur.setText(isSyntheticWord(word) ? "Wordle için eklenen kelime" : word.tur);
+            holder.tvLevel.setText(isSyntheticWord(word) ? "Wordle" : getLevelText(word.stepCount));
+            List<String> samples = isSyntheticWord(word)
+                    ? WordleWordBank.previewSamples(word.eng)
+                    : db.getDisplaySamplesForWord(word);
             holder.tvSample.setText(formatSamples(samples));
             WordImageLoader.load(holder.ivWord, word.pic);
             holder.bindExpandedState(word.expanded);
@@ -189,6 +191,10 @@ public class WordsListActivity extends BottomNavActivity {
                 return "Seviye 0";
             }
             return "Seviye " + stepCount;
+        }
+
+        private boolean isSyntheticWord(Word word) {
+            return word != null && word.id < 0;
         }
 
         class WordViewHolder extends RecyclerView.ViewHolder {

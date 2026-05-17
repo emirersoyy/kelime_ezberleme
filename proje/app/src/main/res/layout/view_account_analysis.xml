@@ -146,6 +146,18 @@
                 android:layout_marginTop="12dp"
                 android:orientation="vertical" />
 
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnEmbeddedLoadMoreAnalysis"
+                style="@style/App.Button.Text"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="14dp"
+                android:text="Devam"
+                android:textColor="@color/primary"
+                app:icon="@android:drawable/arrow_down_float"
+                app:iconGravity="textStart"
+                app:iconTint="@color/primary" />
+
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 </LinearLayout>
