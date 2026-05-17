@@ -101,6 +101,7 @@
                 android:textStyle="bold" />
 
             <ScrollView
+                android:id="@+id/svAnalysisContent"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
@@ -113,6 +114,18 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical" />
             </ScrollView>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnLoadMoreAnalysis"
+                style="@style/App.Button.Text"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="10dp"
+                android:text="Devam"
+                android:textColor="@color/primary"
+                app:icon="@android:drawable/arrow_down_float"
+                app:iconGravity="textStart"
+                app:iconTint="@color/primary" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnResetData"

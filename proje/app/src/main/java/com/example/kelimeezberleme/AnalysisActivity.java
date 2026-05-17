@@ -23,6 +23,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.card.MaterialCardView;
+import com.google.android.material.button.MaterialButton;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -32,10 +33,13 @@ import java.util.Comparator;
 import java.util.List;
 
 public class AnalysisActivity extends BottomNavActivity {
+    private static final int MAX_WORD_CARDS = 120;
     private DatabaseHelper db;
     private LinearLayout llSummaryChips;
     private LinearLayout llCategoryStats;
     private TextView tvOverallStats;
+    private MaterialButton btnLoadMoreAnalysis;
+    private final List<SectionPager> sectionPagers = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,9 +50,11 @@ public class AnalysisActivity extends BottomNavActivity {
         llSummaryChips = findViewById(R.id.llSummaryChips);
         llCategoryStats = findViewById(R.id.llCategoryStats);
         tvOverallStats = findViewById(R.id.tvOverallStats);
+        btnLoadMoreAnalysis = findViewById(R.id.btnLoadMoreAnalysis);
 
         findViewById(R.id.btnPrint).setOnClickListener(v -> printReport());
         findViewById(R.id.btnResetData).setOnClickListener(v -> confirmReset());
+        btnLoadMoreAnalysis.setOnClickListener(v -> loadMoreAnalysisSection());
 
         calculateAndShowStats();
     }
@@ -57,7 +63,7 @@ public class AnalysisActivity extends BottomNavActivity {
         llSummaryChips.removeAllViews();
         llCategoryStats.removeAllViews();
 
-        List<Word> words = db.getAllWords();
+        List<Word> words = WordleWordBank.mergeDisplayWords(db.getAllWords());
         if (words.isEmpty()) {
             tvOverallStats.setText("Henüz kelime eklenmemiş.");
             addEmptyState("Gösterilecek veri yok.");
@@ -89,9 +95,12 @@ public class AnalysisActivity extends BottomNavActivity {
         addMetricChip("Öğreniliyor", String.valueOf(learning.size()), R.color.accent);
         addMetricChip("Öğrenildi", String.valueOf(learned.size()), R.color.success);
 
+        sectionPagers.clear();
+
         addStatusSection("Öğrenilmekte Olan", learning, R.color.accent);
         addStatusSection("Öğrenilmiş", learned, R.color.success);
         addStatusSection("Daha Başlanmamış", notStarted, R.color.text_secondary);
+        updateLoadMoreButton();
     }
 
     private void addMetricChip(String label, String value, int colorResId) {
@@ -184,12 +193,95 @@ public class AnalysisActivity extends BottomNavActivity {
         subtitle.setPadding(0, 2, 0, 12);
         sectionContent.addView(subtitle);
 
-        for (Word word : items) {
-            sectionContent.addView(createWordCard(word, accentColor));
-        }
+        SectionPager pager = new SectionPager(sectionContent, items, accentColor);
+        sectionPagers.add(pager);
+        pager.appendNextChunk();
 
         sectionCard.addView(sectionContent);
         llCategoryStats.addView(sectionCard);
+    }
+
+    private void appendWordCards(LinearLayout container, List<Word> items, int start, int end, int accentColor) {
+        if (items == null || container == null) {
+            return;
+        }
+        int safeStart = Math.max(0, start);
+        int safeEnd = Math.max(safeStart, Math.min(items.size(), end));
+        for (int i = safeStart; i < safeEnd; i++) {
+            container.addView(createWordCard(items.get(i), accentColor));
+        }
+    }
+
+    private void loadMoreAnalysisSection() {
+        for (int i = sectionPagers.size() - 1; i >= 0; i--) {
+            SectionPager pager = sectionPagers.get(i);
+            if (pager.hasMore()) {
+                pager.appendNextChunk();
+                updateLoadMoreButton();
+                return;
+            }
+        }
+        updateLoadMoreButton();
+    }
+
+    private void updateLoadMoreButton() {
+        if (btnLoadMoreAnalysis == null) {
+            return;
+        }
+        boolean hasMore = false;
+        for (SectionPager pager : sectionPagers) {
+            if (pager.hasMore()) {
+                hasMore = true;
+                break;
+            }
+        }
+        btnLoadMoreAnalysis.setVisibility(hasMore ? View.VISIBLE : View.GONE);
+    }
+
+    private final class SectionPager {
+        private final LinearLayout container;
+        private final List<Word> items;
+        private final int accentColor;
+        private final TextView noteView;
+        private int renderedCount = 0;
+
+        SectionPager(LinearLayout container, List<Word> items, int accentColor) {
+            this.container = container;
+            this.items = items == null ? new ArrayList<>() : items;
+            this.accentColor = accentColor;
+            this.noteView = new TextView(AnalysisActivity.this);
+            this.noteView.setTextColor(getResources().getColor(R.color.text_secondary));
+            this.noteView.setTextSize(13);
+            this.noteView.setPadding(0, (int) dp(8), 0, (int) dp(4));
+        }
+
+        boolean hasMore() {
+            return renderedCount < items.size();
+        }
+
+        void appendNextChunk() {
+            if (!hasMore()) {
+                noteView.setText("Tüm kelimeler gösterildi.");
+                if (noteView.getParent() == null) {
+                    container.addView(noteView);
+                }
+                return;
+            }
+
+            int nextCount = Math.min(items.size(), renderedCount + MAX_WORD_CARDS);
+            appendWordCards(container, items, renderedCount, nextCount, accentColor);
+            renderedCount = nextCount;
+
+            if (noteView.getParent() == null) {
+                container.addView(noteView);
+            }
+            if (hasMore()) {
+                noteView.setVisibility(View.GONE);
+            } else {
+                noteView.setVisibility(View.VISIBLE);
+                noteView.setText("Tüm kelimeler gösterildi.");
+            }
+        }
     }
 
     private MaterialCardView createWordCard(Word word, int accentColor) {

@@ -39,17 +39,6 @@ public class WordleActivity extends BottomNavActivity {
     private static final int LETTER_ABSENT = 1;
     private static final int LETTER_PRESENT = 2;
     private static final int LETTER_CORRECT = 3;
-    private static final int WORDLE_GREEN = Color.parseColor("#6BAA64");
-    private static final int WORDLE_YELLOW = Color.parseColor("#D6A63A");
-    private static final int WORDLE_GRAY = Color.parseColor("#8A9099");
-    private static final int WORDLE_RED = Color.parseColor("#DC2626");
-    private static final int CALENDAR_GRAY = Color.parseColor("#E5E7EB");
-    private static final int CALENDAR_LOCKED_GRAY = Color.parseColor("#4B5563");
-    private static final int KEYBOARD_KEY_BG = Color.parseColor("#D1D5DB");
-    private static final int KEYBOARD_KEY_STROKE = Color.parseColor("#A8B0BA");
-    private static final int KEYBOARD_ABSENT_BG = Color.parseColor("#6B7280");
-    private static final int KEYBOARD_ABSENT_STROKE = Color.parseColor("#4B5563");
-    private static final int KEYBOARD_ACTION_BG = Color.parseColor("#2563EB");
     private static final long DAY_MS = 24L * 60L * 60L * 1000L;
 
     DatabaseHelper db;
@@ -389,11 +378,11 @@ public class WordleActivity extends BottomNavActivity {
         btn.setBackgroundTintList(ColorStateList.valueOf(background));
         String status = getGameStatus(dateKey);
         if (!hasPuzzle) {
-            btn.setTextColor(Color.WHITE);
+            btn.setTextColor(ContextCompat.getColor(this, R.color.white));
         } else if (status == null) {
             btn.setTextColor(ContextCompat.getColor(this, R.color.calendar_unplayed_text));
         } else {
-            btn.setTextColor(Color.WHITE);
+            btn.setTextColor(ContextCompat.getColor(this, R.color.white));
         }
         btn.setEnabled(hasPuzzle);
         btn.setAlpha(1.0f);
@@ -408,13 +397,13 @@ public class WordleActivity extends BottomNavActivity {
     }
 
     private int getCalendarDayColor(String dateKey) {
-        if (!hasPuzzleForDate(dateKey)) return CALENDAR_LOCKED_GRAY;
+        if (!hasPuzzleForDate(dateKey)) return ContextCompat.getColor(this, R.color.wordle_calendar_locked_gray);
 
         String status = getGameStatus(dateKey);
-        if (STATUS_CORRECT.equals(status)) return WORDLE_GREEN;
-        if (STATUS_FAILED.equals(status)) return WORDLE_RED;
-        if (STATUS_PARTIAL.equals(status)) return WORDLE_YELLOW;
-        return CALENDAR_GRAY;
+        if (STATUS_CORRECT.equals(status)) return ContextCompat.getColor(this, R.color.wordle_green);
+        if (STATUS_FAILED.equals(status)) return ContextCompat.getColor(this, R.color.wordle_red);
+        if (STATUS_PARTIAL.equals(status)) return ContextCompat.getColor(this, R.color.wordle_yellow);
+        return ContextCompat.getColor(this, R.color.wordle_calendar_gray);
     }
 
     private boolean hasPuzzleForDate(String dateKey) {
@@ -519,7 +508,7 @@ public class WordleActivity extends BottomNavActivity {
                 tvResult.setText("Doğru Kelime: " + targetWord);
                 boolean solved = containsGuess(savedGuesses, targetWord);
                 saveGameStatus(solved ? STATUS_CORRECT : STATUS_FAILED);
-                tvResult.setTextColor(solved ? WORDLE_GREEN : WORDLE_RED);
+                tvResult.setTextColor(solved ? ContextCompat.getColor(this, R.color.wordle_green) : ContextCompat.getColor(this, R.color.wordle_red));
                 if (!isFinished) {
                     markFinished(solved);
                 }
@@ -549,7 +538,7 @@ public class WordleActivity extends BottomNavActivity {
     private void applyColor(int row, int col, char c) {
         int status = getLetterStatus(col, c);
         cards[row][col].setCardBackgroundColor(getStatusColor(status));
-        cells[row][col].setTextColor(Color.WHITE);
+        cells[row][col].setTextColor(ContextCompat.getColor(this, R.color.white));
         updateKeyboardKey(c, status);
     }
 
@@ -560,9 +549,9 @@ public class WordleActivity extends BottomNavActivity {
     }
 
     private int getStatusColor(int status) {
-        if (status == LETTER_CORRECT) return WORDLE_GREEN;
-        if (status == LETTER_PRESENT) return WORDLE_YELLOW;
-        return WORDLE_GRAY;
+        if (status == LETTER_CORRECT) return ContextCompat.getColor(this, R.color.wordle_green);
+        if (status == LETTER_PRESENT) return ContextCompat.getColor(this, R.color.wordle_yellow);
+        return ContextCompat.getColor(this, R.color.wordle_gray);
     }
 
     private void updateKeyboardKey(char c, int newStatus) {
@@ -574,15 +563,15 @@ public class WordleActivity extends BottomNavActivity {
 
         keyboardStatuses.put(c, newStatus);
         if (newStatus == LETTER_ABSENT) {
-            key.setBackgroundTintList(ColorStateList.valueOf(KEYBOARD_ABSENT_BG));
-            key.setStrokeColor(ColorStateList.valueOf(KEYBOARD_ABSENT_STROKE));
-            key.setTextColor(Color.parseColor("#1F2937"));
+            key.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.wordle_keyboard_absent_bg)));
+            key.setStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.wordle_keyboard_absent_stroke)));
+            key.setTextColor(ContextCompat.getColor(this, R.color.wordle_keyboard_key_text));
             return;
         }
 
         key.setBackgroundTintList(ColorStateList.valueOf(getStatusColor(newStatus)));
         key.setStrokeColor(ColorStateList.valueOf(getStatusColor(newStatus)));
-        key.setTextColor(Color.WHITE);
+        key.setTextColor(ContextCompat.getColor(this, R.color.white));
     }
 
     private void createGrid() {
@@ -608,14 +597,14 @@ public class WordleActivity extends BottomNavActivity {
                 card.setLayoutParams(params);
                 card.setRadius(getResources().getDimension(R.dimen.radius_xs));
                 card.setStrokeWidth(2);
-                card.setStrokeColor(Color.LTGRAY);
-                card.setCardBackgroundColor(Color.WHITE);
+                card.setStrokeColor(ContextCompat.getColor(this, R.color.divider));
+                card.setCardBackgroundColor(ContextCompat.getColor(this, R.color.surface));
 
                 TextView tv = new TextView(this);
                 tv.setLayoutParams(new MaterialCardView.LayoutParams(cellSize, cellSize));
                 tv.setGravity(Gravity.CENTER);
                 tv.setTextSize(25);
-                tv.setTextColor(Color.BLACK);
+                tv.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
                 card.addView(tv);
                 glWordle.addView(card);
                 cells[r][c] = tv; cards[r][c] = card;
@@ -698,15 +687,15 @@ public class WordleActivity extends BottomNavActivity {
     }
 
     private void resetKeyStyle(MaterialButton btn) {
-        btn.setBackgroundTintList(ColorStateList.valueOf(KEYBOARD_KEY_BG));
-        btn.setStrokeColor(ColorStateList.valueOf(KEYBOARD_KEY_STROKE));
-        btn.setTextColor(Color.parseColor("#1F2937"));
+        btn.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.wordle_keyboard_key_bg)));
+        btn.setStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.wordle_keyboard_key_stroke)));
+        btn.setTextColor(ContextCompat.getColor(this, R.color.wordle_keyboard_key_text));
     }
 
     private void applyActionKeyStyle(MaterialButton btn) {
-        btn.setBackgroundTintList(ColorStateList.valueOf(KEYBOARD_ACTION_BG));
-        btn.setStrokeColor(ColorStateList.valueOf(KEYBOARD_ACTION_BG));
-        btn.setTextColor(Color.WHITE);
+        btn.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.wordle_keyboard_action_bg)));
+        btn.setStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.wordle_keyboard_action_bg)));
+        btn.setTextColor(ContextCompat.getColor(this, R.color.white));
     }
 
     private int dp(int value) {
@@ -745,7 +734,7 @@ public class WordleActivity extends BottomNavActivity {
             isGameOver = true;
             markFinished(solved);
             tvResult.setText("Doğru Kelime: " + targetWord);
-            tvResult.setTextColor(solved ? WORDLE_GREEN : WORDLE_RED);
+            tvResult.setTextColor(solved ? ContextCompat.getColor(this, R.color.wordle_green) : ContextCompat.getColor(this, R.color.wordle_red));
             setKeyboardEnabled(false);
         } else {
             currentGuess.setLength(0);

@@ -70,6 +70,7 @@ public class AccountActivity extends BottomNavActivity {
     private static final String SORT_LEVEL_ASC = "level_asc";
     private static final String ANALYSIS_FILTER_ALL = "all";
     private static final int MAX_ANALYSIS_LEVEL = 6;
+    private static final int MAX_ANALYSIS_WORD_CARDS = 120;
 
     private DatabaseHelper db;
     private ImageView imgAccountProfile;
@@ -83,6 +84,7 @@ public class AccountActivity extends BottomNavActivity {
     private MaterialButton btnTabWords;
     private View layoutAnalysisSection;
     private View layoutWordsSection;
+    private MaterialButton btnEmbeddedLoadMoreAnalysis;
 
     private LinearLayout llEmbeddedAllChip;
     private LinearLayout llEmbeddedSummaryChips;
@@ -100,6 +102,9 @@ public class AccountActivity extends BottomNavActivity {
     private boolean showingAnalysis = true;
     private String selectedAnalysisFilter = ANALYSIS_FILTER_ALL;
     private boolean analysisSortAscending = true;
+    private List<Word> analysisSourceWords = new ArrayList<>();
+    private int analysisRenderedCount = 0;
+    private boolean analysisPagingLocked = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -149,6 +154,7 @@ public class AccountActivity extends BottomNavActivity {
         hsvEmbeddedSummaryChips = findViewById(R.id.hsvEmbeddedSummaryChips);
         viewEmbeddedFadeLeft = findViewById(R.id.viewEmbeddedFadeLeft);
         viewEmbeddedFadeRight = findViewById(R.id.viewEmbeddedFadeRight);
+        btnEmbeddedLoadMoreAnalysis = findViewById(R.id.btnEmbeddedLoadMoreAnalysis);
         ImageButton btnEmbeddedPrint = findViewById(R.id.btnEmbeddedPrint);
 
         spEmbeddedSort = findViewById(R.id.spEmbeddedSort);
@@ -166,6 +172,7 @@ public class AccountActivity extends BottomNavActivity {
                 updateSummaryChipFadeState());
         btnEmbeddedAddWord.setOnClickListener(v ->
                 startActivity(new Intent(AccountActivity.this, AddWordActivity.class)));
+        btnEmbeddedLoadMoreAnalysis.setOnClickListener(v -> loadMoreAnalysisWords());
     }
 
     private void showSection(boolean analysis) {
@@ -222,7 +229,7 @@ public class AccountActivity extends BottomNavActivity {
         llEmbeddedSummaryChips.removeAllViews();
         llEmbeddedCategoryStats.removeAllViews();
 
-        List<Word> words = db.getAllWords();
+        List<Word> words = WordleWordBank.mergeDisplayWords(db.getAllWords());
         if (words.isEmpty()) {
             addEmbeddedEmptyState("Gösterilecek veri yok.");
             return;
@@ -266,6 +273,11 @@ public class AccountActivity extends BottomNavActivity {
                     String b = right == null || right.eng == null ? "" : right.eng.toLowerCase(Locale.US);
                     return b.compareTo(a);
                 });
+
+        analysisSourceWords = filteredWords;
+        analysisRenderedCount = 0;
+        analysisPagingLocked = false;
+        btnEmbeddedLoadMoreAnalysis.setVisibility(filteredWords.size() > MAX_ANALYSIS_WORD_CARDS ? View.VISIBLE : View.GONE);
 
         tvEmbeddedFilterSummary.setText(summaryText);
         updateAnalysisSortView();
@@ -330,8 +342,34 @@ public class AccountActivity extends BottomNavActivity {
             return;
         }
 
-        for (Word word : items) {
+        loadMoreAnalysisWords();
+    }
+
+    private void appendAnalysisWordCards(List<Word> items, int start, int end) {
+        if (items == null) {
+            return;
+        }
+        int safeStart = Math.max(0, start);
+        int safeEnd = Math.max(safeStart, Math.min(items.size(), end));
+        for (int i = safeStart; i < safeEnd; i++) {
+            Word word = items.get(i);
             llEmbeddedCategoryStats.addView(createAnalysisWordCard(word, getLevelAccentColor(word.stepCount)));
+        }
+    }
+
+    private void loadMoreAnalysisWords() {
+        if (analysisPagingLocked || analysisSourceWords == null || analysisRenderedCount >= analysisSourceWords.size()) {
+            return;
+        }
+
+        int nextCount = Math.min(analysisSourceWords.size(), analysisRenderedCount + MAX_ANALYSIS_WORD_CARDS);
+        appendAnalysisWordCards(analysisSourceWords, analysisRenderedCount, nextCount);
+        analysisRenderedCount = nextCount;
+        if (analysisRenderedCount >= analysisSourceWords.size()) {
+            analysisPagingLocked = true;
+            btnEmbeddedLoadMoreAnalysis.setVisibility(View.GONE);
+        } else {
+            btnEmbeddedLoadMoreAnalysis.setVisibility(View.VISIBLE);
         }
     }
 
@@ -680,7 +718,7 @@ public class AccountActivity extends BottomNavActivity {
     private void refreshWordsContent() {
         allCategories.clear();
         Map<String, List<Word>> grouped = new LinkedHashMap<>();
-        for (Word word : db.getAllWords()) {
+        for (Word word : WordleWordBank.mergeDisplayWords(db.getAllWords())) {
             String category = word.category == null || word.category.trim().isEmpty() ? "Genel" : word.category.trim();
             List<Word> words = grouped.get(category);
             if (words == null) {
