@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="primary">#2563EB</color>
+    <color name="primary_dark">#1E3A8A</color>
+    <color name="accent">#F97316</color>
+    <color name="background">#F6F8FC</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="surface_variant">#EAF2FF</color>
+    <color name="success">#10B981</color>
+    <color name="level_0">#667085</color>
+    <color name="level_1">#2563EB</color>
+    <color name="level_2">#0891B2</color>
+    <color name="level_3">#F59E0B</color>
+    <color name="level_4">#EF4444</color>
+    <color name="level_5">#8B5CF6</color>
+    <color name="level_6">#10B981</color>
+    <color name="danger">#DC2626</color>
+    <color name="danger_soft">#FEE2E2</color>
+    <color name="divider">#D8E0EE</color>
+    <color name="text_primary">#172033</color>
+    <color name="text_secondary">#667085</color>
+    <color name="calendar_unplayed_text">#172033</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+</resources>
