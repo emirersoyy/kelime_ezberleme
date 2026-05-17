@@ -703,7 +703,6 @@ public class AccountActivity extends BottomNavActivity {
                 sampleText.setText(formatSamples(samples));
                 sampleText.setVisibility(samples == null || samples.isEmpty() ? View.GONE : View.VISIBLE);
                 WordImageLoader.load(wordImage, word.pic);
-                wordImage.setVisibility(View.VISIBLE);
                 sampleText.setTag(Boolean.TRUE);
             }
             detailsContainer.setVisibility(word.expanded ? View.VISIBLE : View.GONE);
