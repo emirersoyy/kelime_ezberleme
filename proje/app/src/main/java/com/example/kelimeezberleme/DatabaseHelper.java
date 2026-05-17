@@ -18,7 +18,7 @@ import javax.crypto.spec.PBEKeySpec;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String DATABASE_NAME = "KelimeEzberleme.db";
-    public static final int DATABASE_VERSION = 13;
+    public static final int DATABASE_VERSION = 14;
     private static final String PASSWORD_HASH_PREFIX = "pbkdf2";
     private static final int PASSWORD_HASH_ITERATIONS = 120000;
     private static final int PASSWORD_SALT_BYTES = 16;
@@ -30,6 +30,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COL_PASSWORD = "Password";
     public static final String COL_FULL_NAME = "FullName";
     public static final String COL_PROFILE_IMAGE = "ProfileImagePath";
+    public static final String COL_CREATED_AT = "CreatedAt";
 
     public static final String TABLE_WORDS = "Words";
     public static final String COL_WORD_ID = "WordID";
@@ -53,7 +54,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE " + TABLE_USERS + " (UserID INTEGER PRIMARY KEY AUTOINCREMENT, UserName TEXT, Password TEXT, FullName TEXT DEFAULT '', ProfileImagePath TEXT DEFAULT '')");
+        db.execSQL("CREATE TABLE " + TABLE_USERS + " (UserID INTEGER PRIMARY KEY AUTOINCREMENT, UserName TEXT, Password TEXT, FullName TEXT DEFAULT '', ProfileImagePath TEXT DEFAULT '', CreatedAt LONG DEFAULT 0)");
         db.execSQL("CREATE TABLE " + TABLE_WORDS + " (" +
                 COL_WORD_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 COL_ENG_WORD + " TEXT, " +
@@ -97,6 +98,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ensureColumn(db, TABLE_SAMPLES, COL_SAMPLE_USED, "INTEGER DEFAULT 0");
         ensureColumn(db, TABLE_USERS, COL_FULL_NAME, "TEXT DEFAULT ''");
         ensureColumn(db, TABLE_USERS, COL_PROFILE_IMAGE, "TEXT DEFAULT ''");
+        ensureColumn(db, TABLE_USERS, COL_CREATED_AT, "LONG DEFAULT 0");
     }
 
     private void ensureColumn(SQLiteDatabase db, String tableName, String columnName, String columnDefinition) {
@@ -315,6 +317,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ContentValues contentValues = new ContentValues();
         contentValues.put(COL_USER_NAME, cleanUsername);
         contentValues.put(COL_PASSWORD, hashPassword(password));
+        contentValues.put(COL_CREATED_AT, System.currentTimeMillis());
         long result = db.insert(TABLE_USERS, null, contentValues);
         return result != -1;
     }
@@ -368,6 +371,46 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
         cursor.close();
         return profile;
+    }
+
+    public long getUserCreatedAt(String username) {
+        String cleanUsername = username == null ? "" : username.trim();
+        if (cleanUsername.isEmpty()) {
+            return 0L;
+        }
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(
+                "SELECT " + COL_CREATED_AT + " FROM " + TABLE_USERS +
+                        " WHERE LOWER(" + COL_USER_NAME + ") = LOWER(?) LIMIT 1",
+                new String[]{cleanUsername}
+        );
+
+        long createdAt = 0L;
+        if (cursor.moveToFirst()) {
+            createdAt = cursor.getLong(0);
+        }
+        cursor.close();
+        return createdAt;
+    }
+
+    public long ensureUserCreatedAt(String username) {
+        String cleanUsername = username == null ? "" : username.trim();
+        if (cleanUsername.isEmpty()) {
+            return 0L;
+        }
+
+        long createdAt = getUserCreatedAt(cleanUsername);
+        if (createdAt > 0L) {
+            return createdAt;
+        }
+
+        long now = System.currentTimeMillis();
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COL_CREATED_AT, now);
+        db.update(TABLE_USERS, values, "LOWER(" + COL_USER_NAME + ") = LOWER(?)", new String[]{cleanUsername});
+        return now;
     }
 
     public boolean isUsernameTakenByOtherUser(String username, String currentUsername) {
@@ -482,7 +525,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public String getRandomWordForWordle() {
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT " + COL_ENG_WORD + " FROM " + TABLE_WORDS + " WHERE length(trim(" + COL_ENG_WORD + ")) BETWEEN 4 AND 7 ORDER BY RANDOM() LIMIT 1", null);
+        Cursor cursor = db.rawQuery("SELECT " + COL_ENG_WORD + " FROM " + TABLE_WORDS + " WHERE length(trim(" + COL_ENG_WORD + ")) = 5 ORDER BY RANDOM() LIMIT 1", null);
         String word = null;
         if (cursor.moveToFirst()) {
             word = cursor.getString(0).toUpperCase(Locale.US);
@@ -510,9 +553,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(
-                "SELECT " + COL_ENG_WORD + " FROM " + TABLE_WORDS +
+                        "SELECT " + COL_ENG_WORD + " FROM " + TABLE_WORDS +
                         " WHERE " + COL_WORD_ID + " IN (" + placeholders + ")" +
-                        " AND length(trim(" + COL_ENG_WORD + ")) BETWEEN 4 AND 7" +
+                        " AND length(trim(" + COL_ENG_WORD + ")) = 5" +
                         " ORDER BY RANDOM() LIMIT 1",
                 cleanIds.toArray(new String[0])
         );
@@ -527,13 +570,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public boolean isValidWordleGuess(String guess) {
         if (guess == null) return false;
         int length = guess.trim().length();
-        if (length < 4 || length > 7) return false;
+        if (length != 5) return false;
 
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(
                 "SELECT 1 FROM " + TABLE_WORDS +
                         " WHERE lower(trim(" + COL_ENG_WORD + ")) = lower(trim(?))" +
-                        " AND length(trim(" + COL_ENG_WORD + ")) BETWEEN 4 AND 7" +
+                        " AND length(trim(" + COL_ENG_WORD + ")) = 5" +
                         " LIMIT 1",
                 new String[]{guess}
         );

@@ -30,8 +30,7 @@ import java.util.Map;
 public class WordleActivity extends BottomNavActivity {
     private static final String TAG = "WordleActivity";
     private static final int MAX_ATTEMPTS = 5;
-    private static final int MIN_WORDLE_WORD_LENGTH = 4;
-    private static final int MAX_WORDLE_WORD_LENGTH = 7;
+    private static final int WORDLE_WORD_LENGTH = 5;
     private static final String WORDLE_PREFS = "WordlePrefs";
     private static final String STATUS_CORRECT = "correct";
     private static final String STATUS_FAILED = "failed";
@@ -40,12 +39,18 @@ public class WordleActivity extends BottomNavActivity {
     private static final int LETTER_ABSENT = 1;
     private static final int LETTER_PRESENT = 2;
     private static final int LETTER_CORRECT = 3;
-    private static final int WORDLE_GREEN = Color.parseColor("#6AAA64");
-    private static final int WORDLE_YELLOW = Color.parseColor("#C9B458");
-    private static final int WORDLE_GRAY = Color.parseColor("#787C7E");
+    private static final int WORDLE_GREEN = Color.parseColor("#6BAA64");
+    private static final int WORDLE_YELLOW = Color.parseColor("#D6A63A");
+    private static final int WORDLE_GRAY = Color.parseColor("#8A9099");
     private static final int WORDLE_RED = Color.parseColor("#DC2626");
     private static final int CALENDAR_GRAY = Color.parseColor("#E5E7EB");
     private static final int CALENDAR_LOCKED_GRAY = Color.parseColor("#4B5563");
+    private static final int KEYBOARD_KEY_BG = Color.parseColor("#D1D5DB");
+    private static final int KEYBOARD_KEY_STROKE = Color.parseColor("#A8B0BA");
+    private static final int KEYBOARD_ABSENT_BG = Color.parseColor("#6B7280");
+    private static final int KEYBOARD_ABSENT_STROKE = Color.parseColor("#4B5563");
+    private static final int KEYBOARD_ACTION_BG = Color.parseColor("#2563EB");
+    private static final long DAY_MS = 24L * 60L * 60L * 1000L;
 
     DatabaseHelper db;
     String targetWord;
@@ -64,6 +69,8 @@ public class WordleActivity extends BottomNavActivity {
     Map<Character, Integer> keyboardStatuses = new HashMap<>();
     boolean isGameOver = false;
     String selectedDate;
+    long accountOpenedAtMillis;
+    String accountOpenedDateKey;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,6 +85,11 @@ public class WordleActivity extends BottomNavActivity {
 
         btnSelectedDate.setOnClickListener(v -> showCalendarDialog());
 
+        accountOpenedAtMillis = db.ensureUserCreatedAt(AppSettings.getCurrentUser(this));
+        if (accountOpenedAtMillis <= 0L) {
+            accountOpenedAtMillis = System.currentTimeMillis();
+        }
+        accountOpenedDateKey = formatDateKey(accountOpenedAtMillis);
         selectedDate = getTodayKey();
 
         showGameForDate(selectedDate);
@@ -90,6 +102,12 @@ public class WordleActivity extends BottomNavActivity {
     }
 
     private void showGameForDate(String date) {
+        if (isBeforeAccountOpened(date)) {
+            Toast.makeText(this, "Bu tarih hesabın açılış gününden önce olamaz.", Toast.LENGTH_SHORT).show();
+            updateSelectedDateButton();
+            return;
+        }
+
         if (isFutureDate(date)) {
             Toast.makeText(this, "Gelecek günlerin bulmacası henüz açılmadı.", Toast.LENGTH_SHORT).show();
             updateSelectedDateButton();
@@ -142,7 +160,7 @@ public class WordleActivity extends BottomNavActivity {
         }
 
         if (targetWord == null) {
-            Toast.makeText(this, "Wordle için 4-7 harfli kelime bulunamadı.", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Wordle için 5 harfli kelime bulunamadı.", Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -164,7 +182,7 @@ public class WordleActivity extends BottomNavActivity {
     }
 
     private String getTodayKey() {
-        return new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(new Date());
+        return formatDateKey(System.currentTimeMillis());
     }
 
     private String prefKey(String dateKey, String suffix) {
@@ -196,6 +214,8 @@ public class WordleActivity extends BottomNavActivity {
             visibleMonth.setTime(new Date());
         }
         visibleMonth.set(Calendar.DAY_OF_MONTH, 1);
+        Calendar minMonth = getAccountOpenedCalendar();
+        minMonth.set(Calendar.DAY_OF_MONTH, 1);
 
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
@@ -250,10 +270,17 @@ public class WordleActivity extends BottomNavActivity {
         renderCalendar[0] = () -> {
             title.setText(new SimpleDateFormat("MMMM yyyy", new Locale("tr", "TR")).format(visibleMonth.getTime()));
             renderCalendarDays(calendarGrid, visibleMonth, dialog);
+            updateCalendarNavState(prev, visibleMonth, minMonth);
         };
 
         prev.setOnClickListener(v -> {
+            if (isSameMonth(visibleMonth, minMonth)) {
+                return;
+            }
             visibleMonth.add(Calendar.MONTH, -1);
+            if (visibleMonth.before(minMonth)) {
+                visibleMonth.setTime(minMonth.getTime());
+            }
             renderCalendar[0].run();
         });
         next.setOnClickListener(v -> {
@@ -391,7 +418,7 @@ public class WordleActivity extends BottomNavActivity {
     }
 
     private boolean hasPuzzleForDate(String dateKey) {
-        return !isFutureDate(dateKey);
+        return !isBeforeAccountOpened(dateKey) && !isFutureDate(dateKey);
     }
 
     private boolean isFutureDate(String dateKey) {
@@ -403,6 +430,34 @@ public class WordleActivity extends BottomNavActivity {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    private boolean isBeforeAccountOpened(String dateKey) {
+        try {
+            Date date = new SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(dateKey);
+            Date opened = new SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(accountOpenedDateKey);
+            return date != null && opened != null && date.before(opened);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private Calendar getAccountOpenedCalendar() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(accountOpenedAtMillis > 0 ? accountOpenedAtMillis : System.currentTimeMillis());
+        normalizeToStartOfDay(calendar);
+        return calendar;
+    }
+
+    private void updateCalendarNavState(MaterialButton prev, Calendar visibleMonth, Calendar minMonth) {
+        boolean canGoBack = !isSameMonth(visibleMonth, minMonth) && visibleMonth.after(minMonth);
+        prev.setEnabled(canGoBack);
+        prev.setAlpha(canGoBack ? 1.0f : 0.35f);
+    }
+
+    private boolean isSameMonth(Calendar left, Calendar right) {
+        return left.get(Calendar.YEAR) == right.get(Calendar.YEAR)
+                && left.get(Calendar.MONTH) == right.get(Calendar.MONTH);
     }
 
     private String getGameStatus(String dateKey) {
@@ -518,6 +573,13 @@ public class WordleActivity extends BottomNavActivity {
         if (newStatus < currentStatus) return;
 
         keyboardStatuses.put(c, newStatus);
+        if (newStatus == LETTER_ABSENT) {
+            key.setBackgroundTintList(ColorStateList.valueOf(KEYBOARD_ABSENT_BG));
+            key.setStrokeColor(ColorStateList.valueOf(KEYBOARD_ABSENT_STROKE));
+            key.setTextColor(Color.parseColor("#1F2937"));
+            return;
+        }
+
         key.setBackgroundTintList(ColorStateList.valueOf(getStatusColor(newStatus)));
         key.setStrokeColor(ColorStateList.valueOf(getStatusColor(newStatus)));
         key.setTextColor(Color.WHITE);
@@ -525,10 +587,17 @@ public class WordleActivity extends BottomNavActivity {
 
     private void createGrid() {
         glWordle.removeAllViews();
+        glWordle.setUseDefaultMargins(false);
+        glWordle.setAlignmentMode(GridLayout.ALIGN_MARGINS);
+
         int displayWidth = getResources().getDisplayMetrics().widthPixels;
-        int cellSize = (displayWidth - dp(88)) / Math.max(wordLength, 5);
-        if (cellSize > dp(132)) cellSize = dp(132);
-        int margin = 4;
+        int horizontalPadding = dp(72);
+        int margin = dp(1);
+        int availableWidth = displayWidth - horizontalPadding;
+        int totalMargins = wordLength * margin * 2;
+        int cellSize = (availableWidth - totalMargins) / wordLength;
+        if (cellSize > dp(63)) cellSize = dp(63);
+        if (cellSize < dp(60)) cellSize = dp(60);
 
         for (int r = 0; r < MAX_ATTEMPTS; r++) {
             for (int c = 0; c < wordLength; c++) {
@@ -545,7 +614,7 @@ public class WordleActivity extends BottomNavActivity {
                 TextView tv = new TextView(this);
                 tv.setLayoutParams(new MaterialCardView.LayoutParams(cellSize, cellSize));
                 tv.setGravity(Gravity.CENTER);
-                tv.setTextSize(20);
+                tv.setTextSize(25);
                 tv.setTextColor(Color.BLACK);
                 card.addView(tv);
                 glWordle.addView(card);
@@ -572,10 +641,10 @@ public class WordleActivity extends BottomNavActivity {
             rowLayout.setLayoutParams(rowParams);
 
             if (i == 1) {
-                rowLayout.addView(createKeyboardSpacer(0.5f));
+                rowLayout.addView(createKeyboardSpacer(0.3f));
             }
             if (i == 2) {
-                MaterialButton bEnt = createKey("ENT", 1.5f);
+                MaterialButton bEnt = createKey("ENT", 1.8f);
                 applyActionKeyStyle(bEnt);
                 bEnt.setOnClickListener(v -> submitGuess());
                 rowLayout.addView(bEnt);
@@ -587,13 +656,13 @@ public class WordleActivity extends BottomNavActivity {
                 rowLayout.addView(b);
             }
             if (i == 2) {
-                MaterialButton bDel = createKey("DEL", 1.5f);
+                MaterialButton bDel = createKey("DEL", 1.8f);
                 applyActionKeyStyle(bDel);
                 bDel.setOnClickListener(v -> removeLetter());
                 rowLayout.addView(bDel);
             }
             if (i == 1) {
-                rowLayout.addView(createKeyboardSpacer(0.5f));
+                rowLayout.addView(createKeyboardSpacer(0.3f));
             }
             llKeyboard.addView(rowLayout);
         }
@@ -602,8 +671,8 @@ public class WordleActivity extends BottomNavActivity {
     private MaterialButton createKey(String text, float weight) {
         MaterialButton btn = new MaterialButton(this);
         btn.setText(text);
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0, dp(56), weight);
-        params.setMargins(dp(1), 0, dp(1), 0);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0, dp(58), weight);
+        params.setMargins(dp(3), 0, dp(3), 0);
         btn.setLayoutParams(params);
         btn.setMinWidth(0);
         btn.setMinimumWidth(0);
@@ -611,12 +680,12 @@ public class WordleActivity extends BottomNavActivity {
         btn.setMinimumHeight(0);
         btn.setInsetTop(0);
         btn.setInsetBottom(0);
-        btn.setPadding(0, 0, 0, 0);
+        btn.setPadding(0, 0, 0, dp(1));
         btn.setAllCaps(false);
         btn.setSingleLine(true);
-        btn.setTextSize(text.length() > 1 ? 11 : 15);
+        btn.setTextSize(text.length() > 1 ? 13 : 17);
         btn.setTypeface(null, Typeface.BOLD);
-        btn.setCornerRadius(Math.round(getResources().getDimension(R.dimen.radius_xs)));
+        btn.setCornerRadius(dp(10));
         btn.setStrokeWidth(dp(1));
         resetKeyStyle(btn);
         return btn;
@@ -624,20 +693,19 @@ public class WordleActivity extends BottomNavActivity {
 
     private View createKeyboardSpacer(float weight) {
         View spacer = new View(this);
-        spacer.setLayoutParams(new LinearLayout.LayoutParams(0, dp(56), weight));
+        spacer.setLayoutParams(new LinearLayout.LayoutParams(0, dp(58), weight));
         return spacer;
     }
 
     private void resetKeyStyle(MaterialButton btn) {
-        btn.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.surface_variant)));
-        btn.setStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.divider)));
-        btn.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
+        btn.setBackgroundTintList(ColorStateList.valueOf(KEYBOARD_KEY_BG));
+        btn.setStrokeColor(ColorStateList.valueOf(KEYBOARD_KEY_STROKE));
+        btn.setTextColor(Color.parseColor("#1F2937"));
     }
 
     private void applyActionKeyStyle(MaterialButton btn) {
-        int primary = ContextCompat.getColor(this, R.color.primary);
-        btn.setBackgroundTintList(ColorStateList.valueOf(primary));
-        btn.setStrokeColor(ColorStateList.valueOf(primary));
+        btn.setBackgroundTintList(ColorStateList.valueOf(KEYBOARD_ACTION_BG));
+        btn.setStrokeColor(ColorStateList.valueOf(KEYBOARD_ACTION_BG));
         btn.setTextColor(Color.WHITE);
     }
 
@@ -665,7 +733,7 @@ public class WordleActivity extends BottomNavActivity {
         if (isGameOver || currentAttempt >= MAX_ATTEMPTS || currentGuess.length() != wordLength) return;
         String guess = currentGuess.toString();
         if (!db.isValidWordleGuess(guess)) {
-            Toast.makeText(this, "Tahmin İngilizce sözlükte olan 4-7 harfli bir kelime olmalı.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Tahmin İngilizce sözlükte olan 5 harfli bir kelime olmalı.", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -757,7 +825,7 @@ public class WordleActivity extends BottomNavActivity {
     }
 
     private boolean isValidWordleLength(int length) {
-        return length >= MIN_WORDLE_WORD_LENGTH && length <= MAX_WORDLE_WORD_LENGTH;
+        return length == WORDLE_WORD_LENGTH;
     }
 
     private void setKeyboardEnabled(boolean enabled) {
@@ -770,5 +838,16 @@ public class WordleActivity extends BottomNavActivity {
                 row.getChildAt(j).setEnabled(enabled);
             }
         }
+    }
+
+    private String formatDateKey(long timeInMillis) {
+        return new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(new Date(timeInMillis));
+    }
+
+    private void normalizeToStartOfDay(Calendar calendar) {
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
     }
 }

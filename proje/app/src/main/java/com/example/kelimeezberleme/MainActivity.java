@@ -8,6 +8,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.List;
 import java.util.Calendar;
 
 public class MainActivity extends BottomNavActivity {
@@ -15,6 +16,9 @@ public class MainActivity extends BottomNavActivity {
     private DatabaseHelper db;
     private TextView tvGreeting;
     private TextView tvCurrentUser;
+    private TextView tvTotalWords;
+    private TextView tvLearnedWords;
+    private TextView tvDueWords;
     private ImageView ivProfileAvatar;
 
     @Override
@@ -32,6 +36,9 @@ public class MainActivity extends BottomNavActivity {
 
         tvGreeting = findViewById(R.id.tvGreeting);
         tvCurrentUser = findViewById(R.id.tvCurrentUser);
+        tvTotalWords = findViewById(R.id.tvTotalWords);
+        tvLearnedWords = findViewById(R.id.tvLearnedWords);
+        tvDueWords = findViewById(R.id.tvDueWords);
         ivProfileAvatar = findViewById(R.id.ivProfileAvatar);
         ivProfileAvatar.setContentDescription("Hesap fotoğrafı");
         refreshHeader();
@@ -93,6 +100,27 @@ public class MainActivity extends BottomNavActivity {
         tvGreeting.setText(buildGreeting(displayName));
         tvCurrentUser.setText(currentUser == null || currentUser.trim().isEmpty() ? "Kullanıcı" : currentUser.trim());
         applyProfileImage(ivProfileAvatar, profile == null ? "" : profile.profileImagePath);
+        refreshStats();
+    }
+
+    private void refreshStats() {
+        List<Word> words = db.getAllWords();
+        int total = words.size();
+        int learned = 0;
+        int due = 0;
+        long now = System.currentTimeMillis();
+
+        for (Word word : words) {
+            if (word.stepCount >= 6) {
+                learned++;
+            } else if (word.nextQuizDate <= now) {
+                due++;
+            }
+        }
+
+        tvTotalWords.setText(String.valueOf(total));
+        tvLearnedWords.setText(String.valueOf(learned));
+        tvDueWords.setText(String.valueOf(due));
     }
 
     private void applyProfileImage(ImageView imageView, String imagePath) {

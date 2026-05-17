@@ -73,6 +73,7 @@ public class LoginActivity extends AppCompatActivity {
             return false;
         }
 
+        db.ensureUserCreatedAt(rememberedUser);
         AppSettings.setCurrentUser(this, rememberedUser);
         startActivity(new Intent(LoginActivity.this, MainActivity.class));
         finish();
@@ -99,6 +100,7 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         if (db.checkUser(user, pass)) {
+            db.ensureUserCreatedAt(user);
             AppSettings.setCurrentUser(this, user);
             AppSettings.setRememberedLogin(this, user, cbRememberMe.isChecked());
             Toast.makeText(LoginActivity.this, "Giriş başarılı", Toast.LENGTH_SHORT).show();

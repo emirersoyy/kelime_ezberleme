@@ -1,8 +1,12 @@
 package com.example.kelimeezberleme;
 
 import android.content.Intent;
+import android.content.res.AssetFileDescriptor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.InputFilter;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -11,9 +15,11 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class AddWordActivity extends BottomNavActivity {
+    private static final int MAX_WORD_LENGTH = 25;
+    private static final long MAX_IMAGE_SIZE_BYTES = 2L * 1024L * 1024L;
     EditText etEngWord, etTurWord, etSamples, etCategory;
     Button btnSave, btnSelectImage;
-    TextView tvImagePath;
+    TextView tvImagePath, tvEngWordCount, tvTurWordCount, tvCategoryCount;
     DatabaseHelper db;
     String selectedImagePath = "";
     private static final int PICK_IMAGE_REQUEST = 1;
@@ -31,6 +37,20 @@ public class AddWordActivity extends BottomNavActivity {
         btnSave = findViewById(R.id.btnSaveWord);
         btnSelectImage = findViewById(R.id.btnSelectImage);
         tvImagePath = findViewById(R.id.tvImagePath);
+        tvEngWordCount = findViewById(R.id.tvEngWordCount);
+        tvTurWordCount = findViewById(R.id.tvTurWordCount);
+        tvCategoryCount = findViewById(R.id.tvCategoryCount);
+
+        etEngWord.setFilters(new InputFilter[]{new InputFilter.LengthFilter(MAX_WORD_LENGTH)});
+        etTurWord.setFilters(new InputFilter[]{new InputFilter.LengthFilter(MAX_WORD_LENGTH)});
+        etCategory.setFilters(new InputFilter[]{new InputFilter.LengthFilter(MAX_WORD_LENGTH)});
+
+        attachCounter(etEngWord, tvEngWordCount);
+        attachCounter(etTurWord, tvTurWordCount);
+        attachCounter(etCategory, tvCategoryCount);
+        updateCounter(tvEngWordCount, etEngWord);
+        updateCounter(tvTurWordCount, etTurWord);
+        updateCounter(tvCategoryCount, etCategory);
 
         btnSelectImage.setOnClickListener(v -> selectImage());
         btnSave.setOnClickListener(v -> saveWord());
@@ -52,6 +72,16 @@ public class AddWordActivity extends BottomNavActivity {
 
         if (eng.isEmpty() || tur.isEmpty()) {
             Toast.makeText(this, "Lütfen İngilizce ve Türkçe alanları doldurun", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (eng.length() > MAX_WORD_LENGTH || tur.length() > MAX_WORD_LENGTH) {
+            Toast.makeText(this, "Kelime uzunluğu en fazla " + MAX_WORD_LENGTH + " harf olabilir.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (selectedImagePath != null && !selectedImagePath.isEmpty() && !isImageWithinLimit(Uri.parse(selectedImagePath))) {
+            Toast.makeText(this, "Fotoğraf en fazla 2 MB olabilir.", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -89,6 +119,14 @@ public class AddWordActivity extends BottomNavActivity {
             } catch (SecurityException ignored) {
                 // Some providers do not offer persistable permissions.
             }
+
+            if (!isImageWithinLimit(imageUri)) {
+                selectedImagePath = "";
+                tvImagePath.setText("Resim seçilmedi");
+                Toast.makeText(this, "Seçilen fotoğraf 2 MB'den büyük. Daha küçük bir dosya seç.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
             selectedImagePath = imageUri.toString();
             tvImagePath.setText("Resim seçildi");
         }
@@ -101,5 +139,64 @@ public class AddWordActivity extends BottomNavActivity {
         etSamples.setText("");
         tvImagePath.setText("Resim seçilmedi");
         selectedImagePath = "";
+    }
+
+    private void attachCounter(EditText editText, TextView counterView) {
+        editText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                updateCounter(counterView, editText);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+    }
+
+    private void updateCounter(TextView counterView, EditText editText) {
+        int length = editText.getText() == null ? 0 : editText.getText().toString().length();
+        counterView.setText(length + "/" + MAX_WORD_LENGTH);
+    }
+
+    private boolean isImageWithinLimit(Uri uri) {
+        if (uri == null) {
+            return false;
+        }
+
+        long sizeBytes = -1L;
+        try (AssetFileDescriptor afd = getContentResolver().openAssetFileDescriptor(uri, "r")) {
+            if (afd != null) {
+                sizeBytes = afd.getLength();
+            }
+        } catch (Exception ignored) {
+            // Fallback to stream counting below.
+        }
+
+        if (sizeBytes >= 0) {
+            return sizeBytes <= MAX_IMAGE_SIZE_BYTES;
+        }
+
+        long count = 0L;
+        byte[] buffer = new byte[8 * 1024];
+        try (java.io.InputStream in = getContentResolver().openInputStream(uri)) {
+            if (in == null) {
+                return false;
+            }
+            int read;
+            while ((read = in.read(buffer)) != -1) {
+                count += read;
+                if (count > MAX_IMAGE_SIZE_BYTES) {
+                    return false;
+                }
+            }
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 }
