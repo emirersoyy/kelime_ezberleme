@@ -42,6 +42,7 @@
             android:padding="16dp">
 
             <LinearLayout
+                android:id="@+id/layoutEmbeddedFilterControls"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
@@ -99,12 +100,14 @@
             </LinearLayout>
 
             <View
+                android:id="@+id/viewEmbeddedFilterDivider"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_marginVertical="18dp"
                 android:background="@color/divider" />
 
             <LinearLayout
+                android:id="@+id/layoutEmbeddedFilterSummary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"

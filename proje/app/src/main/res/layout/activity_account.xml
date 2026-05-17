@@ -16,7 +16,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingBottom="24dp"
+            android:paddingBottom="0dp"
             android:paddingHorizontal="16dp"
             android:paddingTop="24dp">
 
@@ -79,9 +79,10 @@
                         android:insetRight="0dp"
                         android:insetBottom="0dp"
                         android:padding="12dp"
-                        app:icon="@android:drawable/ic_menu_preferences"
+                        app:icon="@drawable/ic_settings_24"
                         app:iconGravity="textStart"
                         app:iconPadding="0dp"
+                        app:iconSize="28dp"
                         app:iconTint="@color/primary" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -241,22 +242,27 @@
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnScrollAccountTop"
         style="@style/App.Button"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="108dp"
+        android:backgroundTint="@color/white"
         android:contentDescription="En üste çık"
-        android:elevation="8dp"
+        android:elevation="10dp"
         android:insetLeft="0dp"
         android:insetTop="0dp"
         android:insetRight="0dp"
         android:insetBottom="0dp"
-        android:padding="16dp"
+        android:minWidth="0dp"
+        android:paddingHorizontal="18dp"
+        android:paddingVertical="0dp"
+        android:text="en üste çık"
+        android:textAllCaps="false"
+        android:textColor="@color/text_secondary"
+        android:textSize="13sp"
+        android:textStyle="bold"
         android:visibility="gone"
-        app:cornerRadius="28dp"
-        app:icon="@drawable/ic_chevron_up_18"
-        app:iconGravity="textStart"
-        app:iconPadding="0dp"
-        app:iconTint="@color/white" />
+        app:cornerRadius="20dp"
+        app:rippleColor="@color/surface_variant" />
 
 </FrameLayout>

@@ -36,8 +36,8 @@ public class BottomNavBarView extends MaterialCardView {
         btnAccount = findViewById(R.id.btnBottomAccount);
 
         setCardBackgroundColor(getResources().getColor(R.color.surface));
-        setCardElevation(dp(4f));
-        setRadius(getResources().getDimension(R.dimen.radius_xl));
+        setCardElevation(dp(8f));
+        setRadius(dp(36f));
         setStrokeColor(getResources().getColor(R.color.divider));
         setStrokeWidth(1);
         setUseCompatPadding(true);
@@ -65,6 +65,7 @@ public class BottomNavBarView extends MaterialCardView {
             btnAccount.setOnClickListener(v -> navigateWithQuizWarning(context, AccountActivity.class));
         }
     }
+
 
     private void navigate(Context context, Class<?> target) {
         Intent intent = new Intent(context, target);

@@ -88,6 +88,9 @@ public class AccountActivity extends BottomNavActivity {
     private MaterialButton btnTabWords;
     private View layoutAnalysisSection;
     private View layoutWordsSection;
+    private View layoutEmbeddedFilterControls;
+    private View viewEmbeddedFilterDivider;
+    private View layoutEmbeddedFilterSummary;
     private NestedScrollView svAccountRoot;
     private MaterialButton btnScrollAccountTop;
     private MaterialCardView cardEmbeddedAnalysisContent;
@@ -169,6 +172,9 @@ public class AccountActivity extends BottomNavActivity {
         btnTabWords = findViewById(R.id.btnTabWords);
         layoutAnalysisSection = findViewById(R.id.layoutAnalysisSection);
         layoutWordsSection = findViewById(R.id.layoutWordsSection);
+        layoutEmbeddedFilterControls = findViewById(R.id.layoutEmbeddedFilterControls);
+        viewEmbeddedFilterDivider = findViewById(R.id.viewEmbeddedFilterDivider);
+        layoutEmbeddedFilterSummary = findViewById(R.id.layoutEmbeddedFilterSummary);
         svAccountRoot = findViewById(R.id.svAccountRoot);
         btnScrollAccountTop = findViewById(R.id.btnScrollAccountTop);
         cardEmbeddedAnalysisContent = findViewById(R.id.cardEmbeddedAnalysisContent);
@@ -604,12 +610,13 @@ public class AccountActivity extends BottomNavActivity {
         }
         boolean firstWordGone = false;
         if (showingAnalysis && analysisSourceWords != null && !analysisSourceWords.isEmpty()) {
-            firstWordGone = analysisWindowStart > 0;
+            firstWordGone = svAccountRoot.getScrollY() > 0 && analysisWindowStart > 0;
             if (!firstWordGone) {
                 for (int i = 0; i < llEmbeddedCategoryStats.getChildCount(); i++) {
                     View child = llEmbeddedCategoryStats.getChildAt(i);
                     if (getAnalysisIndex(child) == 0) {
-                        firstWordGone = getViewTopInScroll(child) + child.getHeight() <= svAccountRoot.getScrollY();
+                        firstWordGone = svAccountRoot.getScrollY() > 0
+                                && getViewTopInScroll(child) + child.getHeight() <= svAccountRoot.getScrollY();
                         break;
                     }
                 }
@@ -839,6 +846,10 @@ public class AccountActivity extends BottomNavActivity {
                 && layoutAnalysisSection.getVisibility() == View.VISIBLE
                 && svAccountRoot.getScrollY() >= Math.max(0, getViewTopInScroll(cardEmbeddedAnalysisContent) - dp(8));
         cardStickyAnalysisFilters.setVisibility(shouldStick ? View.VISIBLE : View.GONE);
+        int embeddedVisibility = shouldStick ? View.INVISIBLE : View.VISIBLE;
+        layoutEmbeddedFilterControls.setVisibility(embeddedVisibility);
+        viewEmbeddedFilterDivider.setVisibility(embeddedVisibility);
+        layoutEmbeddedFilterSummary.setVisibility(embeddedVisibility);
     }
 
     private void updateSummaryChipFadeState() {
@@ -1073,6 +1084,22 @@ public class AccountActivity extends BottomNavActivity {
         return 0;
     }
 
+    private void updateQuestionLimitBubble(Slider slider, TextView bubble) {
+        View parent = (View) bubble.getParent();
+        if (parent == null || slider.getWidth() == 0 || parent.getWidth() == 0 || bubble.getWidth() == 0) {
+            return;
+        }
+
+        float valueRange = slider.getValueTo() - slider.getValueFrom();
+        float progress = valueRange == 0 ? 0f : (slider.getValue() - slider.getValueFrom()) / valueRange;
+        int trackStart = slider.getLeft() + slider.getTrackSidePadding();
+        int trackWidth = slider.getTrackWidth();
+        float thumbCenter = trackStart + trackWidth * progress;
+        float targetX = thumbCenter - bubble.getWidth() / 2f;
+        float maxX = Math.max(0, parent.getWidth() - bubble.getWidth());
+        bubble.setTranslationX(Math.max(0, Math.min(targetX, maxX)));
+    }
+
     private void showEditProfileDialog() {
         View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_edit_profile, null);
         dialogProfileImage = dialogView.findViewById(R.id.imgEditProfile);
@@ -1096,8 +1123,11 @@ public class AccountActivity extends BottomNavActivity {
         int currentLimit = AppSettings.getQuizLimit(this);
         sliderQuestionLimit.setValue(currentLimit);
         tvQuestionLimitValue.setText(String.valueOf(currentLimit));
-        sliderQuestionLimit.addOnChangeListener((slider, value, fromUser) ->
-                tvQuestionLimitValue.setText(String.valueOf(AppSettings.clampQuizLimit(Math.round(value)))));
+        sliderQuestionLimit.post(() -> updateQuestionLimitBubble(sliderQuestionLimit, tvQuestionLimitValue));
+        sliderQuestionLimit.addOnChangeListener((slider, value, fromUser) -> {
+            tvQuestionLimitValue.setText(String.valueOf(AppSettings.clampQuizLimit(Math.round(value))));
+            updateQuestionLimitBubble(slider, tvQuestionLimitValue);
+        });
 
         String savedTheme = ThemeManager.getSavedTheme(this);
         toggleTheme.check(ThemeManager.THEME_DARK.equals(savedTheme)
@@ -1107,8 +1137,15 @@ public class AccountActivity extends BottomNavActivity {
         dialogProfileImage.setOnClickListener(v -> showProfileImageOptions());
         btnShowPasswordReset.setOnClickListener(v -> showResetPasswordDialog(getText(etUsername)));
 
+        TextView dialogTitle = new TextView(this);
+        dialogTitle.setText("Profili Düzenle");
+        dialogTitle.setTextColor(getResources().getColor(R.color.text_primary));
+        dialogTitle.setTextSize(18);
+        dialogTitle.setTypeface(Typeface.DEFAULT_BOLD);
+        dialogTitle.setPadding(dp(24), dp(20), dp(24), dp(4));
+
         AlertDialog dialog = new AlertDialog.Builder(this)
-                .setTitle("Profili Düzenle")
+                .setCustomTitle(dialogTitle)
                 .setView(dialogView)
                 .setNegativeButton("Vazgeç", null)
                 .setPositiveButton("Kaydet", null)
