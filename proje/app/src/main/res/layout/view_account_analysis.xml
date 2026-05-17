@@ -68,6 +68,8 @@
                         android:id="@+id/hsvEmbeddedSummaryChips"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:fadingEdgeLength="18dp"
+                        android:requiresFadingEdge="horizontal"
                         android:scrollbars="none">
 
                         <LinearLayout
