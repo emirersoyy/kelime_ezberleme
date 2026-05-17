@@ -29,6 +29,7 @@
     </LinearLayout>
 
     <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardEmbeddedAnalysisContent"
         style="@style/App.Card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">

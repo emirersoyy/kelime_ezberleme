@@ -90,14 +90,21 @@ public class AccountActivity extends BottomNavActivity {
     private View layoutWordsSection;
     private NestedScrollView svAccountRoot;
     private MaterialButton btnScrollAccountTop;
+    private MaterialCardView cardEmbeddedAnalysisContent;
+    private MaterialCardView cardStickyAnalysisFilters;
     private MaterialButton btnEmbeddedLoadMoreAnalysis;
 
     private LinearLayout llEmbeddedAllChip;
     private LinearLayout llEmbeddedSummaryChips;
+    private LinearLayout llStickyAllChip;
+    private LinearLayout llStickySummaryChips;
     private LinearLayout llEmbeddedCategoryStats;
     private TextView tvEmbeddedFilterSummary;
+    private TextView tvStickyFilterSummary;
     private AppCompatTextView tvEmbeddedAnalysisSort;
+    private AppCompatTextView tvStickyAnalysisSort;
     private HorizontalScrollView hsvEmbeddedSummaryChips;
+    private HorizontalScrollView hsvStickySummaryChips;
     private View viewEmbeddedFadeLeft;
     private View viewEmbeddedFadeRight;
 
@@ -164,13 +171,20 @@ public class AccountActivity extends BottomNavActivity {
         layoutWordsSection = findViewById(R.id.layoutWordsSection);
         svAccountRoot = findViewById(R.id.svAccountRoot);
         btnScrollAccountTop = findViewById(R.id.btnScrollAccountTop);
+        cardEmbeddedAnalysisContent = findViewById(R.id.cardEmbeddedAnalysisContent);
+        cardStickyAnalysisFilters = findViewById(R.id.cardStickyAnalysisFilters);
 
         llEmbeddedAllChip = findViewById(R.id.llEmbeddedAllChip);
         llEmbeddedSummaryChips = findViewById(R.id.llEmbeddedSummaryChips);
+        llStickyAllChip = findViewById(R.id.llStickyAllChip);
+        llStickySummaryChips = findViewById(R.id.llStickySummaryChips);
         llEmbeddedCategoryStats = findViewById(R.id.llEmbeddedCategoryStats);
         tvEmbeddedFilterSummary = findViewById(R.id.tvEmbeddedFilterSummary);
+        tvStickyFilterSummary = findViewById(R.id.tvStickyFilterSummary);
         tvEmbeddedAnalysisSort = findViewById(R.id.tvEmbeddedAnalysisSort);
+        tvStickyAnalysisSort = findViewById(R.id.tvStickyAnalysisSort);
         hsvEmbeddedSummaryChips = findViewById(R.id.hsvEmbeddedSummaryChips);
+        hsvStickySummaryChips = findViewById(R.id.hsvStickySummaryChips);
         viewEmbeddedFadeLeft = findViewById(R.id.viewEmbeddedFadeLeft);
         viewEmbeddedFadeRight = findViewById(R.id.viewEmbeddedFadeRight);
         btnEmbeddedLoadMoreAnalysis = findViewById(R.id.btnEmbeddedLoadMoreAnalysis);
@@ -187,6 +201,10 @@ public class AccountActivity extends BottomNavActivity {
             analysisSortAscending = !analysisSortAscending;
             refreshAnalysisContent();
         });
+        tvStickyAnalysisSort.setOnClickListener(v -> {
+            analysisSortAscending = !analysisSortAscending;
+            refreshAnalysisContent();
+        });
         hsvEmbeddedSummaryChips.setOnScrollChangeListener((v, scrollX, scrollY, oldScrollX, oldScrollY) ->
                 updateSummaryChipFadeState());
         btnEmbeddedAddWord.setOnClickListener(v ->
@@ -195,6 +213,7 @@ public class AccountActivity extends BottomNavActivity {
         btnScrollAccountTop.setOnClickListener(v -> scrollAnalysisToTop());
         svAccountRoot.setOnScrollChangeListener((NestedScrollView.OnScrollChangeListener) (v, scrollX, scrollY, oldScrollX, oldScrollY) -> {
             updateScrollToTopButton();
+            updateStickyAnalysisFiltersState();
             handleAnalysisScrollWindow();
         });
     }
@@ -206,6 +225,7 @@ public class AccountActivity extends BottomNavActivity {
         if (!analysis && !wordsContentLoaded) {
             refreshWordsContent();
         }
+        updateStickyAnalysisFiltersState();
         updateTabStyles();
     }
 
@@ -245,6 +265,8 @@ public class AccountActivity extends BottomNavActivity {
     private void refreshAnalysisContent() {
         llEmbeddedAllChip.removeAllViews();
         llEmbeddedSummaryChips.removeAllViews();
+        llStickyAllChip.removeAllViews();
+        llStickySummaryChips.removeAllViews();
         llEmbeddedCategoryStats.removeAllViews();
 
         List<Word> words = WordleWordBank.mergeDisplayWords(db.getAllWords());
@@ -267,8 +289,10 @@ public class AccountActivity extends BottomNavActivity {
         }
 
         addMetricChip(llEmbeddedAllChip, "Tümü", R.color.primary, ANALYSIS_FILTER_ALL);
+        addMetricChip(llStickyAllChip, "Tümü", R.color.primary, ANALYSIS_FILTER_ALL);
         for (int level = 0; level <= MAX_ANALYSIS_LEVEL; level++) {
             addMetricChip(llEmbeddedSummaryChips, "Seviye " + level, getLevelAccentColorRes(level), createLevelFilterKey(level));
+            addMetricChip(llStickySummaryChips, "Seviye " + level, getLevelAccentColorRes(level), createLevelFilterKey(level));
         }
 
         List<Word> filteredWords = new ArrayList<>();
@@ -299,8 +323,11 @@ public class AccountActivity extends BottomNavActivity {
         btnEmbeddedLoadMoreAnalysis.setVisibility(View.GONE);
 
         tvEmbeddedFilterSummary.setText(summaryText);
+        tvStickyFilterSummary.setText(summaryText);
         updateAnalysisSortView();
         hsvEmbeddedSummaryChips.post(this::updateSummaryChipFadeState);
+        syncStickyFilterScroll();
+        svAccountRoot.post(this::updateStickyAnalysisFiltersState);
         addAnalysisWordCards(filteredWords);
     }
 
@@ -778,15 +805,40 @@ public class AccountActivity extends BottomNavActivity {
             return;
         }
         int accentColor = getResources().getColor(R.color.text_secondary);
-        tvEmbeddedAnalysisSort.setText("Alfabeye göre");
-        tvEmbeddedAnalysisSort.setBackground(createRoundedChipBackground(accentColor, false));
-        tvEmbeddedAnalysisSort.setCompoundDrawablePadding(dp(6));
-        tvEmbeddedAnalysisSort.setCompoundDrawablesRelativeWithIntrinsicBounds(
+        applyAnalysisSortView(tvEmbeddedAnalysisSort, accentColor);
+        applyAnalysisSortView(tvStickyAnalysisSort, accentColor);
+    }
+
+    private void applyAnalysisSortView(AppCompatTextView sortView, int accentColor) {
+        if (sortView == null) {
+            return;
+        }
+        sortView.setText("Alfabeye göre");
+        sortView.setBackground(createRoundedChipBackground(accentColor, false));
+        sortView.setCompoundDrawablePadding(dp(6));
+        sortView.setCompoundDrawablesRelativeWithIntrinsicBounds(
                 0,
                 0,
                 analysisSortAscending ? R.drawable.ic_chevron_down_18 : R.drawable.ic_chevron_up_18,
                 0
         );
+    }
+
+    private void syncStickyFilterScroll() {
+        if (hsvEmbeddedSummaryChips == null || hsvStickySummaryChips == null) {
+            return;
+        }
+        hsvStickySummaryChips.post(() -> hsvStickySummaryChips.scrollTo(hsvEmbeddedSummaryChips.getScrollX(), 0));
+    }
+
+    private void updateStickyAnalysisFiltersState() {
+        if (cardStickyAnalysisFilters == null || cardEmbeddedAnalysisContent == null || svAccountRoot == null) {
+            return;
+        }
+        boolean shouldStick = showingAnalysis
+                && layoutAnalysisSection.getVisibility() == View.VISIBLE
+                && svAccountRoot.getScrollY() >= Math.max(0, getViewTopInScroll(cardEmbeddedAnalysisContent) - dp(8));
+        cardStickyAnalysisFilters.setVisibility(shouldStick ? View.VISIBLE : View.GONE);
     }
 
     private void updateSummaryChipFadeState() {
