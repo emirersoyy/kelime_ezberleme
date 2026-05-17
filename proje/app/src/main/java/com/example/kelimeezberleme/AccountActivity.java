@@ -71,10 +71,10 @@ public class AccountActivity extends BottomNavActivity {
     private static final String SORT_LEVEL_ASC = "level_asc";
     private static final String ANALYSIS_FILTER_ALL = "all";
     private static final int MAX_ANALYSIS_LEVEL = 6;
-    private static final int ANALYSIS_PAGE_SIZE = 50;
-    private static final int ANALYSIS_PREFETCH_DISTANCE = 15;
-    private static final int ANALYSIS_KEEP_BEFORE = 200;
-    private static final int ANALYSIS_KEEP_AFTER = 150;
+    private static final int ANALYSIS_PAGE_SIZE = 75;
+    private static final int ANALYSIS_PREFETCH_DISTANCE = 20;
+    private static final int ANALYSIS_KEEP_BEFORE = 225;
+    private static final int ANALYSIS_KEEP_AFTER = 175;
 
     private DatabaseHelper db;
     private ImageView imgAccountProfile;
@@ -373,10 +373,7 @@ public class AccountActivity extends BottomNavActivity {
         analysisWindowUpdateLocked = true;
         llEmbeddedCategoryStats.removeAllViews();
         for (int i = safeStart; i < safeEnd; i++) {
-            Word word = analysisSourceWords.get(i);
-            MaterialCardView card = createAnalysisWordCard(word, getLevelAccentColor(word.stepCount));
-            card.setTag(i);
-            llEmbeddedCategoryStats.addView(card);
+            llEmbeddedCategoryStats.addView(createTaggedAnalysisWordCard(i));
         }
         analysisWindowStart = safeStart;
         analysisWindowEnd = safeEnd;
@@ -409,23 +406,106 @@ public class AccountActivity extends BottomNavActivity {
             return;
         }
 
-        int desiredStart = analysisWindowStart;
-        int desiredEnd = analysisWindowEnd;
-
         if (lastVisible >= analysisWindowEnd - ANALYSIS_PREFETCH_DISTANCE) {
-            desiredEnd = Math.min(analysisSourceWords.size(), analysisWindowEnd + ANALYSIS_PAGE_SIZE);
+            appendAnalysisWindow(Math.min(analysisSourceWords.size(), analysisWindowEnd + ANALYSIS_PAGE_SIZE));
         }
         if (firstVisible <= analysisWindowStart + ANALYSIS_PREFETCH_DISTANCE) {
-            desiredStart = Math.max(0, analysisWindowStart - ANALYSIS_PAGE_SIZE);
+            prependAnalysisWindow(Math.max(0, analysisWindowStart - ANALYSIS_PAGE_SIZE));
         }
 
-        desiredStart = Math.max(desiredStart, firstVisible - ANALYSIS_KEEP_BEFORE);
-        desiredEnd = Math.max(desiredEnd, Math.min(analysisSourceWords.size(), firstVisible + ANALYSIS_KEEP_AFTER));
-        desiredStart = Math.min(desiredStart, Math.max(0, desiredEnd - ANALYSIS_KEEP_BEFORE - ANALYSIS_KEEP_AFTER));
+        pruneAnalysisWindow(firstVisible, lastVisible);
+        updateScrollToTopButton();
+    }
 
-        if (desiredStart != analysisWindowStart || desiredEnd != analysisWindowEnd) {
-            renderAnalysisWindow(desiredStart, desiredEnd, true);
+    private MaterialCardView createTaggedAnalysisWordCard(int index) {
+        Word word = analysisSourceWords.get(index);
+        MaterialCardView card = createAnalysisWordCard(word, getLevelAccentColor(word.stepCount));
+        card.setTag(index);
+        return card;
+    }
+
+    private void appendAnalysisWindow(int targetEnd) {
+        if (targetEnd <= analysisWindowEnd) {
+            return;
         }
+
+        analysisWindowUpdateLocked = true;
+        for (int i = analysisWindowEnd; i < targetEnd; i++) {
+            llEmbeddedCategoryStats.addView(createTaggedAnalysisWordCard(i));
+        }
+        analysisWindowEnd = targetEnd;
+        analysisWindowUpdateLocked = false;
+    }
+
+    private void prependAnalysisWindow(int targetStart) {
+        if (targetStart >= analysisWindowStart) {
+            return;
+        }
+
+        analysisWindowUpdateLocked = true;
+        int previousHeight = llEmbeddedCategoryStats.getHeight();
+        for (int i = analysisWindowStart - 1; i >= targetStart; i--) {
+            llEmbeddedCategoryStats.addView(createTaggedAnalysisWordCard(i), 0);
+        }
+        analysisWindowStart = targetStart;
+        llEmbeddedCategoryStats.post(() -> {
+            int addedHeight = Math.max(0, llEmbeddedCategoryStats.getHeight() - previousHeight);
+            svAccountRoot.scrollTo(0, svAccountRoot.getScrollY() + addedHeight);
+            analysisWindowUpdateLocked = false;
+            updateScrollToTopButton();
+        });
+    }
+
+    private void pruneAnalysisWindow(int firstVisible, int lastVisible) {
+        int minStart = Math.max(0, firstVisible - ANALYSIS_KEEP_BEFORE);
+        int maxEnd = Math.min(analysisSourceWords.size(), lastVisible + ANALYSIS_KEEP_AFTER);
+
+        if (minStart > analysisWindowStart + ANALYSIS_PAGE_SIZE) {
+            removeAnalysisCardsBefore(minStart);
+        }
+        if (maxEnd < analysisWindowEnd - ANALYSIS_PAGE_SIZE) {
+            removeAnalysisCardsAfter(maxEnd);
+        }
+    }
+
+    private void removeAnalysisCardsBefore(int targetStart) {
+        analysisWindowUpdateLocked = true;
+        int removedHeight = 0;
+        while (llEmbeddedCategoryStats.getChildCount() > 0) {
+            View firstChild = llEmbeddedCategoryStats.getChildAt(0);
+            int index = getAnalysisIndex(firstChild);
+            if (index < 0 || index >= targetStart) {
+                break;
+            }
+            removedHeight += firstChild.getHeight();
+            ViewGroup.MarginLayoutParams params = firstChild.getLayoutParams() instanceof ViewGroup.MarginLayoutParams
+                    ? (ViewGroup.MarginLayoutParams) firstChild.getLayoutParams()
+                    : null;
+            if (params != null) {
+                removedHeight += params.topMargin + params.bottomMargin;
+            }
+            llEmbeddedCategoryStats.removeViewAt(0);
+            analysisWindowStart = index + 1;
+        }
+        if (removedHeight > 0) {
+            svAccountRoot.scrollTo(0, Math.max(0, svAccountRoot.getScrollY() - removedHeight));
+        }
+        analysisWindowUpdateLocked = false;
+    }
+
+    private void removeAnalysisCardsAfter(int targetEnd) {
+        analysisWindowUpdateLocked = true;
+        while (llEmbeddedCategoryStats.getChildCount() > 0) {
+            int lastChildPosition = llEmbeddedCategoryStats.getChildCount() - 1;
+            View lastChild = llEmbeddedCategoryStats.getChildAt(lastChildPosition);
+            int index = getAnalysisIndex(lastChild);
+            if (index < 0 || index < targetEnd) {
+                break;
+            }
+            llEmbeddedCategoryStats.removeViewAt(lastChildPosition);
+            analysisWindowEnd = index;
+        }
+        analysisWindowUpdateLocked = false;
     }
 
     private int findFirstVisibleAnalysisIndex() {
@@ -508,10 +588,17 @@ public class AccountActivity extends BottomNavActivity {
     }
 
     private void scrollAnalysisToTop() {
+        analysisWindowUpdateLocked = true;
+        svAccountRoot.stopNestedScroll();
+        svAccountRoot.scrollTo(0, 0);
         if (analysisSourceWords != null && !analysisSourceWords.isEmpty()) {
             renderAnalysisWindow(0, Math.min(ANALYSIS_PAGE_SIZE, analysisSourceWords.size()), false);
         }
-        svAccountRoot.post(() -> svAccountRoot.smoothScrollTo(0, 0));
+        svAccountRoot.post(() -> {
+            svAccountRoot.scrollTo(0, 0);
+            analysisWindowUpdateLocked = false;
+            updateScrollToTopButton();
+        });
     }
 
     private MaterialCardView createAnalysisWordCard(Word word, int accentColor) {
