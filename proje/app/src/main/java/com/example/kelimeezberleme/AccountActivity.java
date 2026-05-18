@@ -74,6 +74,8 @@ public class AccountActivity extends BottomNavActivity {
     private static final int ANALYSIS_PREFETCH_DISTANCE = 20;
     private static final int ANALYSIS_KEEP_BEFORE = 225;
     private static final int ANALYSIS_KEEP_AFTER = 175;
+    private static final int CATEGORY_SPLIT_THRESHOLD = 60;
+    private static final int CATEGORY_SPLIT_CHUNK_SIZE = 40;
 
     private DatabaseHelper db;
     private ImageView imgAccountProfile;
