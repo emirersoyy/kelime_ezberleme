@@ -12,8 +12,6 @@ import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.ShapeDrawable;
-import android.graphics.drawable.shapes.OvalShape;
 import android.graphics.pdf.PdfDocument;
 import android.net.Uri;
 import android.os.Bundle;
@@ -28,12 +26,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -78,9 +73,6 @@ public class AccountActivity extends BottomNavActivity {
     private static final int ANALYSIS_PREFETCH_DISTANCE = 20;
     private static final int ANALYSIS_KEEP_BEFORE = 225;
     private static final int ANALYSIS_KEEP_AFTER = 175;
-    private static final int CATEGORY_SPLIT_THRESHOLD = 60;
-    private static final int CATEGORY_SPLIT_CHUNK_SIZE = 40;
-
     private DatabaseHelper db;
     private ImageView imgAccountProfile;
     private TextView tvCurrentUser;
@@ -116,7 +108,7 @@ public class AccountActivity extends BottomNavActivity {
     private View viewEmbeddedFadeLeft;
     private View viewEmbeddedFadeRight;
 
-    private Spinner spEmbeddedSort;
+    private AppCompatTextView tvEmbeddedWordsSort;
     private RecyclerView rvEmbeddedWords;
     private CategoryAdapter categoryAdapter;
     private final List<CategoryItem> allCategories = new ArrayList<>();
@@ -201,7 +193,7 @@ public class AccountActivity extends BottomNavActivity {
         btnEmbeddedLoadMoreAnalysis = findViewById(R.id.btnEmbeddedLoadMoreAnalysis);
         MaterialButton btnEmbeddedPrint = findViewById(R.id.btnEmbeddedPrint);
 
-        spEmbeddedSort = findViewById(R.id.spEmbeddedSort);
+        tvEmbeddedWordsSort = findViewById(R.id.tvEmbeddedWordsSort);
         rvEmbeddedWords = findViewById(R.id.rvEmbeddedWords);
         MaterialButton btnEmbeddedAddWord = findViewById(R.id.btnEmbeddedAddWord);
 
@@ -215,6 +207,11 @@ public class AccountActivity extends BottomNavActivity {
         tvStickyAnalysisSort.setOnClickListener(v -> {
             analysisSortAscending = !analysisSortAscending;
             refreshAnalysisContent();
+        });
+        tvEmbeddedWordsSort.setOnClickListener(v -> {
+            String nextSort = getNextCategorySortOrder(AppSettings.getCategorySortOrder(AccountActivity.this));
+            AppSettings.setCategorySortOrder(AccountActivity.this, nextSort);
+            applyWordSorting(nextSort);
         });
         hsvEmbeddedSummaryChips.setOnScrollChangeListener((v, scrollX, scrollY, oldScrollX, oldScrollY) ->
                 updateSummaryChipFadeState());
@@ -996,29 +993,7 @@ public class AccountActivity extends BottomNavActivity {
         rvEmbeddedWords.setNestedScrollingEnabled(false);
         categoryAdapter = new CategoryAdapter(new ArrayList<>());
         rvEmbeddedWords.setAdapter(categoryAdapter);
-
-        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(
-                this,
-                android.R.layout.simple_spinner_item,
-                new String[]{"A-Z", "Z-A", "En çok kelime", "En az kelime"}
-        );
-        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spEmbeddedSort.setAdapter(spinnerAdapter);
-
-        String savedSort = AppSettings.getWordsSortOrder(this);
-        spEmbeddedSort.setSelection(getSortPosition(savedSort), false);
-        spEmbeddedSort.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String sortOrder = getSortKey(position);
-                AppSettings.setWordsSortOrder(AccountActivity.this, sortOrder);
-                applyWordSorting(sortOrder);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
-        });
+        updateWordsSortView(AppSettings.getCategorySortOrder(this));
     }
 
     private void refreshWordsContent() {
@@ -1035,59 +1010,9 @@ public class AccountActivity extends BottomNavActivity {
             }
             item.words.add(word);
         }
-        for (CategoryItem item : grouped.values()) {
-            allCategories.addAll(splitLargeCategory(item, defaultWide));
-        }
-        applyWordSorting(AppSettings.getWordsSortOrder(this));
+        allCategories.addAll(grouped.values());
+        applyWordSorting(AppSettings.getCategorySortOrder(this));
         wordsContentLoaded = true;
-    }
-
-    private List<CategoryItem> splitLargeCategory(CategoryItem source, boolean defaultWide) {
-        List<CategoryItem> result = new ArrayList<>();
-        if (source == null || source.words == null || source.words.isEmpty()) {
-            return result;
-        }
-
-        List<Word> sortedWords = new ArrayList<>(source.words);
-        Collections.sort(sortedWords, this::compareEngSafe);
-        if (sortedWords.size() <= CATEGORY_SPLIT_THRESHOLD) {
-            result.add(new CategoryItem(source.name, sortedWords, defaultWide));
-            return result;
-        }
-
-        for (int start = 0; start < sortedWords.size(); start += CATEGORY_SPLIT_CHUNK_SIZE) {
-            int end = Math.min(sortedWords.size(), start + CATEGORY_SPLIT_CHUNK_SIZE);
-            List<Word> chunk = new ArrayList<>(sortedWords.subList(start, end));
-            result.add(new CategoryItem(
-                    source.name + " • " + buildAlphabetRangeLabel(chunk),
-                    chunk,
-                    defaultWide
-            ));
-        }
-        return result;
-    }
-
-    private String buildAlphabetRangeLabel(List<Word> words) {
-        if (words == null || words.isEmpty()) {
-            return "A-Z";
-        }
-        String first = extractLeadingLetter(words.get(0));
-        String last = extractLeadingLetter(words.get(words.size() - 1));
-        if (first.equals(last)) {
-            return first;
-        }
-        return first + "-" + last;
-    }
-
-    private String extractLeadingLetter(Word word) {
-        if (word == null || word.eng == null) {
-            return "#";
-        }
-        String trimmed = word.eng.trim();
-        if (trimmed.isEmpty()) {
-            return "#";
-        }
-        return trimmed.substring(0, 1).toUpperCase(Locale.US);
     }
 
     private void applyWordSorting(String sortOrder) {
@@ -1097,12 +1022,12 @@ public class AccountActivity extends BottomNavActivity {
                 Collections.sort(sorted, (a, b) -> b.name.toLowerCase(Locale.US).compareTo(a.name.toLowerCase(Locale.US)));
                 break;
             case SORT_LEVEL_DESC:
-                Collections.sort(sorted, Comparator.comparingInt((CategoryItem item) -> item.words.size())
+                Collections.sort(sorted, Comparator.comparingDouble((CategoryItem item) -> getKnownRatio(item.words))
                         .reversed()
                         .thenComparing(item -> item.name.toLowerCase(Locale.US)));
                 break;
             case SORT_LEVEL_ASC:
-                Collections.sort(sorted, Comparator.comparingInt((CategoryItem item) -> item.words.size())
+                Collections.sort(sorted, Comparator.comparingDouble((CategoryItem item) -> getKnownRatio(item.words))
                         .thenComparing(item -> item.name.toLowerCase(Locale.US)));
                 break;
             case SORT_ALPHA_ASC:
@@ -1110,6 +1035,7 @@ public class AccountActivity extends BottomNavActivity {
                 Collections.sort(sorted, Comparator.comparing(item -> item.name.toLowerCase(Locale.US)));
                 break;
         }
+        updateWordsSortView(sortOrder);
         categoryAdapter.updateItems(sorted);
     }
 
@@ -1119,25 +1045,46 @@ public class AccountActivity extends BottomNavActivity {
         return a.compareTo(b);
     }
 
-    private String getSortKey(int position) {
-        switch (position) {
-            case 1:
-                return SORT_ALPHA_DESC;
-            case 2:
-                return SORT_LEVEL_DESC;
-            case 3:
-                return SORT_LEVEL_ASC;
-            case 0:
-            default:
-                return SORT_ALPHA_ASC;
+    private void updateWordsSortView(String sortOrder) {
+        if (tvEmbeddedWordsSort == null) {
+            return;
         }
+        int accentColor = getResources().getColor(R.color.text_secondary);
+        tvEmbeddedWordsSort.setText(getWordsSortLabel(sortOrder));
+        tvEmbeddedWordsSort.setBackground(createRoundedChipBackground(accentColor, false));
+        tvEmbeddedWordsSort.setCompoundDrawablePadding(dp(6));
+        tvEmbeddedWordsSort.setCompoundDrawablesRelativeWithIntrinsicBounds(
+                0,
+                0,
+                R.drawable.ic_chevron_down_18,
+                0
+        );
     }
 
-    private int getSortPosition(String sortOrder) {
-        if (SORT_ALPHA_DESC.equals(sortOrder)) return 1;
-        if (SORT_LEVEL_DESC.equals(sortOrder)) return 2;
-        if (SORT_LEVEL_ASC.equals(sortOrder)) return 3;
-        return 0;
+    private String getWordsSortLabel(String sortOrder) {
+        if (SORT_ALPHA_DESC.equals(sortOrder)) return "Z'den A'ya";
+        if (SORT_LEVEL_DESC.equals(sortOrder)) return "En çok bilinen";
+        if (SORT_LEVEL_ASC.equals(sortOrder)) return "En az bilinen";
+        return "Alfabeye göre";
+    }
+
+    private String getNextCategorySortOrder(String currentSortOrder) {
+        if (SORT_ALPHA_ASC.equals(currentSortOrder)) return SORT_ALPHA_DESC;
+        if (SORT_ALPHA_DESC.equals(currentSortOrder)) return SORT_LEVEL_DESC;
+        if (SORT_LEVEL_DESC.equals(currentSortOrder)) return SORT_LEVEL_ASC;
+        return SORT_ALPHA_ASC;
+    }
+
+    private double getKnownRatio(List<Word> words) {
+        if (words == null || words.isEmpty()) {
+            return 0d;
+        }
+        double total = 0d;
+        for (Word word : words) {
+            int level = word == null ? 0 : Math.max(0, Math.min(word.stepCount, MAX_ANALYSIS_LEVEL));
+            total += level;
+        }
+        return total / (words.size() * (double) MAX_ANALYSIS_LEVEL);
     }
 
     private void updateQuestionLimitBubble(Slider slider, TextView bubble) {
@@ -1478,13 +1425,13 @@ public class AccountActivity extends BottomNavActivity {
             holder.tvCategoryCount.setText(item.words.size() + " kelime");
             holder.tvCategorySubtitle.setVisibility(View.GONE);
 
-            holder.hsvCategoryDots.setVisibility(item.expanded ? View.GONE : View.VISIBLE);
+            holder.llCategoryProgress.setVisibility(item.expanded ? View.GONE : View.VISIBLE);
             holder.cgCategoryWords.setVisibility(item.expanded ? View.VISIBLE : View.GONE);
 
             if (item.expanded) {
                 bindWordChips(holder.cgCategoryWords, sortedWords);
             } else {
-                bindLevelDots(holder.llCategoryDots, sortedWords);
+                bindLevelProgress(holder.llCategoryProgress, sortedWords);
             }
 
             holder.layoutCategoryHeader.setOnClickListener(v -> {
@@ -1511,19 +1458,52 @@ public class AccountActivity extends BottomNavActivity {
             return sorted;
         }
 
-        private void bindLevelDots(LinearLayout dotsContainer, List<Word> words) {
-            dotsContainer.removeAllViews();
+        private void bindLevelProgress(LinearLayout progressContainer, List<Word> words) {
+            progressContainer.removeAllViews();
             if (words == null) {
                 return;
             }
 
+            int[] counts = new int[MAX_ANALYSIS_LEVEL + 1];
+            int total = 0;
             for (Word word : words) {
-                View dot = new View(AccountActivity.this);
-                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams((int) dpFloat(10), (int) dpFloat(10));
-                params.setMarginEnd((int) dpFloat(7));
-                dot.setLayoutParams(params);
-                dot.setBackground(createLevelDotDrawable(word == null ? 0 : word.stepCount));
-                dotsContainer.addView(dot);
+                int level = word == null ? 0 : Math.max(0, Math.min(word.stepCount, MAX_ANALYSIS_LEVEL));
+                counts[level]++;
+                total++;
+            }
+            if (total == 0) {
+                return;
+            }
+
+            List<Integer> displayOrder = new ArrayList<>();
+            for (int level = 1; level <= MAX_ANALYSIS_LEVEL; level++) {
+                if (counts[level] > 0) {
+                    displayOrder.add(level);
+                }
+            }
+            if (counts[0] > 0) {
+                displayOrder.add(0);
+            }
+            if (displayOrder.isEmpty()) {
+                return;
+            }
+
+            int firstLevel = displayOrder.get(0);
+            int lastLevel = displayOrder.get(displayOrder.size() - 1);
+
+            for (int level : displayOrder) {
+                if (counts[level] == 0) {
+                    continue;
+                }
+                View segment = new View(AccountActivity.this);
+                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, counts[level]);
+                segment.setLayoutParams(params);
+                segment.setBackground(createLevelBarDrawable(
+                        getLevelAccentColor(level),
+                        level == firstLevel,
+                        level == lastLevel
+                ));
+                progressContainer.addView(segment);
             }
         }
 
@@ -1549,7 +1529,7 @@ public class AccountActivity extends BottomNavActivity {
                 chip.setChipStartPadding(dpFloat(10));
                 chip.setChipEndPadding(dpFloat(10));
                 chip.setChipMinHeight(dpFloat(34));
-                chip.setChipIcon(createLevelDotDrawable(word == null ? 0 : word.stepCount));
+                chip.setChipIcon(createLevelIndicatorDrawable(word == null ? 0 : word.stepCount));
                 chip.setChipIconVisible(true);
                 chip.setChipIconSize(dpFloat(8));
                 chip.setChipIconTint(null);
@@ -1557,17 +1537,30 @@ public class AccountActivity extends BottomNavActivity {
             }
         }
 
-        private ShapeDrawable createLevelDotDrawable(int stepCount) {
-            ShapeDrawable dot = new ShapeDrawable(new OvalShape());
-            dot.getPaint().setColor(getLevelAccentColor(stepCount));
+        private GradientDrawable createLevelIndicatorDrawable(int stepCount) {
+            GradientDrawable dot = new GradientDrawable();
+            dot.setShape(GradientDrawable.OVAL);
+            dot.setColor(getLevelAccentColor(stepCount));
             return dot;
+        }
+
+        private GradientDrawable createLevelBarDrawable(int color, boolean roundStart, boolean roundEnd) {
+            float radius = dpFloat(7);
+            GradientDrawable drawable = new GradientDrawable();
+            drawable.setColor(color);
+            drawable.setCornerRadii(new float[]{
+                    roundStart ? radius : 0f, roundStart ? radius : 0f,
+                    roundEnd ? radius : 0f, roundEnd ? radius : 0f,
+                    roundEnd ? radius : 0f, roundEnd ? radius : 0f,
+                    roundStart ? radius : 0f, roundStart ? radius : 0f
+            });
+            return drawable;
         }
 
         class CategoryViewHolder extends RecyclerView.ViewHolder {
             TextView tvCategoryName, tvCategorySubtitle, tvCategoryCount;
             View layoutCategoryHeader;
-            HorizontalScrollView hsvCategoryDots;
-            LinearLayout llCategoryDots;
+            LinearLayout llCategoryProgress;
             ChipGroup cgCategoryWords;
 
             CategoryViewHolder(View itemView) {
@@ -1576,8 +1569,7 @@ public class AccountActivity extends BottomNavActivity {
                 tvCategorySubtitle = itemView.findViewById(R.id.tvCategorySubtitle);
                 tvCategoryCount = itemView.findViewById(R.id.tvCategoryCount);
                 layoutCategoryHeader = itemView.findViewById(R.id.layoutCategoryHeader);
-                hsvCategoryDots = itemView.findViewById(R.id.hsvCategoryDots);
-                llCategoryDots = itemView.findViewById(R.id.llCategoryDots);
+                llCategoryProgress = itemView.findViewById(R.id.llCategoryProgress);
                 cgCategoryWords = itemView.findViewById(R.id.cgCategoryWords);
             }
         }

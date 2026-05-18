@@ -823,6 +823,46 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         "Everyone watched the %s for a few seconds."
                 };
                 return pickTemplates(templates, lowerWord);
+            case "Bilim":
+                templates = new String[]{
+                        "We studied %s during the science lesson.",
+                        "The lab report mentioned %s in detail.",
+                        "Our teacher used %s to explain the topic.",
+                        "They observed %s during the experiment.",
+                        "A short article described %s clearly.",
+                        "The students asked several questions about %s."
+                };
+                return pickTemplates(templates, lowerWord);
+            case "Çevre":
+                templates = new String[]{
+                        "The guide explained how %s affects daily life.",
+                        "We noticed %s while walking through the park.",
+                        "A poster about %s was hanging in the classroom.",
+                        "The trip helped us appreciate %s more deeply.",
+                        "Everyone talked about %s after the presentation.",
+                        "The photo captured the beauty of %s."
+                };
+                return pickTemplates(templates, lowerWord);
+            case "İklim":
+                templates = new String[]{
+                        "Today's report focused on %s in our region.",
+                        "We compared %s across different seasons.",
+                        "The teacher explained how %s can change quickly.",
+                        "A chart showed the effect of %s over time.",
+                        "The travelers checked %s before leaving home.",
+                        "News about %s shaped our weekend plans."
+                };
+                return pickTemplates(templates, lowerWord);
+            case "Uzay":
+                templates = new String[]{
+                        "The documentary described %s in simple language.",
+                        "We talked about %s while watching the night sky.",
+                        "The lesson connected %s to space science.",
+                        "A model helped the students imagine %s better.",
+                        "The class became curious after hearing about %s.",
+                        "The presenter used a photo to explain %s."
+                };
+                return pickTemplates(templates, lowerWord);
             case "Yiyecek":
                 templates = new String[]{
                         "She bought fresh %s from the market.",
@@ -831,6 +871,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         "He tasted the %s before adding more salt.",
                         "They packed %s for the picnic.",
                         "The smell of %s came from the kitchen."
+                };
+                return pickTemplates(templates, lowerWord);
+            case "Dil":
+                templates = new String[]{
+                        "We practiced %s during the language lesson.",
+                        "The teacher asked us to use %s in a sentence.",
+                        "A short exercise helped us remember %s.",
+                        "She wrote %s neatly in her notebook.",
+                        "The class reviewed %s before the quiz.",
+                        "Learning %s made the topic easier to understand."
                 };
                 return pickTemplates(templates, lowerWord);
             case "Doğa":
@@ -854,6 +904,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 };
                 return pickTemplates(templates, lowerWord);
             case "Eğitim":
+            case "Okul":
                 templates = new String[]{
                         "The teacher wrote %s on the board.",
                         "She used %s in her homework sentence.",
@@ -863,7 +914,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         "They practiced %s during English class."
                 };
                 return pickTemplates(templates, lowerWord);
+            case "Akademi":
+                templates = new String[]{
+                        "The university seminar focused on %s this week.",
+                        "Her academic notes included a section on %s.",
+                        "The article introduced %s in a formal way.",
+                        "Students discussed %s during the seminar.",
+                        "A professor recommended reading more about %s.",
+                        "The department meeting briefly mentioned %s."
+                };
+                return pickTemplates(templates, lowerWord);
             case "İş Dünyası":
+            case "Ofis":
                 templates = new String[]{
                         "The manager discussed the %s during the meeting.",
                         "She prepared the %s before noon.",
@@ -871,6 +933,46 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         "A short report mentioned the %s twice.",
                         "The team improved the %s step by step.",
                         "He brought the %s to the manager's desk."
+                };
+                return pickTemplates(templates, lowerWord);
+            case "Yönetim":
+                templates = new String[]{
+                        "The team reviewed %s before making a decision.",
+                        "Good %s helped the project move faster.",
+                        "The manager improved %s across the department.",
+                        "A meeting was scheduled to discuss %s.",
+                        "Their plan depended on clear %s from the start.",
+                        "The report explained why %s mattered to the team."
+                };
+                return pickTemplates(templates, lowerWord);
+            case "Lojistik":
+                templates = new String[]{
+                        "The company tracked %s throughout the day.",
+                        "A delay in %s changed the schedule.",
+                        "The warehouse team checked %s carefully.",
+                        "They improved %s to save time.",
+                        "Everyone monitored %s before the delivery.",
+                        "The report highlighted a problem with %s."
+                };
+                return pickTemplates(templates, lowerWord);
+            case "Kariyer":
+                templates = new String[]{
+                        "She thought %s would help her career grow.",
+                        "The interview panel asked about %s directly.",
+                        "They discussed %s during the hiring process.",
+                        "Strong %s can open new job opportunities.",
+                        "His mentor gave useful advice about %s.",
+                        "The workshop focused on building %s."
+                };
+                return pickTemplates(templates, lowerWord);
+            case "Üretim":
+                templates = new String[]{
+                        "The factory improved %s this month.",
+                        "A delay in %s affected the final plan.",
+                        "The team checked %s before starting work.",
+                        "They measured %s to improve efficiency.",
+                        "The supervisor reviewed %s on the production floor.",
+                        "A report showed how %s changed over time."
                 };
                 return pickTemplates(templates, lowerWord);
             case "Yer":
@@ -893,7 +995,28 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         "That moment created real %s between the friends."
                 };
                 return pickTemplates(templates, lowerWord);
+            case "İletişim":
+                templates = new String[]{
+                        "Clear %s made the conversation easier.",
+                        "They worked on %s during the group activity.",
+                        "A misunderstanding about %s slowed things down.",
+                        "The speaker used %s very effectively.",
+                        "Good %s helped everyone stay connected.",
+                        "We discussed %s during the communication workshop."
+                };
+                return pickTemplates(templates, lowerWord);
+            case "Toplum":
+                templates = new String[]{
+                        "The article explored %s in modern society.",
+                        "People talked about %s during the event.",
+                        "The lesson showed why %s matters to communities.",
+                        "A documentary presented different views on %s.",
+                        "Students shared examples of %s from daily life.",
+                        "The discussion connected %s with social change."
+                };
+                return pickTemplates(templates, lowerWord);
             case "Teknoloji":
+            case "Yazılım":
                 templates = new String[]{
                         "The new %s worked faster than the old one.",
                         "She checked the %s before the presentation.",
@@ -901,6 +1024,26 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         "They tested the %s in the lab.",
                         "The %s stayed on the desk all day.",
                         "He learned how to use the %s last week."
+                };
+                return pickTemplates(templates, lowerWord);
+            case "Donanım":
+                templates = new String[]{
+                        "The technician tested the %s before installation.",
+                        "A problem with the %s interrupted our work.",
+                        "They replaced the %s with a newer model.",
+                        "The manual explained how to maintain the %s.",
+                        "We compared the size and weight of each %s.",
+                        "The engineer checked the %s twice for safety."
+                };
+                return pickTemplates(templates, lowerWord);
+            case "Hastane":
+                templates = new String[]{
+                        "The nurse prepared the %s before the appointment.",
+                        "Doctors explained the role of %s to the patient.",
+                        "The hospital staff checked the %s carefully.",
+                        "They discussed %s during the medical visit.",
+                        "A note about %s was added to the file.",
+                        "The clinic used %s as part of the treatment plan."
                 };
                 return pickTemplates(templates, lowerWord);
             case "Genel":

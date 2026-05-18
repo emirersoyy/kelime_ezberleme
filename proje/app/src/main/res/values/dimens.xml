@@ -12,6 +12,8 @@
     <dimen name="radius_md">16dp</dimen>
     <dimen name="radius_lg">24dp</dimen>
     <dimen name="radius_xl">28dp</dimen>
+    <dimen name="toolbar_action_group_radius">21dp</dimen>
+    <dimen name="toolbar_action_button_radius">18dp</dimen>
     <dimen name="icon_button_size">44dp</dimen>
     <dimen name="icon_button_padding">10dp</dimen>
     <dimen name="button_height">56dp</dimen>
