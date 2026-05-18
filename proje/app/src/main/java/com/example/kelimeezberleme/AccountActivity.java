@@ -29,7 +29,6 @@ import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.HorizontalScrollView;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
@@ -194,7 +193,7 @@ public class AccountActivity extends BottomNavActivity {
         viewEmbeddedFadeLeft = findViewById(R.id.viewEmbeddedFadeLeft);
         viewEmbeddedFadeRight = findViewById(R.id.viewEmbeddedFadeRight);
         btnEmbeddedLoadMoreAnalysis = findViewById(R.id.btnEmbeddedLoadMoreAnalysis);
-        ImageButton btnEmbeddedPrint = findViewById(R.id.btnEmbeddedPrint);
+        MaterialButton btnEmbeddedPrint = findViewById(R.id.btnEmbeddedPrint);
 
         spEmbeddedSort = findViewById(R.id.spEmbeddedSort);
         rvEmbeddedWords = findViewById(R.id.rvEmbeddedWords);
