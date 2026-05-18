@@ -49,7 +49,7 @@
         android:id="@+id/spEmbeddedSort"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/soft_chip_bg"
+        android:background="@drawable/sort_control_bg"
         android:padding="8dp" />
 
     <androidx.recyclerview.widget.RecyclerView

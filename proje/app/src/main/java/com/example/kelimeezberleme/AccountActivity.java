@@ -12,6 +12,8 @@ import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.shapes.OvalShape;
 import android.graphics.pdf.PdfDocument;
 import android.net.Uri;
 import android.os.Bundle;
@@ -44,6 +46,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.card.MaterialCardView;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.slider.Slider;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -641,6 +645,7 @@ public class AccountActivity extends BottomNavActivity {
     }
 
     private MaterialCardView createAnalysisWordCard(Word word, int accentColor) {
+        DisplayTextNormalizer.normalizeWordForDisplay(word);
         String category = word.category == null || word.category.trim().isEmpty() ? "Genel" : word.category.trim();
         String english = word.eng == null || word.eng.trim().isEmpty() ? "-" : word.eng.trim();
         String turkish = word.tur == null || word.tur.trim().isEmpty() ? "-" : word.tur.trim();
@@ -1018,21 +1023,71 @@ public class AccountActivity extends BottomNavActivity {
 
     private void refreshWordsContent() {
         allCategories.clear();
-        Map<String, List<Word>> grouped = new LinkedHashMap<>();
+        Map<String, CategoryItem> grouped = new LinkedHashMap<>();
+        boolean defaultWide = getResources().getConfiguration().screenWidthDp >= 600;
         for (Word word : WordleWordBank.mergeDisplayWords(db.getAllWords())) {
-            String category = word.category == null || word.category.trim().isEmpty() ? "Genel" : word.category.trim();
-            List<Word> words = grouped.get(category);
-            if (words == null) {
-                words = new ArrayList<>();
-                grouped.put(category, words);
+            DisplayTextNormalizer.normalizeWordForDisplay(word);
+            String category = DisplayTextNormalizer.normalizeCategoryName(word.category);
+            CategoryItem item = grouped.get(category);
+            if (item == null) {
+                item = new CategoryItem(category, new ArrayList<>(), defaultWide);
+                grouped.put(category, item);
             }
-            words.add(word);
+            item.words.add(word);
         }
-        for (Map.Entry<String, List<Word>> entry : grouped.entrySet()) {
-            allCategories.add(new CategoryItem(entry.getKey(), entry.getValue()));
+        for (CategoryItem item : grouped.values()) {
+            allCategories.addAll(splitLargeCategory(item, defaultWide));
         }
         applyWordSorting(AppSettings.getWordsSortOrder(this));
         wordsContentLoaded = true;
+    }
+
+    private List<CategoryItem> splitLargeCategory(CategoryItem source, boolean defaultWide) {
+        List<CategoryItem> result = new ArrayList<>();
+        if (source == null || source.words == null || source.words.isEmpty()) {
+            return result;
+        }
+
+        List<Word> sortedWords = new ArrayList<>(source.words);
+        Collections.sort(sortedWords, this::compareEngSafe);
+        if (sortedWords.size() <= CATEGORY_SPLIT_THRESHOLD) {
+            result.add(new CategoryItem(source.name, sortedWords, defaultWide));
+            return result;
+        }
+
+        for (int start = 0; start < sortedWords.size(); start += CATEGORY_SPLIT_CHUNK_SIZE) {
+            int end = Math.min(sortedWords.size(), start + CATEGORY_SPLIT_CHUNK_SIZE);
+            List<Word> chunk = new ArrayList<>(sortedWords.subList(start, end));
+            result.add(new CategoryItem(
+                    source.name + " • " + buildAlphabetRangeLabel(chunk),
+                    chunk,
+                    defaultWide
+            ));
+        }
+        return result;
+    }
+
+    private String buildAlphabetRangeLabel(List<Word> words) {
+        if (words == null || words.isEmpty()) {
+            return "A-Z";
+        }
+        String first = extractLeadingLetter(words.get(0));
+        String last = extractLeadingLetter(words.get(words.size() - 1));
+        if (first.equals(last)) {
+            return first;
+        }
+        return first + "-" + last;
+    }
+
+    private String extractLeadingLetter(Word word) {
+        if (word == null || word.eng == null) {
+            return "#";
+        }
+        String trimmed = word.eng.trim();
+        if (trimmed.isEmpty()) {
+            return "#";
+        }
+        return trimmed.substring(0, 1).toUpperCase(Locale.US);
     }
 
     private void applyWordSorting(String sortOrder) {
@@ -1388,9 +1443,10 @@ public class AccountActivity extends BottomNavActivity {
         final List<Word> words;
         boolean expanded;
 
-        CategoryItem(String name, List<Word> words) {
+        CategoryItem(String name, List<Word> words, boolean expanded) {
             this.name = name;
             this.words = words;
+            this.expanded = expanded;
         }
     }
 
@@ -1409,26 +1465,36 @@ public class AccountActivity extends BottomNavActivity {
         @NonNull
         @Override
         public CategoryViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.word_item, parent, false);
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.category_item, parent, false);
             return new CategoryViewHolder(view);
         }
 
         @Override
         public void onBindViewHolder(@NonNull CategoryViewHolder holder, int position) {
             CategoryItem item = items.get(position);
-            holder.tvEng.setText(item.name);
-            holder.tvTur.setText(item.words.size() + " kelime");
-            holder.tvLevel.setText("Kelime listesi");
-            holder.tvSample.setText(formatCategoryWords(item.words));
-            holder.ivWord.setVisibility(View.GONE);
-            holder.bindExpandedState(item.expanded);
+            List<Word> sortedWords = sortWords(item.words);
 
-            View.OnClickListener toggleListener = v -> {
+            holder.tvCategoryName.setText(item.name);
+            holder.tvCategoryCount.setText(item.words.size() + " kelime");
+            holder.tvCategorySubtitle.setVisibility(View.GONE);
+
+            holder.hsvCategoryDots.setVisibility(item.expanded ? View.GONE : View.VISIBLE);
+            holder.cgCategoryWords.setVisibility(item.expanded ? View.VISIBLE : View.GONE);
+
+            if (item.expanded) {
+                bindWordChips(holder.cgCategoryWords, sortedWords);
+            } else {
+                bindLevelDots(holder.llCategoryDots, sortedWords);
+            }
+
+            holder.layoutCategoryHeader.setOnClickListener(v -> {
+                int adapterPosition = holder.getAdapterPosition();
+                if (adapterPosition == RecyclerView.NO_POSITION) {
+                    return;
+                }
                 item.expanded = !item.expanded;
-                holder.bindExpandedState(item.expanded);
-            };
-            holder.itemView.setOnClickListener(toggleListener);
-            holder.tvToggle.setOnClickListener(toggleListener);
+                notifyItemChanged(adapterPosition);
+            });
         }
 
         @Override
@@ -1436,45 +1502,83 @@ public class AccountActivity extends BottomNavActivity {
             return items.size();
         }
 
-        private String formatCategoryWords(List<Word> words) {
-            if (words == null || words.isEmpty()) {
-                return "";
+        private List<Word> sortWords(List<Word> words) {
+            List<Word> sorted = new ArrayList<>();
+            if (words != null) {
+                sorted.addAll(words);
+            }
+            Collections.sort(sorted, AccountActivity.this::compareEngSafe);
+            return sorted;
+        }
+
+        private void bindLevelDots(LinearLayout dotsContainer, List<Word> words) {
+            dotsContainer.removeAllViews();
+            if (words == null) {
+                return;
             }
 
-            List<Word> sorted = new ArrayList<>(words);
-            Collections.sort(sorted, AccountActivity.this::compareEngSafe);
-            StringBuilder builder = new StringBuilder();
-            for (int i = 0; i < sorted.size(); i++) {
-                Word word = sorted.get(i);
-                if (i > 0) {
-                    builder.append("\n");
-                }
-                String eng = word.eng == null || word.eng.trim().isEmpty() ? "-" : word.eng.trim();
-                String tur = word.tur == null || word.tur.trim().isEmpty() ? "-" : word.tur.trim();
-                builder.append(i + 1).append(". ").append(eng).append(" - ").append(tur);
+            for (Word word : words) {
+                View dot = new View(AccountActivity.this);
+                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams((int) dpFloat(10), (int) dpFloat(10));
+                params.setMarginEnd((int) dpFloat(7));
+                dot.setLayoutParams(params);
+                dot.setBackground(createLevelDotDrawable(word == null ? 0 : word.stepCount));
+                dotsContainer.addView(dot);
             }
-            return builder.toString();
+        }
+
+        private void bindWordChips(ChipGroup chipGroup, List<Word> words) {
+            chipGroup.removeAllViews();
+            if (words == null) {
+                return;
+            }
+
+            for (Word word : words) {
+                Chip chip = new Chip(AccountActivity.this);
+                chip.setEnsureMinTouchTargetSize(false);
+                chip.setClickable(false);
+                chip.setCheckable(false);
+                String english = word == null || word.eng == null || word.eng.trim().isEmpty() ? "-" : word.eng.trim();
+                String turkish = word == null || word.tur == null || word.tur.trim().isEmpty() ? "-" : word.tur.trim();
+                chip.setText(english + "  " + turkish);
+                chip.setTextColor(getResources().getColor(R.color.text_primary));
+                chip.setChipBackgroundColor(ColorStateList.valueOf(getResources().getColor(R.color.surface_variant)));
+                chip.setChipStrokeWidth(dpFloat(1));
+                chip.setChipStrokeColor(ColorStateList.valueOf(getLevelAccentColor(word == null ? 0 : word.stepCount)));
+                chip.setChipCornerRadius(dpFloat(14));
+                chip.setChipStartPadding(dpFloat(10));
+                chip.setChipEndPadding(dpFloat(10));
+                chip.setChipMinHeight(dpFloat(34));
+                chip.setChipIcon(createLevelDotDrawable(word == null ? 0 : word.stepCount));
+                chip.setChipIconVisible(true);
+                chip.setChipIconSize(dpFloat(8));
+                chip.setChipIconTint(null);
+                chipGroup.addView(chip);
+            }
+        }
+
+        private ShapeDrawable createLevelDotDrawable(int stepCount) {
+            ShapeDrawable dot = new ShapeDrawable(new OvalShape());
+            dot.getPaint().setColor(getLevelAccentColor(stepCount));
+            return dot;
         }
 
         class CategoryViewHolder extends RecyclerView.ViewHolder {
-            TextView tvEng, tvTur, tvSample, tvLevel, tvToggle;
-            ImageView ivWord;
-            View detailsContainer;
+            TextView tvCategoryName, tvCategorySubtitle, tvCategoryCount;
+            View layoutCategoryHeader;
+            HorizontalScrollView hsvCategoryDots;
+            LinearLayout llCategoryDots;
+            ChipGroup cgCategoryWords;
 
             CategoryViewHolder(View itemView) {
                 super(itemView);
-                tvEng = itemView.findViewById(R.id.tvEng);
-                tvTur = itemView.findViewById(R.id.tvTur);
-                tvSample = itemView.findViewById(R.id.tvSample);
-                tvLevel = itemView.findViewById(R.id.tvLevel);
-                tvToggle = itemView.findViewById(R.id.tvToggle);
-                ivWord = itemView.findViewById(R.id.ivWord);
-                detailsContainer = itemView.findViewById(R.id.detailsContainer);
-            }
-
-            void bindExpandedState(boolean expanded) {
-                detailsContainer.setVisibility(expanded ? View.VISIBLE : View.GONE);
-                tvToggle.setText(expanded ? "Gizle -" : "Detay +");
+                tvCategoryName = itemView.findViewById(R.id.tvCategoryName);
+                tvCategorySubtitle = itemView.findViewById(R.id.tvCategorySubtitle);
+                tvCategoryCount = itemView.findViewById(R.id.tvCategoryCount);
+                layoutCategoryHeader = itemView.findViewById(R.id.layoutCategoryHeader);
+                hsvCategoryDots = itemView.findViewById(R.id.hsvCategoryDots);
+                llCategoryDots = itemView.findViewById(R.id.llCategoryDots);
+                cgCategoryWords = itemView.findViewById(R.id.cgCategoryWords);
             }
         }
     }
