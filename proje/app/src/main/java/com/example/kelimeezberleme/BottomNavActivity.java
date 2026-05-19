@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 public class BottomNavActivity extends AppCompatActivity {
     private FrameLayout rootLayout;
     private FrameLayout contentFrame;
+    private BottomNavBarView bottomNavBar;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -66,7 +67,7 @@ public class BottomNavActivity extends AppCompatActivity {
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
 
-        BottomNavBarView bottomNavBar = new BottomNavBarView(this);
+        bottomNavBar = new BottomNavBarView(this);
         FrameLayout.LayoutParams navParams = new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -76,6 +77,13 @@ public class BottomNavActivity extends AppCompatActivity {
         rootLayout.addView(bottomNavBar, navParams);
 
         super.setContentView(rootLayout);
+    }
+
+    protected int getBottomNavBarHeightPx() {
+        if (bottomNavBar != null && bottomNavBar.getHeight() > 0) {
+            return bottomNavBar.getHeight();
+        }
+        return Math.round(76 * getResources().getDisplayMetrics().density);
     }
 
 }

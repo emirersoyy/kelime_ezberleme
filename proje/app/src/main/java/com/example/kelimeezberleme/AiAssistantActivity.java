@@ -14,6 +14,8 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import com.bumptech.glide.Glide;
 import com.google.android.material.button.MaterialButton;
@@ -59,6 +61,7 @@ public class AiAssistantActivity extends BottomNavActivity {
     private TextView tvStatus;
     private ProgressBar progressBar;
     private MaterialButton btnGenerate;
+    private View vAiBottomSpacer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +75,15 @@ public class AiAssistantActivity extends BottomNavActivity {
         tvStatus = findViewById(R.id.tvStatus);
         progressBar = findViewById(R.id.progressBar);
         btnGenerate = findViewById(R.id.btnGenerate);
+        vAiBottomSpacer = findViewById(R.id.vAiBottomSpacer);
+        updateBottomSpacer(0);
+
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content), (view, insets) -> {
+            int navBottom = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom;
+            updateBottomSpacer(navBottom);
+            return insets;
+        });
+        ViewCompat.requestApplyInsets(findViewById(android.R.id.content));
 
         btnGenerate.setOnClickListener(v -> generateStoryChain());
         restoreSavedStory();
@@ -135,6 +147,16 @@ public class AiAssistantActivity extends BottomNavActivity {
     private void setLoading(boolean loading) {
         progressBar.setVisibility(loading ? View.VISIBLE : View.GONE);
         btnGenerate.setEnabled(!loading);
+    }
+
+    private void updateBottomSpacer(int navBottomPx) {
+        if (vAiBottomSpacer == null) return;
+        int spacerHeight = getBottomNavBarHeightPx() + (navBottomPx * 2);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                spacerHeight
+        );
+        vAiBottomSpacer.setLayoutParams(params);
     }
 
     @NonNull

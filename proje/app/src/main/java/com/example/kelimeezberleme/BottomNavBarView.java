@@ -45,25 +45,45 @@ public class BottomNavBarView extends MaterialCardView {
 
         btnHome.setIconResource(R.drawable.ic_home_outline_24);
         btnAccount.setIconResource(R.drawable.ic_account_outline_24);
-        btnHome.setAlpha(1f);
-        btnAccount.setAlpha(1f);
 
         String screen = context.getClass().getSimpleName();
         if ("MainActivity".equals(screen)) {
-            btnHome.setIconResource(R.drawable.ic_home_filled_24);
-            btnHome.setOnClickListener(null);
+            setActiveState(btnHome, R.drawable.ic_home_filled_24, true);
+            setInactiveState(btnAccount, R.drawable.ic_account_outline_24, true);
         } else {
-            btnHome.setIconResource(R.drawable.ic_home_outline_24);
-            btnHome.setOnClickListener(v -> navigateWithQuizWarning(context, MainActivity.class));
+            setInactiveState(btnHome, R.drawable.ic_home_outline_24, false);
         }
 
         if ("AccountActivity".equals(screen)) {
-            btnAccount.setIconResource(R.drawable.ic_account_filled_24);
-            btnAccount.setOnClickListener(null);
+            setActiveState(btnAccount, R.drawable.ic_account_filled_24, true);
+            setInactiveState(btnHome, R.drawable.ic_home_outline_24, true);
         } else {
-            btnAccount.setIconResource(R.drawable.ic_account_outline_24);
-            btnAccount.setOnClickListener(v -> navigateWithQuizWarning(context, AccountActivity.class));
+            setInactiveState(btnAccount, R.drawable.ic_account_outline_24, false);
         }
+
+        if (!"MainActivity".equals(screen)) {
+            btnHome.setOnClickListener(v -> navigateWithQuizWarning(context, MainActivity.class));
+        } else {
+            btnHome.setOnClickListener(null);
+        }
+
+        if (!"AccountActivity".equals(screen)) {
+            btnAccount.setOnClickListener(v -> navigateWithQuizWarning(context, AccountActivity.class));
+        } else {
+            btnAccount.setOnClickListener(null);
+        }
+    }
+
+    private void setActiveState(MaterialButton button, int iconRes, boolean clickable) {
+        button.setIconResource(iconRes);
+        button.setAlpha(1f);
+        button.setClickable(clickable);
+    }
+
+    private void setInactiveState(MaterialButton button, int iconRes, boolean clickable) {
+        button.setIconResource(iconRes);
+        button.setAlpha(0.55f);
+        button.setClickable(clickable);
     }
 
 
