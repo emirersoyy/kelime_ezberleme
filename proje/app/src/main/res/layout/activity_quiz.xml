@@ -18,40 +18,65 @@
             android:orientation="vertical"
             android:padding="20dp">
 
-            <HorizontalScrollView
-                android:id="@+id/progressScroll"
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:fillViewport="false"
-                android:overScrollMode="never"
-                android:scrollbars="none">
+                android:layout_height="48dp">
 
-                <FrameLayout
-                    android:id="@+id/progressFrame"
-                    android:layout_width="wrap_content"
+                <HorizontalScrollView
+                    android:id="@+id/progressScroll"
+                    android:layout_width="match_parent"
                     android:layout_height="48dp"
-                    android:clipChildren="false"
-                    android:clipToPadding="false"
-                    android:paddingStart="4dp"
-                    android:paddingEnd="4dp">
+                    android:fillViewport="false"
+                    android:overScrollMode="never"
+                    android:scrollbars="none">
 
-                    <LinearLayout
-                        android:id="@+id/bubbleContainer"
+                    <FrameLayout
+                        android:id="@+id/progressFrame"
                         android:layout_width="wrap_content"
                         android:layout_height="48dp"
                         android:clipChildren="false"
                         android:clipToPadding="false"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal" />
+                        android:paddingStart="4dp"
+                        android:paddingEnd="4dp">
 
-                    <View
-                        android:id="@+id/currentBubbleRing"
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
-                        android:layout_gravity="center_vertical"
-                        android:background="@drawable/current_bubble_ring" />
-                </FrameLayout>
-            </HorizontalScrollView>
+                        <LinearLayout
+                            android:id="@+id/bubbleContainer"
+                            android:layout_width="wrap_content"
+                            android:layout_height="48dp"
+                            android:clipChildren="false"
+                            android:clipToPadding="false"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal" />
+
+                        <View
+                            android:id="@+id/currentBubbleRing"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:layout_gravity="center_vertical"
+                            android:background="@drawable/current_bubble_ring" />
+                    </FrameLayout>
+                </HorizontalScrollView>
+
+                <View
+                    android:id="@+id/progressFadeLeft"
+                    android:layout_width="24dp"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="start"
+                    android:background="@drawable/quiz_progress_fade_left"
+                    android:clickable="false"
+                    android:importantForAccessibility="no"
+                    android:visibility="gone" />
+
+                <View
+                    android:id="@+id/progressFadeRight"
+                    android:layout_width="24dp"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="end"
+                    android:background="@drawable/quiz_progress_fade_right"
+                    android:clickable="false"
+                    android:importantForAccessibility="no"
+                    android:visibility="gone" />
+            </FrameLayout>
 
             <TextView
                 android:id="@+id/tvReviewTitle"
@@ -264,6 +289,11 @@
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:visibility="invisible" />
+
+            <View
+                android:id="@+id/vQuizBottomSpacer"
+                android:layout_width="match_parent"
+                android:layout_height="0dp" />
 
         </LinearLayout>
     </ScrollView>

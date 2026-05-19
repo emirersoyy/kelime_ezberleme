@@ -19,6 +19,8 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import com.google.android.material.card.MaterialCardView;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -51,7 +53,9 @@ public class QuizActivity extends BottomNavActivity {
     ImageButton btnPronunciation, btnSlowPronunciation;
     LinearLayout bubbleContainer;
     HorizontalScrollView progressScroll;
+    View progressFadeLeft, progressFadeRight;
     View currentBubbleRing;
+    View vQuizBottomSpacer;
     final List<View> bubbleViews = new ArrayList<>();
     final Handler handler = new Handler(Looper.getMainLooper());
     TextToSpeech textToSpeech;
@@ -99,7 +103,20 @@ public class QuizActivity extends BottomNavActivity {
         btnSlowPronunciation = findViewById(R.id.btnSlowPronunciation);
         bubbleContainer = findViewById(R.id.bubbleContainer);
         progressScroll = findViewById(R.id.progressScroll);
+        progressFadeLeft = findViewById(R.id.progressFadeLeft);
+        progressFadeRight = findViewById(R.id.progressFadeRight);
         currentBubbleRing = findViewById(R.id.currentBubbleRing);
+        vQuizBottomSpacer = findViewById(R.id.vQuizBottomSpacer);
+        updateBottomSpacer(0);
+
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content), (view, insets) -> {
+            int navBottom = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom;
+            updateBottomSpacer(navBottom);
+            return insets;
+        });
+        ViewCompat.requestApplyInsets(findViewById(android.R.id.content));
+
+        progressScroll.setOnScrollChangeListener((view, scrollX, scrollY, oldScrollX, oldScrollY) -> updateProgressFade());
 
         cardOptions[0] = findViewById(R.id.cardOption1);
         cardOptions[1] = findViewById(R.id.cardOption2);
@@ -124,6 +141,16 @@ public class QuizActivity extends BottomNavActivity {
             final int index = i;
             cardOptions[i].setOnClickListener(v -> checkAnswer(tvOptions[index].getText().toString(), cardOptions[index]));
         }
+    }
+
+    private void updateBottomSpacer(int navBottomPx) {
+        if (vQuizBottomSpacer == null) return;
+        int spacerHeight = getBottomNavBarHeightPx() + (navBottomPx * 2);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                spacerHeight
+        );
+        vQuizBottomSpacer.setLayoutParams(params);
     }
 
     private void setupTextToSpeech() {
@@ -169,7 +196,17 @@ public class QuizActivity extends BottomNavActivity {
             ringParams.gravity = android.view.Gravity.CENTER_VERTICAL;
             currentBubbleRing.setLayoutParams(ringParams);
             bubbleContainer.post(() -> moveRingToBubble(0, false));
+            updateProgressFade();
         });
+    }
+
+    private void updateProgressFade() {
+        if (progressScroll == null || progressFadeLeft == null || progressFadeRight == null) return;
+        boolean canScrollLeft = progressScroll.canScrollHorizontally(-1);
+        boolean canScrollRight = progressScroll.canScrollHorizontally(1);
+
+        progressFadeLeft.setVisibility(canScrollLeft ? View.VISIBLE : View.GONE);
+        progressFadeRight.setVisibility(canScrollRight ? View.VISIBLE : View.GONE);
     }
 
     private void showCurrentQuestion(boolean animateRing) {
