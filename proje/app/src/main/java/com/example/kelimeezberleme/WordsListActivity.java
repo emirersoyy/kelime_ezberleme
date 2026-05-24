@@ -146,6 +146,7 @@ public class WordsListActivity extends BottomNavActivity {
         @Override
         public void onBindViewHolder(@NonNull WordViewHolder holder, int position) {
             Word word = words.get(position);
+            DisplayTextNormalizer.normalizeWordForDisplay(word);
             holder.tvEng.setText(word.eng);
             holder.tvTur.setText(isSyntheticWord(word) ? "Wordle için eklenen kelime" : word.tur);
             holder.tvLevel.setText(isSyntheticWord(word) ? "Wordle" : getLevelText(word.stepCount));

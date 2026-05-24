@@ -13,6 +13,7 @@ public final class AppSettings {
     public static final String KEY_REMEMBERED_USER = "remembered_user";
     public static final String KEY_THEME_MODE = "theme_mode";
     public static final String KEY_WORDS_SORT = "words_sort";
+    public static final String KEY_CATEGORY_SORT = "category_sort";
     public static final String KEY_WORDCHAIN_WORDS = "wordchain_words";
     public static final String KEY_WORDCHAIN_STORY = "wordchain_story";
     public static final String KEY_WORDCHAIN_IMAGE_PATH = "wordchain_image_path";
@@ -96,6 +97,14 @@ public final class AppSettings {
         prefs(context).edit().putString(getWordsSortKey(context), sortOrder == null ? "alpha_asc" : sortOrder).apply();
     }
 
+    public static String getCategorySortOrder(Context context) {
+        return prefs(context).getString(getCategorySortKey(context), "alpha_asc");
+    }
+
+    public static void setCategorySortOrder(Context context, String sortOrder) {
+        prefs(context).edit().putString(getCategorySortKey(context), sortOrder == null ? "alpha_asc" : sortOrder).apply();
+    }
+
     public static int getQuizLimit(Context context) {
         return clampQuizLimit(prefs(context).getInt(getQuizLimitKey(context), DEFAULT_QUIZ_LIMIT));
     }
@@ -106,6 +115,11 @@ public final class AppSettings {
 
     public static int clampQuizLimit(int limit) {
         return Math.max(MIN_QUIZ_LIMIT, Math.min(MAX_QUIZ_LIMIT, limit));
+    }
+
+    private static String getCategorySortKey(Context context) {
+        String user = getCurrentUser(context).trim().toLowerCase(Locale.US);
+        return KEY_CATEGORY_SORT + "_" + (user.isEmpty() ? "guest" : user);
     }
 
     private static String getQuizLimitKey(Context context) {

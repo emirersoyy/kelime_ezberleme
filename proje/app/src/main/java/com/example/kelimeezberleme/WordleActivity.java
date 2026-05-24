@@ -18,6 +18,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 import java.text.SimpleDateFormat;
@@ -51,6 +53,7 @@ public class WordleActivity extends BottomNavActivity {
     LinearLayout llKeyboard;
     TextView tvResult;
     MaterialButton btnSelectedDate;
+    View vWordleBottomSpacer;
 
     TextView[][] cells;
     MaterialCardView[][] cards;
@@ -71,6 +74,15 @@ public class WordleActivity extends BottomNavActivity {
         llKeyboard = findViewById(R.id.llKeyboard);
         tvResult = findViewById(R.id.tvResult);
         btnSelectedDate = findViewById(R.id.btnSelectedDate);
+        vWordleBottomSpacer = findViewById(R.id.vWordleBottomSpacer);
+        updateBottomSpacer(0);
+
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content), (view, insets) -> {
+            int navBottom = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom;
+            updateBottomSpacer(navBottom);
+            return insets;
+        });
+        ViewCompat.requestApplyInsets(findViewById(android.R.id.content));
 
         btnSelectedDate.setOnClickListener(v -> showCalendarDialog());
 
@@ -156,17 +168,23 @@ public class WordleActivity extends BottomNavActivity {
         wordLength = targetWord.length();
         cells = new TextView[MAX_ATTEMPTS][wordLength];
         cards = new MaterialCardView[MAX_ATTEMPTS][wordLength];
-        
-        glWordle.setColumnCount(wordLength);
-        glWordle.setRowCount(MAX_ATTEMPTS);
 
-        createGrid();
-        createVirtualKeyboard();
-        updateSelectedDateButton();
-        if (ignoreSavedAttempts) {
-            setKeyboardEnabled(true);
+        Runnable setupBoard = () -> {
+            glWordle.setColumnCount(wordLength);
+            glWordle.setRowCount(MAX_ATTEMPTS);
+            createGrid();
+            createVirtualKeyboard();
+            updateSelectedDateButton();
+            if (ignoreSavedAttempts) {
+                setKeyboardEnabled(true);
+            } else {
+                loadPreviousAttempts(date);
+            }
+        };
+        if (glWordle.getWidth() == 0) {
+            glWordle.post(setupBoard);
         } else {
-            loadPreviousAttempts(date);
+            setupBoard.run();
         }
     }
 
@@ -579,14 +597,10 @@ public class WordleActivity extends BottomNavActivity {
         glWordle.setUseDefaultMargins(false);
         glWordle.setAlignmentMode(GridLayout.ALIGN_MARGINS);
 
-        int displayWidth = getResources().getDisplayMetrics().widthPixels;
-        int horizontalPadding = dp(72);
+        int availableWidth = Math.max(1, glWordle.getWidth() - glWordle.getPaddingLeft() - glWordle.getPaddingRight());
         int margin = dp(1);
-        int availableWidth = displayWidth - horizontalPadding;
         int totalMargins = wordLength * margin * 2;
-        int cellSize = (availableWidth - totalMargins) / wordLength;
-        if (cellSize > dp(63)) cellSize = dp(63);
-        if (cellSize < dp(60)) cellSize = dp(60);
+        int cellSize = Math.max(1, (availableWidth - totalMargins) / wordLength);
 
         for (int r = 0; r < MAX_ATTEMPTS; r++) {
             for (int c = 0; c < wordLength; c++) {
@@ -630,7 +644,7 @@ public class WordleActivity extends BottomNavActivity {
             rowLayout.setLayoutParams(rowParams);
 
             if (i == 1) {
-                rowLayout.addView(createKeyboardSpacer(0.3f));
+                rowLayout.addView(createKeyboardSpacer(0.14f));
             }
             if (i == 2) {
                 MaterialButton bEnt = createKey("ENT", 1.8f);
@@ -651,7 +665,7 @@ public class WordleActivity extends BottomNavActivity {
                 rowLayout.addView(bDel);
             }
             if (i == 1) {
-                rowLayout.addView(createKeyboardSpacer(0.3f));
+                rowLayout.addView(createKeyboardSpacer(0.14f));
             }
             llKeyboard.addView(rowLayout);
         }
@@ -660,8 +674,8 @@ public class WordleActivity extends BottomNavActivity {
     private MaterialButton createKey(String text, float weight) {
         MaterialButton btn = new MaterialButton(this);
         btn.setText(text);
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0, dp(58), weight);
-        params.setMargins(dp(3), 0, dp(3), 0);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0, dp(52), weight);
+        params.setMargins(dp(1), 0, dp(1), 0);
         btn.setLayoutParams(params);
         btn.setMinWidth(0);
         btn.setMinimumWidth(0);
@@ -672,7 +686,7 @@ public class WordleActivity extends BottomNavActivity {
         btn.setPadding(0, 0, 0, dp(1));
         btn.setAllCaps(false);
         btn.setSingleLine(true);
-        btn.setTextSize(text.length() > 1 ? 13 : 17);
+        btn.setTextSize(text.length() > 1 ? 11 : 16);
         btn.setTypeface(null, Typeface.BOLD);
         btn.setCornerRadius(dp(10));
         btn.setStrokeWidth(dp(1));
@@ -682,8 +696,18 @@ public class WordleActivity extends BottomNavActivity {
 
     private View createKeyboardSpacer(float weight) {
         View spacer = new View(this);
-        spacer.setLayoutParams(new LinearLayout.LayoutParams(0, dp(58), weight));
+        spacer.setLayoutParams(new LinearLayout.LayoutParams(0, dp(52), weight));
         return spacer;
+    }
+
+    private void updateBottomSpacer(int navBottomPx) {
+        if (vWordleBottomSpacer == null) return;
+        int spacerHeight = getBottomNavBarHeightPx() + (navBottomPx * 2);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                spacerHeight
+        );
+        vWordleBottomSpacer.setLayoutParams(params);
     }
 
     private void resetKeyStyle(MaterialButton btn) {

@@ -285,6 +285,7 @@ public class AnalysisActivity extends BottomNavActivity {
     }
 
     private MaterialCardView createWordCard(Word word, int accentColor) {
+        DisplayTextNormalizer.normalizeWordForDisplay(word);
         String category = word.category == null || word.category.trim().isEmpty() ? "Genel" : word.category.trim();
         String english = word.eng == null || word.eng.trim().isEmpty() ? "-" : word.eng.trim();
         String turkish = word.tur == null || word.tur.trim().isEmpty() ? "-" : word.tur.trim();

@@ -1,18 +1,19 @@
 package com.example.kelimeezberleme;
 
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 
 import androidx.annotation.LayoutRes;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class BottomNavActivity extends AppCompatActivity {
-    private LinearLayout rootLayout;
+    private FrameLayout rootLayout;
     private FrameLayout contentFrame;
+    private BottomNavBarView bottomNavBar;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -58,22 +59,31 @@ public class BottomNavActivity extends AppCompatActivity {
     }
 
     private void createBottomNavShell() {
-        rootLayout = new LinearLayout(this);
-        rootLayout.setOrientation(LinearLayout.VERTICAL);
+        rootLayout = new FrameLayout(this);
         rootLayout.setBackgroundColor(getResources().getColor(R.color.background));
 
         contentFrame = new FrameLayout(this);
-        rootLayout.addView(contentFrame, new LinearLayout.LayoutParams(
+        rootLayout.addView(contentFrame, new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
-                0,
-                1f));
+                ViewGroup.LayoutParams.MATCH_PARENT));
 
-        BottomNavBarView bottomNavBar = new BottomNavBarView(this);
-        rootLayout.addView(bottomNavBar, new LinearLayout.LayoutParams(
+        bottomNavBar = new BottomNavBarView(this);
+        FrameLayout.LayoutParams navParams = new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT));
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                Gravity.BOTTOM);
+        int horizontalMargin = Math.round(24 * getResources().getDisplayMetrics().density);
+        navParams.setMargins(horizontalMargin, 0, horizontalMargin, 0);
+        rootLayout.addView(bottomNavBar, navParams);
 
         super.setContentView(rootLayout);
+    }
+
+    protected int getBottomNavBarHeightPx() {
+        if (bottomNavBar != null && bottomNavBar.getHeight() > 0) {
+            return bottomNavBar.getHeight();
+        }
+        return Math.round(76 * getResources().getDisplayMetrics().density);
     }
 
 }

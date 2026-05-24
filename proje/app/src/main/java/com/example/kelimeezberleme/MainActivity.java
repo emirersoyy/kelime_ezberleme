@@ -16,8 +16,6 @@ public class MainActivity extends BottomNavActivity {
     private DatabaseHelper db;
     private TextView tvGreeting;
     private TextView tvCurrentUser;
-    private TextView tvTotalWords;
-    private TextView tvLearnedWords;
     private TextView tvDueWords;
     private ImageView ivProfileAvatar;
 
@@ -36,8 +34,6 @@ public class MainActivity extends BottomNavActivity {
 
         tvGreeting = findViewById(R.id.tvGreeting);
         tvCurrentUser = findViewById(R.id.tvCurrentUser);
-        tvTotalWords = findViewById(R.id.tvTotalWords);
-        tvLearnedWords = findViewById(R.id.tvLearnedWords);
         tvDueWords = findViewById(R.id.tvDueWords);
         ivProfileAvatar = findViewById(R.id.ivProfileAvatar);
         ivProfileAvatar.setContentDescription("Hesap fotoğrafı");
@@ -105,21 +101,15 @@ public class MainActivity extends BottomNavActivity {
 
     private void refreshStats() {
         List<Word> words = WordleWordBank.mergeDisplayWords(db.getAllWords());
-        int total = words.size();
-        int learned = 0;
         int due = 0;
         long now = System.currentTimeMillis();
 
         for (Word word : words) {
-            if (word.stepCount >= 6) {
-                learned++;
-            } else if (word.totalAttempts > 0 && word.stepCount > 0 && word.nextQuizDate <= now) {
+            if (word.stepCount > 0 && word.stepCount < 6 && word.nextQuizDate <= now) {
                 due++;
             }
         }
 
-        tvTotalWords.setText(String.valueOf(total));
-        tvLearnedWords.setText(String.valueOf(learned));
         tvDueWords.setText(String.valueOf(due));
     }
 

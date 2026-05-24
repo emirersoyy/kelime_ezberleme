@@ -12,9 +12,9 @@ public final class WordImageLoader {
     }
 
     public static void load(ImageView imageView, String pictureRef) {
-        if (pictureRef == null || pictureRef.isEmpty()) {
-            imageView.setImageResource(android.R.drawable.ic_menu_gallery);
-            imageView.setVisibility(View.VISIBLE);
+        if (pictureRef == null || pictureRef.trim().isEmpty()) {
+            imageView.setImageDrawable(null);
+            imageView.setVisibility(View.GONE);
             return;
         }
 
@@ -37,7 +37,7 @@ public final class WordImageLoader {
             // Hide broken image references.
         }
 
-        imageView.setImageResource(android.R.drawable.ic_menu_gallery);
-        imageView.setVisibility(View.VISIBLE);
+        imageView.setImageDrawable(null);
+        imageView.setVisibility(View.GONE);
     }
 }

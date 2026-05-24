@@ -12,23 +12,58 @@
         android:orientation="horizontal"
         android:paddingBottom="12dp">
 
-        <TextView
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Analiz Raporu"
-            android:textColor="@color/text_secondary"
-            android:textSize="14sp"
-            android:textStyle="bold" />
+            android:orientation="vertical">
 
-        <ImageButton
-            android:id="@+id/btnEmbeddedPrint"
-            style="@style/App.IconButton"
-            android:src="@android:drawable/ic_menu_save"
-            app:tint="@color/primary" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Analiz Raporu"
+                android:textColor="@color/text_primary"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="Seviye dağılımını ve ilerlemeyi tek ekranda izle"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/toolbar_action_group_bg"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="3dp">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnEmbeddedPrint"
+                style="@style/App.Button.ToolbarIcon.Start"
+                android:contentDescription="Çıktı al"
+                app:icon="@drawable/ic_download_24"
+                app:iconGravity="textTop"
+                app:iconSize="18dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnEmbeddedAddWord"
+                style="@style/App.Button.ToolbarIcon.End"
+                android:layout_marginStart="6dp"
+                android:contentDescription="Kelime ekle"
+                app:icon="@drawable/ic_add_24"
+                app:iconGravity="textTop"
+                app:iconSize="18dp" />
+        </LinearLayout>
     </LinearLayout>
 
     <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardEmbeddedAnalysisContent"
         style="@style/App.Card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -41,6 +76,7 @@
             android:padding="16dp">
 
             <LinearLayout
+                android:id="@+id/layoutEmbeddedFilterControls"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
@@ -67,6 +103,8 @@
                         android:id="@+id/hsvEmbeddedSummaryChips"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:fadingEdgeLength="18dp"
+                        android:requiresFadingEdge="horizontal"
                         android:scrollbars="none">
 
                         <LinearLayout
@@ -96,12 +134,14 @@
             </LinearLayout>
 
             <View
+                android:id="@+id/viewEmbeddedFilterDivider"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_marginVertical="18dp"
                 android:background="@color/divider" />
 
             <LinearLayout
+                android:id="@+id/layoutEmbeddedFilterSummary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"

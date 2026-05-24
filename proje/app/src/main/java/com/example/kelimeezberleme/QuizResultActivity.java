@@ -7,11 +7,14 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 
 public class QuizResultActivity extends BottomNavActivity {
+    private View vResultBottomSpacer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,16 +26,34 @@ public class QuizResultActivity extends BottomNavActivity {
         ArrayList<IncorrectWord> incorrects = (ArrayList<IncorrectWord>) getIntent().getSerializableExtra("incorrects");
 
         TextView tvSummary = findViewById(R.id.tvSummary);
-        tvSummary.setText(total + " soruda " + correct + " do\u011fru cevap verdin.");
+        tvSummary.setText(total + " soruda " + correct + " doğru cevap verdin.");
 
         if (incorrects != null && !incorrects.isEmpty()) {
             findViewById(R.id.tvWrongTitle).setVisibility(View.VISIBLE);
             RecyclerView rv = findViewById(R.id.rvIncorrect);
             rv.setLayoutManager(new LinearLayoutManager(this));
+            rv.setNestedScrollingEnabled(false);
             rv.setAdapter(new IncorrectAdapter(incorrects));
         }
 
+        vResultBottomSpacer = findViewById(R.id.vResultBottomSpacer);
+        updateBottomSpacer(0);
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content), (view, insets) -> {
+            int navBottom = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom;
+            updateBottomSpacer(navBottom);
+            return insets;
+        });
+        ViewCompat.requestApplyInsets(findViewById(android.R.id.content));
+
         findViewById(R.id.btnFinishQuiz).setOnClickListener(v -> finish());
+    }
+
+    private void updateBottomSpacer(int navBottomPx) {
+        if (vResultBottomSpacer == null) return;
+        int spacerHeight = getBottomNavBarHeightPx() + (navBottomPx * 2);
+        ViewGroup.LayoutParams params = vResultBottomSpacer.getLayoutParams();
+        params.height = spacerHeight;
+        vResultBottomSpacer.setLayoutParams(params);
     }
 
     class IncorrectAdapter extends RecyclerView.Adapter<IncorrectAdapter.VH> {
@@ -54,9 +75,9 @@ public class QuizResultActivity extends BottomNavActivity {
             IncorrectWord item = list.get(position);
             holder.t1.setText(item.eng + " -> " + item.tur);
             holder.t1.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
-            String answer = item.userAnswer.isEmpty() ? "(Bo\u015f)" : item.userAnswer;
+            String answer = item.userAnswer.isEmpty() ? "(Boş)" : item.userAnswer;
             String sentence = item.sentence == null || item.sentence.isEmpty() ? "" : "\n" + item.sentence;
-            holder.t2.setText("Senin cevab\u0131n: " + answer + sentence);
+            holder.t2.setText("Senin cevabın: " + answer + sentence);
         }
 
         @Override
