@@ -13,6 +13,7 @@
     <color name="wordle_gray">#8A9099</color>
     <color name="wordle_red">#DC2626</color>
     <color name="wordle_calendar_gray">#E5E7EB</color>
+    <color name="wordle_calendar_unplayed_gray">#D6E2F3</color>
     <color name="wordle_calendar_locked_gray">#4B5563</color>
     <color name="wordle_keyboard_key_bg">#D1D5DB</color>
     <color name="wordle_keyboard_key_stroke">#A8B0BA</color>

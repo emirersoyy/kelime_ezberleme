@@ -12,7 +12,8 @@
     <color name="wordle_yellow">#D9B04C</color>
     <color name="wordle_gray">#758092</color>
     <color name="wordle_red">#EF6B6B</color>
-    <color name="wordle_calendar_gray">#22304A</color>
+    <color name="wordle_calendar_gray">#1A2F4E</color>
+    <color name="wordle_calendar_unplayed_gray">#AAB4C4</color>
     <color name="wordle_calendar_locked_gray">#40506B</color>
     <color name="wordle_keyboard_key_bg">#22304A</color>
     <color name="wordle_keyboard_key_stroke">#334563</color>
@@ -33,7 +34,7 @@
     <color name="divider">#2A3550</color>
     <color name="text_primary">#E5ECF8</color>
     <color name="text_secondary">#9AA7BD</color>
-    <color name="calendar_unplayed_text">#E5ECF8</color>
+    <color name="calendar_unplayed_text">#FFFFFF</color>
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
 </resources>

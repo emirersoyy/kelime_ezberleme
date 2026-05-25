@@ -92,6 +92,7 @@ public class AccountActivity extends BottomNavActivity {
     private MaterialButton btnScrollAccountTop;
     private MaterialCardView cardEmbeddedAnalysisContent;
     private MaterialCardView cardStickyAnalysisFilters;
+    private MaterialCardView cardStickyWordsFilters;
     private MaterialButton btnEmbeddedLoadMoreAnalysis;
 
     private LinearLayout llEmbeddedAllChip;
@@ -101,14 +102,19 @@ public class AccountActivity extends BottomNavActivity {
     private LinearLayout llEmbeddedCategoryStats;
     private TextView tvEmbeddedFilterSummary;
     private TextView tvStickyFilterSummary;
+    private TextView tvStickyWordsCount;
     private AppCompatTextView tvEmbeddedAnalysisSort;
     private AppCompatTextView tvStickyAnalysisSort;
+    private AppCompatTextView tvStickyWordsSort;
     private HorizontalScrollView hsvEmbeddedSummaryChips;
     private HorizontalScrollView hsvStickySummaryChips;
     private View viewEmbeddedFadeLeft;
     private View viewEmbeddedFadeRight;
+    private View layoutEmbeddedWordsHeader;
+    private View layoutEmbeddedWordsFilter;
 
     private AppCompatTextView tvEmbeddedWordsSort;
+    private TextView tvEmbeddedWordsCountInline;
     private RecyclerView rvEmbeddedWords;
     private CategoryAdapter categoryAdapter;
     private final List<CategoryItem> allCategories = new ArrayList<>();
@@ -172,10 +178,13 @@ public class AccountActivity extends BottomNavActivity {
         layoutEmbeddedFilterControls = findViewById(R.id.layoutEmbeddedFilterControls);
         viewEmbeddedFilterDivider = findViewById(R.id.viewEmbeddedFilterDivider);
         layoutEmbeddedFilterSummary = findViewById(R.id.layoutEmbeddedFilterSummary);
+        layoutEmbeddedWordsHeader = findViewById(R.id.layoutEmbeddedWordsHeader);
+        layoutEmbeddedWordsFilter = findViewById(R.id.layoutEmbeddedWordsFilter);
         svAccountRoot = findViewById(R.id.svAccountRoot);
         btnScrollAccountTop = findViewById(R.id.btnScrollAccountTop);
         cardEmbeddedAnalysisContent = findViewById(R.id.cardEmbeddedAnalysisContent);
         cardStickyAnalysisFilters = findViewById(R.id.cardStickyAnalysisFilters);
+        cardStickyWordsFilters = findViewById(R.id.cardStickyWordsFilters);
 
         llEmbeddedAllChip = findViewById(R.id.llEmbeddedAllChip);
         llEmbeddedSummaryChips = findViewById(R.id.llEmbeddedSummaryChips);
@@ -184,8 +193,11 @@ public class AccountActivity extends BottomNavActivity {
         llEmbeddedCategoryStats = findViewById(R.id.llEmbeddedCategoryStats);
         tvEmbeddedFilterSummary = findViewById(R.id.tvEmbeddedFilterSummary);
         tvStickyFilterSummary = findViewById(R.id.tvStickyFilterSummary);
+        tvStickyWordsCount = findViewById(R.id.tvStickyWordsCount);
         tvEmbeddedAnalysisSort = findViewById(R.id.tvEmbeddedAnalysisSort);
         tvStickyAnalysisSort = findViewById(R.id.tvStickyAnalysisSort);
+        tvStickyWordsSort = findViewById(R.id.tvStickyWordsSort);
+        tvEmbeddedWordsCountInline = findViewById(R.id.tvEmbeddedWordsCountInline);
         hsvEmbeddedSummaryChips = findViewById(R.id.hsvEmbeddedSummaryChips);
         hsvStickySummaryChips = findViewById(R.id.hsvStickySummaryChips);
         viewEmbeddedFadeLeft = findViewById(R.id.viewEmbeddedFadeLeft);
@@ -208,6 +220,11 @@ public class AccountActivity extends BottomNavActivity {
             analysisSortAscending = !analysisSortAscending;
             refreshAnalysisContent();
         });
+        tvStickyWordsSort.setOnClickListener(v -> {
+            String nextSort = getNextCategorySortOrder(AppSettings.getCategorySortOrder(AccountActivity.this));
+            AppSettings.setCategorySortOrder(AccountActivity.this, nextSort);
+            applyWordSorting(nextSort);
+        });
         tvEmbeddedWordsSort.setOnClickListener(v -> {
             String nextSort = getNextCategorySortOrder(AppSettings.getCategorySortOrder(AccountActivity.this));
             AppSettings.setCategorySortOrder(AccountActivity.this, nextSort);
@@ -220,10 +237,11 @@ public class AccountActivity extends BottomNavActivity {
         btnEmbeddedLoadMoreAnalysis.setVisibility(View.GONE);
         btnScrollAccountTop.setOnClickListener(v -> scrollAnalysisToTop());
         svAccountRoot.setOnScrollChangeListener((NestedScrollView.OnScrollChangeListener) (v, scrollX, scrollY, oldScrollX, oldScrollY) -> {
-            updateScrollToTopButton();
-            updateStickyAnalysisFiltersState();
-            handleAnalysisScrollWindow();
-        });
+        updateScrollToTopButton();
+        updateStickyAnalysisFiltersState();
+        updateStickyWordsFiltersState();
+        handleAnalysisScrollWindow();
+    });
     }
 
     private void showSection(boolean analysis) {
@@ -234,6 +252,7 @@ public class AccountActivity extends BottomNavActivity {
             refreshWordsContent();
         }
         updateStickyAnalysisFiltersState();
+        updateStickyWordsFiltersState();
         updateTabStyles();
     }
 
@@ -855,6 +874,17 @@ public class AccountActivity extends BottomNavActivity {
         layoutEmbeddedFilterSummary.setVisibility(embeddedVisibility);
     }
 
+    private void updateStickyWordsFiltersState() {
+        if (cardStickyWordsFilters == null || layoutEmbeddedWordsFilter == null || svAccountRoot == null) {
+            return;
+        }
+        boolean shouldStick = !showingAnalysis
+                && layoutWordsSection.getVisibility() == View.VISIBLE
+                && svAccountRoot.getScrollY() >= Math.max(0, getViewTopInScroll(layoutEmbeddedWordsFilter) - dp(8));
+        cardStickyWordsFilters.setVisibility(shouldStick ? View.VISIBLE : View.GONE);
+        layoutEmbeddedWordsFilter.setVisibility(shouldStick ? View.INVISIBLE : View.VISIBLE);
+    }
+
     private void updateSummaryChipFadeState() {
         if (hsvEmbeddedSummaryChips == null || viewEmbeddedFadeLeft == null || viewEmbeddedFadeRight == null) {
             return;
@@ -1011,6 +1041,7 @@ public class AccountActivity extends BottomNavActivity {
             item.words.add(word);
         }
         allCategories.addAll(grouped.values());
+        updateWordsCountViews();
         applyWordSorting(AppSettings.getCategorySortOrder(this));
         wordsContentLoaded = true;
     }
@@ -1037,6 +1068,7 @@ public class AccountActivity extends BottomNavActivity {
         }
         updateWordsSortView(sortOrder);
         categoryAdapter.updateItems(sorted);
+        updateStickyWordsFiltersState();
     }
 
     private int compareEngSafe(Word left, Word right) {
@@ -1046,14 +1078,22 @@ public class AccountActivity extends BottomNavActivity {
     }
 
     private void updateWordsSortView(String sortOrder) {
-        if (tvEmbeddedWordsSort == null) {
+        if (tvEmbeddedWordsSort == null && tvStickyWordsSort == null) {
             return;
         }
         int accentColor = getResources().getColor(R.color.text_secondary);
-        tvEmbeddedWordsSort.setText(getWordsSortLabel(sortOrder));
-        tvEmbeddedWordsSort.setBackground(createRoundedChipBackground(accentColor, false));
-        tvEmbeddedWordsSort.setCompoundDrawablePadding(dp(6));
-        tvEmbeddedWordsSort.setCompoundDrawablesRelativeWithIntrinsicBounds(
+        applyWordsSortView(tvEmbeddedWordsSort, sortOrder, accentColor);
+        applyWordsSortView(tvStickyWordsSort, sortOrder, accentColor);
+    }
+
+    private void applyWordsSortView(AppCompatTextView sortView, String sortOrder, int accentColor) {
+        if (sortView == null) {
+            return;
+        }
+        sortView.setText(getWordsSortLabel(sortOrder));
+        sortView.setBackground(createRoundedChipBackground(accentColor, false));
+        sortView.setCompoundDrawablePadding(dp(6));
+        sortView.setCompoundDrawablesRelativeWithIntrinsicBounds(
                 0,
                 0,
                 R.drawable.ic_chevron_down_18,
@@ -1073,6 +1113,17 @@ public class AccountActivity extends BottomNavActivity {
         if (SORT_ALPHA_DESC.equals(currentSortOrder)) return SORT_LEVEL_DESC;
         if (SORT_LEVEL_DESC.equals(currentSortOrder)) return SORT_LEVEL_ASC;
         return SORT_ALPHA_ASC;
+    }
+
+    private void updateWordsCountViews() {
+        String countText = allCategories.size() + " kategori";
+        if (tvEmbeddedWordsCountInline != null) {
+            tvEmbeddedWordsCountInline.setText(countText);
+        }
+        if (tvStickyWordsCount == null) {
+            return;
+        }
+        tvStickyWordsCount.setText(countText);
     }
 
     private double getKnownRatio(List<Word> words) {

@@ -421,7 +421,7 @@ public class WordleActivity extends BottomNavActivity {
         if (STATUS_CORRECT.equals(status)) return ContextCompat.getColor(this, R.color.wordle_green);
         if (STATUS_FAILED.equals(status)) return ContextCompat.getColor(this, R.color.wordle_red);
         if (STATUS_PARTIAL.equals(status)) return ContextCompat.getColor(this, R.color.wordle_yellow);
-        return ContextCompat.getColor(this, R.color.wordle_calendar_gray);
+        return ContextCompat.getColor(this, R.color.wordle_calendar_unplayed_gray);
     }
 
     private boolean hasPuzzleForDate(String dateKey) {
