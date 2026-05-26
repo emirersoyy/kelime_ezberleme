@@ -33,4 +33,4 @@ jobs:
       - name: Build and analyze
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: cd proje && chmod +x gradlew && ./gradlew build sonar --info
+        run: cd proje && chmod +x gradlew && ./gradlew build sonarqube --info
