@@ -31,7 +31,7 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
           restore-keys: ${{ runner.os }}-gradle
       - name: Build app
-        run: cd proje && chmod +x gradlew && ./gradlew build --info
+        run: cd proje && chmod +x gradlew && ./gradlew assembleDebug --info
       - name: SonarQube Scan
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
