@@ -30,7 +30,17 @@ jobs:
           path: ~/.gradle/caches
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
           restore-keys: ${{ runner.os }}-gradle
-      - name: Build and analyze
+      - name: Build app
+        run: cd proje && chmod +x gradlew && ./gradlew build --info
+      - name: SonarQube Scan
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: cd proje && chmod +x gradlew && ./gradlew -Djavax.net.ssl.trustStore="$JAVA_HOME/lib/security/cacerts" -Djavax.net.ssl.trustStorePassword=changeit build sonar --info
+          SONAR_HOST_URL: https://sonarcloud.io
+        uses: SonarSource/sonarqube-scan-action@v7
+        with:
+          projectBaseDir: proje
+          args: >
+            -Dsonar.projectKey=emirersoyy_kelime_ezberleme
+            -Dsonar.organization=emirersoyy
+            -Dsonar.sources=app/src/main/java,app/src/main/res
+            -Dsonar.java.binaries=app/build/intermediates/javac/debug/classes
