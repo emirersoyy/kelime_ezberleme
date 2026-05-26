@@ -18,3 +18,14 @@ allprojects {
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
+
+plugins {
+    id "org.sonarqube" version "7.3.0.8198"
+}
+
+sonar {
+    properties {
+        property "sonar.projectKey", "emirersoyy"
+        property "sonar.organization", "Mehmet Emir Ersoy"
+    }
+}
