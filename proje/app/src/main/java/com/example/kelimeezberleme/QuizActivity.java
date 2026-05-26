@@ -351,6 +351,7 @@ public class QuizActivity extends BottomNavActivity {
 
     @Override
     public void onBackPressed() {
+        super.onBackPressed();
         confirmExit();
     }
 
