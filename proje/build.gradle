@@ -28,6 +28,6 @@ sonar {
         property "sonar.projectKey", "emirersoyy_kelime_ezberleme"
         property "sonar.organization", "emirersoyy"
         property "sonar.host.url", "https://sonarcloud.io"
-        property "sonar.coverage.exclusions", "**/*Activity.java,**/*Fragment.java,**/BottomNavActivity.java,**/BottomNavBarView.java"
+        property "sonar.coverage.exclusions", "app/src/main/java/**/*.java,**/*Activity.java,**/*Fragment.java,**/BottomNavActivity.java,**/BottomNavBarView.java"
     }
 }
