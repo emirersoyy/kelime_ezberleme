@@ -35,6 +35,10 @@ final class DisplayTextNormalizer {
     private static final String CATEGORY_BILIM_KEY = "bilim";
     private static final String CATEGORY_HASTANE_KEY = "hastane";
     private static final String CATEGORY_HAYVANLAR_KEY = "hayvanlar";
+    private static final String CATEGORY_IKLIM_KEY = "iklim";
+    private static final String CATEGORY_KARIYER_KEY = "kariyer";
+    private static final String CATEGORY_LOJISTIK_KEY = "lojistik";
+    private static final String CATEGORY_TOPLUM_KEY = "toplum";
     private static final String CATEGORY_PASSWORD_KEY = "pass" + "word";
     private static final String KEY_INSTRUCTION = "instruction";
     private static final String KEY_EQUIPMENT = "equipment";
@@ -93,15 +97,15 @@ final class DisplayTextNormalizer {
                 return CATEGORY_HASTANE;
             case CATEGORY_HAYVANLAR_KEY:
                 return CATEGORY_HAYVANLAR;
-            case "iklim":
+            case CATEGORY_IKLIM_KEY:
                 return CATEGORY_IKLIM;
             case "iletisim":
                 return CATEGORY_ILETISIM;
             case "is dunyasi":
                 return "İş Dünyası";
-            case "kariyer":
+            case CATEGORY_KARIYER_KEY:
                 return CATEGORY_KARIYER;
-            case "lojistik":
+            case CATEGORY_LOJISTIK_KEY:
                 return CATEGORY_LOJISTIK;
             case "ofis":
                 return "Ofis";
@@ -115,7 +119,7 @@ final class DisplayTextNormalizer {
                 return CATEGORY_SIFATLAR;
             case "saglik":
                 return CATEGORY_SAGLIK;
-            case "toplum":
+            case CATEGORY_TOPLUM_KEY:
                 return CATEGORY_TOPLUM;
             case "uretim":
                 return CATEGORY_URETIM;
@@ -222,15 +226,15 @@ final class DisplayTextNormalizer {
         map.put(CATEGORY_HASTANE_KEY, CATEGORY_HASTANE_KEY);
         map.put(CATEGORY_HAYVANLAR_KEY, CATEGORY_HAYVANLAR_KEY);
         map.put("icmek", "içmek");
-        map.put("iklim", "iklim");
+        map.put(CATEGORY_IKLIM_KEY, CATEGORY_IKLIM_KEY);
         map.put("iletisim", "iletişim");
         map.put("is", "iş");
         map.put("kapi", "kapı");
-        map.put("kariyer", "kariyer");
+        map.put(CATEGORY_KARIYER_KEY, CATEGORY_KARIYER_KEY);
         map.put("kopek", "köpek");
         map.put("kucuk", "küçük");
         map.put("kus", "kuş");
-        map.put("lojistik", "lojistik");
+        map.put(CATEGORY_LOJISTIK_KEY, CATEGORY_LOJISTIK_KEY);
         map.put("mulkiyet", "mülkiyet");
         map.put("muzik", "müzik");
         map.put("ofis", "ofis");
@@ -241,7 +245,7 @@ final class DisplayTextNormalizer {
         map.put("sifatlar", "sıfatlar");
         map.put("soguk", "soğuk");
         map.put("sozluk", "sözlük");
-        map.put("toplum", "toplum");
+        map.put(CATEGORY_TOPLUM_KEY, CATEGORY_TOPLUM_KEY);
         map.put("ucak", "uçak");
         map.put("ulke", "ülke");
         map.put("universite", "üniversite");

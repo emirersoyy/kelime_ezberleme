@@ -23,10 +23,38 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final int PASSWORD_HASH_ITERATIONS = 120000;
     private static final int PASSWORD_SALT_BYTES = 16;
     private static final int PASSWORD_KEY_BITS = 256;
+    private static final String SQL_CREATE_TABLE = "CREATE TABLE ";
+    private static final String SQL_CREATE_TABLE_IF_NOT_EXISTS = "CREATE TABLE IF NOT EXISTS ";
+    private static final String SQL_PRIMARY_KEY_AUTOINCREMENT = " INTEGER PRIMARY KEY AUTOINCREMENT, ";
+    private static final String SQL_TEXT_COLUMN = " TEXT, ";
+    private static final String SQL_INTEGER_DEFAULT_0 = "INTEGER DEFAULT 0";
+    private static final String SQL_WHERE = " WHERE ";
+    private static final String SQL_WHERE_LOWER = " WHERE LOWER(";
+    private static final String SQL_LOWER_OPEN = "LOWER(";
+    private static final String SQL_LOWER_CLOSE_LIMIT_ONE = ") = LOWER(?) LIMIT 1";
+    private static final String SQL_LOWER_CLOSE = ") = LOWER(?)";
+    private static final String SQL_LOWER_NOT_EQUAL_LIMIT_ONE = ") != LOWER(?) LIMIT 1";
     private static final String SQL_SELECT = "SELECT ";
     private static final String SQL_FROM = " FROM ";
     private static final String SQL_SELECT_STAR_FROM = "SELECT * FROM ";
     private static final String DEFAULT_CATEGORY = "Genel";
+    private static final String CATEGORY_EGITIM = "Eğitim";
+    private static final String CATEGORY_EGITIM_ASCII = "Egitim";
+    private static final String CATEGORY_TEKNOLOJI = "Teknoloji";
+    private static final String CATEGORY_DOGA = "Doğa";
+    private static final String CATEGORY_SOSYAL = "Sosyal";
+    private static final String CATEGORY_SOYUT = "Soyut";
+    private static final String CATEGORY_ZAMAN = "Zaman";
+    private static final String CATEGORY_IS_DUNYASI = "İş Dünyası";
+    private static final String CATEGORY_DUYGULAR = "Duygular";
+    private static final String CATEGORY_SIFATLAR = "Sıfatlar";
+    private static final String CATEGORY_SIFATLAR_ASCII = "Sifatlar";
+    private static final String CATEGORY_FIILLER = "Fiiller";
+    private static final String CATEGORY_HAYVANLAR = "Hayvanlar";
+    private static final String CATEGORY_SANAT = "Sanat";
+    private static final String CATEGORY_RENKLER = "Renkler";
+    private static final String CATEGORY_YIYECEK = "Yiyecek";
+    private static final String CATEGORY_MEYVELER = "Meyveler";
 
     public static final String TABLE_USERS = "Users";
     public static final String COL_USER_ID = "UserID";
@@ -58,22 +86,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE " + TABLE_USERS + " (UserID INTEGER PRIMARY KEY AUTOINCREMENT, UserName TEXT, Password TEXT, FullName TEXT DEFAULT '', ProfileImagePath TEXT DEFAULT '', CreatedAt LONG DEFAULT 0)");
-        db.execSQL("CREATE TABLE " + TABLE_WORDS + " (" +
-                COL_WORD_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                COL_ENG_WORD + " TEXT, " +
-                COL_TUR_WORD + " TEXT, " +
-                COL_PICTURE + " TEXT, " +
-                COL_STEP_COUNT + " INTEGER DEFAULT 0, " +
+        db.execSQL(SQL_CREATE_TABLE + TABLE_USERS + " (UserID" + SQL_PRIMARY_KEY_AUTOINCREMENT + "UserName" + SQL_TEXT_COLUMN + "Password" + SQL_TEXT_COLUMN + "FullName TEXT DEFAULT '', ProfileImagePath TEXT DEFAULT '', CreatedAt LONG DEFAULT 0)");
+        db.execSQL(SQL_CREATE_TABLE + TABLE_WORDS + " (" +
+                COL_WORD_ID + SQL_PRIMARY_KEY_AUTOINCREMENT +
+                COL_ENG_WORD + SQL_TEXT_COLUMN +
+                COL_TUR_WORD + SQL_TEXT_COLUMN +
+                COL_PICTURE + SQL_TEXT_COLUMN +
+                COL_STEP_COUNT + " " + SQL_INTEGER_DEFAULT_0 + ", " +
                 COL_NEXT_QUIZ_DATE + " LONG DEFAULT 0, " +
                 COL_CATEGORY + " TEXT DEFAULT '" + DEFAULT_CATEGORY + "', " +
-                COL_TOTAL_ATTEMPTS + " INTEGER DEFAULT 0, " +
-                COL_CORRECT_ATTEMPTS + " INTEGER DEFAULT 0)");
-        db.execSQL("CREATE TABLE " + TABLE_SAMPLES + " (" +
-                COL_SAMPLE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COL_TOTAL_ATTEMPTS + " " + SQL_INTEGER_DEFAULT_0 + ", " +
+                COL_CORRECT_ATTEMPTS + " " + SQL_INTEGER_DEFAULT_0 + ")");
+        db.execSQL(SQL_CREATE_TABLE + TABLE_SAMPLES + " (" +
+                COL_SAMPLE_ID + SQL_PRIMARY_KEY_AUTOINCREMENT +
                 COL_WORD_ID + " INTEGER, " +
-                COL_SAMPLE_TEXT + " TEXT, " +
-                COL_SAMPLE_USED + " INTEGER DEFAULT 0, " +
+                COL_SAMPLE_TEXT + SQL_TEXT_COLUMN +
+                COL_SAMPLE_USED + " " + SQL_INTEGER_DEFAULT_0 + ", " +
                 "FOREIGN KEY(" + COL_WORD_ID + ") REFERENCES " + TABLE_WORDS + "(" + COL_WORD_ID + "))");
     }
 
@@ -83,23 +111,23 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     private void ensureCurrentSchema(SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_USERS + " (UserID INTEGER PRIMARY KEY AUTOINCREMENT, UserName TEXT, Password TEXT)");
-        db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_WORDS + " (" +
-                COL_WORD_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                COL_ENG_WORD + " TEXT, " +
-                COL_TUR_WORD + " TEXT, " +
+        db.execSQL(SQL_CREATE_TABLE_IF_NOT_EXISTS + TABLE_USERS + " (UserID INTEGER PRIMARY KEY AUTOINCREMENT, UserName TEXT, Password TEXT)");
+        db.execSQL(SQL_CREATE_TABLE_IF_NOT_EXISTS + TABLE_WORDS + " (" +
+                COL_WORD_ID + SQL_PRIMARY_KEY_AUTOINCREMENT +
+                COL_ENG_WORD + SQL_TEXT_COLUMN +
+                COL_TUR_WORD + SQL_TEXT_COLUMN +
                 COL_PICTURE + " TEXT)");
-        db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_SAMPLES + " (" +
-                COL_SAMPLE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+        db.execSQL(SQL_CREATE_TABLE_IF_NOT_EXISTS + TABLE_SAMPLES + " (" +
+                COL_SAMPLE_ID + SQL_PRIMARY_KEY_AUTOINCREMENT +
                 COL_WORD_ID + " INTEGER, " +
                 COL_SAMPLE_TEXT + " TEXT)");
 
-        ensureColumn(db, TABLE_WORDS, COL_STEP_COUNT, "INTEGER DEFAULT 0");
+        ensureColumn(db, TABLE_WORDS, COL_STEP_COUNT, SQL_INTEGER_DEFAULT_0);
         ensureColumn(db, TABLE_WORDS, COL_NEXT_QUIZ_DATE, "LONG DEFAULT 0");
         ensureColumn(db, TABLE_WORDS, COL_CATEGORY, "TEXT DEFAULT '" + DEFAULT_CATEGORY + "'");
-        ensureColumn(db, TABLE_WORDS, COL_TOTAL_ATTEMPTS, "INTEGER DEFAULT 0");
-        ensureColumn(db, TABLE_WORDS, COL_CORRECT_ATTEMPTS, "INTEGER DEFAULT 0");
-        ensureColumn(db, TABLE_SAMPLES, COL_SAMPLE_USED, "INTEGER DEFAULT 0");
+        ensureColumn(db, TABLE_WORDS, COL_TOTAL_ATTEMPTS, SQL_INTEGER_DEFAULT_0);
+        ensureColumn(db, TABLE_WORDS, COL_CORRECT_ATTEMPTS, SQL_INTEGER_DEFAULT_0);
+        ensureColumn(db, TABLE_SAMPLES, COL_SAMPLE_USED, SQL_INTEGER_DEFAULT_0);
         ensureColumn(db, TABLE_USERS, COL_FULL_NAME, "TEXT DEFAULT ''");
         ensureColumn(db, TABLE_USERS, COL_PROFILE_IMAGE, "TEXT DEFAULT ''");
         ensureColumn(db, TABLE_USERS, COL_CREATED_AT, "LONG DEFAULT 0");
@@ -153,7 +181,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         List<String> samples = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(SQL_SELECT + COL_SAMPLE_TEXT + SQL_FROM + TABLE_SAMPLES +
-                        " WHERE " + COL_WORD_ID + "=? ORDER BY " + COL_SAMPLE_ID,
+                        SQL_WHERE + COL_WORD_ID + "=? ORDER BY " + COL_SAMPLE_ID,
                 new String[]{String.valueOf(wordId)});
         if (cursor != null && cursor.moveToFirst()) {
             do {
@@ -181,7 +209,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(SQL_SELECT + COL_SAMPLE_ID + ", " + COL_SAMPLE_TEXT +
                         SQL_FROM + TABLE_SAMPLES +
-                        " WHERE " + COL_WORD_ID + "=? AND " + COL_SAMPLE_USED + "=0" +
+                        SQL_WHERE + COL_WORD_ID + "=? AND " + COL_SAMPLE_USED + "=0" +
                         " ORDER BY " + COL_SAMPLE_ID + " LIMIT 1",
                 new String[]{String.valueOf(wordId)});
         if (cursor != null && cursor.moveToFirst()) {
@@ -214,7 +242,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         // First bring in every overdue review item so missed study days do not skip scheduled repetitions.
         Cursor dueCursor = db.rawQuery(SQL_SELECT_STAR_FROM + TABLE_WORDS +
-                        " WHERE " + COL_NEXT_QUIZ_DATE + " <= ? AND " + COL_STEP_COUNT + " < 6" +
+                        SQL_WHERE + COL_NEXT_QUIZ_DATE + " <= ? AND " + COL_STEP_COUNT + " < 6" +
                         " AND " + COL_TOTAL_ATTEMPTS + " > 0" +
                         " ORDER BY " + COL_NEXT_QUIZ_DATE + " ASC",
                 new String[]{String.valueOf(currentTime)});
@@ -222,7 +250,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         // Then add only unseen/new words according to the configured new-question limit.
         Cursor newCursor = db.rawQuery(SQL_SELECT_STAR_FROM + TABLE_WORDS +
-                        " WHERE " + COL_STEP_COUNT + " = 0 AND " + COL_TOTAL_ATTEMPTS + " = 0" +
+                        SQL_WHERE + COL_STEP_COUNT + " = 0 AND " + COL_TOTAL_ATTEMPTS + " = 0" +
                         " ORDER BY RANDOM() LIMIT ?",
                 new String[]{String.valueOf(Math.max(0, limit))});
         appendWordsFromCursor(words, newCursor);
@@ -251,7 +279,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         List<String> wrongs = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(SQL_SELECT + COL_TUR_WORD + SQL_FROM + TABLE_WORDS +
-                        " WHERE " + COL_WORD_ID + " != ? ORDER BY RANDOM() LIMIT 3",
+                        SQL_WHERE + COL_WORD_ID + " != ? ORDER BY RANDOM() LIMIT 3",
                 new String[]{String.valueOf(correctWordId)});
         if (cursor != null && cursor.moveToFirst()) {
             do {
@@ -266,7 +294,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
 
         Cursor cursor = db.rawQuery(SQL_SELECT + COL_TOTAL_ATTEMPTS + ", " + COL_CORRECT_ATTEMPTS +
-                SQL_FROM + TABLE_WORDS + " WHERE " + COL_WORD_ID + "=?", new String[]{String.valueOf(wordId)});
+                SQL_FROM + TABLE_WORDS + SQL_WHERE + COL_WORD_ID + "=?", new String[]{String.valueOf(wordId)});
         int total = 0, correct = 0;
         if (cursor.moveToFirst()) {
             total = cursor.getInt(0);
@@ -328,7 +356,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public boolean isUsernameTaken(String username) {
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(SQL_SELECT + "1" + SQL_FROM + TABLE_USERS + " WHERE LOWER(" + COL_USER_NAME + ") = LOWER(?) LIMIT 1",
+        Cursor cursor = db.rawQuery(SQL_SELECT + "1" + SQL_FROM + TABLE_USERS + SQL_WHERE_LOWER + COL_USER_NAME + SQL_LOWER_CLOSE_LIMIT_ONE,
                 new String[]{username == null ? "" : username.trim()});
         boolean exists = cursor.moveToFirst();
         cursor.close();
@@ -338,7 +366,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public boolean checkUser(String username, String password) {
         String cleanUsername = username == null ? "" : username.trim();
         SQLiteDatabase db = this.getWritableDatabase();
-        Cursor cursor = db.rawQuery(SQL_SELECT + COL_PASSWORD + SQL_FROM + TABLE_USERS + " WHERE LOWER(" + COL_USER_NAME + ") = LOWER(?) LIMIT 1",
+        Cursor cursor = db.rawQuery(SQL_SELECT + COL_PASSWORD + SQL_FROM + TABLE_USERS + SQL_WHERE_LOWER + COL_USER_NAME + SQL_LOWER_CLOSE_LIMIT_ONE,
                 new String[]{cleanUsername});
         boolean exists = false;
         if (cursor.moveToFirst()) {
@@ -347,7 +375,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             if (exists && !isHashedPassword(storedPassword)) {
                 ContentValues values = new ContentValues();
                 values.put(COL_PASSWORD, hashPassword(password));
-                db.update(TABLE_USERS, values, "LOWER(" + COL_USER_NAME + ") = LOWER(?)", new String[]{cleanUsername});
+                db.update(TABLE_USERS, values, SQL_LOWER_OPEN + COL_USER_NAME + SQL_LOWER_CLOSE, new String[]{cleanUsername});
             }
         }
         cursor.close();
@@ -358,7 +386,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(COL_PASSWORD, hashPassword(newPassword));
-        int result = db.update(TABLE_USERS, contentValues, "LOWER(" + COL_USER_NAME + ") = LOWER(?)", new String[]{username == null ? "" : username.trim()});
+        int result = db.update(TABLE_USERS, contentValues, SQL_LOWER_OPEN + COL_USER_NAME + SQL_LOWER_CLOSE, new String[]{username == null ? "" : username.trim()});
         return result > 0;
     }
 
@@ -366,7 +394,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String cleanUsername = username == null ? "" : username.trim();
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(SQL_SELECT + COL_USER_NAME + ", " + COL_FULL_NAME + ", " + COL_PROFILE_IMAGE +
-                        SQL_FROM + TABLE_USERS + " WHERE LOWER(" + COL_USER_NAME + ") = LOWER(?) LIMIT 1",
+                        SQL_FROM + TABLE_USERS + SQL_WHERE_LOWER + COL_USER_NAME + SQL_LOWER_CLOSE_LIMIT_ONE,
                 new String[]{cleanUsername});
 
         UserProfile profile = null;
@@ -386,7 +414,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(
                 SQL_SELECT + COL_CREATED_AT + SQL_FROM + TABLE_USERS +
-                        " WHERE LOWER(" + COL_USER_NAME + ") = LOWER(?) LIMIT 1",
+                        SQL_WHERE_LOWER + COL_USER_NAME + SQL_LOWER_CLOSE_LIMIT_ONE,
                 new String[]{cleanUsername}
         );
 
@@ -413,14 +441,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COL_CREATED_AT, now);
-        db.update(TABLE_USERS, values, "LOWER(" + COL_USER_NAME + ") = LOWER(?)", new String[]{cleanUsername});
+        db.update(TABLE_USERS, values, SQL_LOWER_OPEN + COL_USER_NAME + SQL_LOWER_CLOSE, new String[]{cleanUsername});
         return now;
     }
 
     public boolean isUsernameTakenByOtherUser(String username, String currentUsername) {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(SQL_SELECT + "1" + SQL_FROM + TABLE_USERS +
-                        " WHERE LOWER(" + COL_USER_NAME + ") = LOWER(?) AND LOWER(" + COL_USER_NAME + ") != LOWER(?) LIMIT 1",
+                        SQL_WHERE_LOWER + COL_USER_NAME + SQL_LOWER_CLOSE +
+                        " AND " + SQL_LOWER_OPEN + COL_USER_NAME + SQL_LOWER_NOT_EQUAL_LIMIT_ONE,
                 new String[]{
                         username == null ? "" : username.trim(),
                         currentUsername == null ? "" : currentUsername.trim()
@@ -441,7 +470,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if (newPassword != null && !newPassword.isEmpty()) {
             contentValues.put(COL_PASSWORD, hashPassword(newPassword));
         }
-        int result = db.update(TABLE_USERS, contentValues, "LOWER(" + COL_USER_NAME + ") = LOWER(?)", new String[]{cleanCurrentUsername});
+        int result = db.update(TABLE_USERS, contentValues, SQL_LOWER_OPEN + COL_USER_NAME + SQL_LOWER_CLOSE, new String[]{cleanCurrentUsername});
         return result > 0;
     }
 
@@ -540,65 +569,65 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
     public void seedDatabase() {
         String[][] seedWords = {
-                {"Apple", "Elma", "Meyveler"}, {"Book", "Kitap", "E\u011fitim"}, {"Computer", "Bilgisayar", "Teknoloji"},
+                {"Apple", "Elma", CATEGORY_MEYVELER}, {"Book", "Kitap", "E\u011fitim"}, {"Computer", "Bilgisayar", CATEGORY_TEKNOLOJI},
                 {"Water", "Su", "Do\u011fa"}, {"School", "Okul", "E\u011fitim"}, {"Pen", "Kalem", "E\u011fitim"},
                 {"Door", "Kap\u0131", "Ev"}, {"Window", "Pencere", "Ev"}, {"Table", "Masa", "Ev"},
-                {"Chair", "Sandalye", "Ev"}, {"Friend", "Arkada\u015f", "Sosyal"}, {"Family", "Aile", "Sosyal"},
+                {"Chair", "Sandalye", "Ev"}, {"Friend", "Arkada\u015f", CATEGORY_SOSYAL}, {"Family", "Aile", CATEGORY_SOSYAL},
                 {"Heart", "Kalp", "V\u00fccut"}, {"Sun", "G\u00fcne\u015f", "Do\u011fa"}, {"Moon", "Ay", "Do\u011fa"},
-                {"Star", "Y\u0131ld\u0131z", "Do\u011fa"}, {"Time", "Zaman", "Soyut"}, {"City", "\u015eehir", "Yer"},
+                {"Star", "Y\u0131ld\u0131z", "Do\u011fa"}, {"Time", CATEGORY_ZAMAN, CATEGORY_SOYUT}, {"City", "\u015eehir", "Yer"},
                 {"Country", "\u00dclke", "Yer"}, {"Money", "Para", "Ekonomi"}, {"Work", "\u0130\u015f", "\u0130\u015f D\u00fcnyas\u0131"},
-                {"Sleep", "Uyku", "Sa\u011fl\u0131k"}, {"Happy", "Mutlu", "Duygular"}, {"Sad", "\u00dczg\u00fcn", "Duygular"},
+                {"Sleep", "Uyku", "Sa\u011fl\u0131k"}, {"Happy", "Mutlu", CATEGORY_DUYGULAR}, {"Sad", "\u00dczg\u00fcn", CATEGORY_DUYGULAR},
                 {"Beautiful", "G\u00fczel", "S\u0131fatlar"}, {"Big", "B\u00fcy\u00fck", "S\u0131fatlar"}, {"Small", "K\u00fc\u00e7\u00fck", "S\u0131fatlar"},
                 {"New", "Yeni", "S\u0131fatlar"}, {"Old", "Eski", "S\u0131fatlar"}, {"Good", "\u0130yi", "S\u0131fatlar"},
                 {"Bad", "K\u00f6t\u00fc", "S\u0131fatlar"}, {"Fast", "H\u0131zl\u0131", "S\u0131fatlar"}, {"Slow", "Yava\u015f", "S\u0131fatlar"},
                 {"Hot", "S\u0131cak", "S\u0131fatlar"}, {"Cold", "So\u011fuk", "S\u0131fatlar"}, {"Easy", "Kolay", "S\u0131fatlar"},
-                {"Hard", "Zor", "Sifatlar"}, {"Read", "Okumak", "Fiiller"}, {"Write", "Yazmak", "Fiiller"},
-                {"Listen", "Dinlemek", "Fiiller"}, {"Speak", "Konu\u015fmak", "Fiiller"}, {"Run", "Ko\u015fmak", "Fiiller"},
-                {"Walk", "Y\u00fcr\u00fcmek", "Fiiller"}, {"Eat", "Yemek Yemek", "Fiiller"}, {"Drink", "\u0130\u00e7mek", "Fiiller"},
-                {"Language", "Dil", "E\u011fitim"}, {"Bird", "Ku\u015f", "Hayvanlar"}, {"Dog", "K\u00f6pek", "Hayvanlar"},
-                {"Cat", "Kedi", "Hayvanlar"}, {"Flower", "\u00c7i\u00e7ek", "Do\u011fa"},
-                {"About", "Hakk\u0131nda", DEFAULT_CATEGORY}, {"Above", "\u00dcst\u00fcnde", "Yer"}, {"After", "Sonra", "Zaman"},
-                {"Again", "Tekrar", "Zaman"}, {"Agent", "Temsilci", "\u0130\u015f D\u00fcnyas\u0131"}, {"Agree", "Kat\u0131lmak", "Fiiller"},
-                {"Alarm", "Alarm", DEFAULT_CATEGORY}, {"Album", "Alb\u00fcm", "Sanat"}, {"Alive", "Canl\u0131", "S\u0131fatlar"},
-                {"Allow", "\u0130zin vermek", "Fiiller"}, {"Alone", "Yaln\u0131z", "S\u0131fatlar"}, {"Along", "Boyunca", "Yer"},
-                {"Angel", "Melek", DEFAULT_CATEGORY}, {"Angry", "K\u0131zg\u0131n", "Duygular"}, {"Arena", "Arena", "Yer"},
-                {"Beach", "Plaj", "Yer"}, {"Begin", "Ba\u015flamak", "Fiiller"}, {"Black", "Siyah", "Renkler"},
-                {"Brave", "Cesur", "S\u0131fatlar"}, {"Bread", "Ekmek", "Yiyecek"}, {"Bring", "Getirmek", "Fiiller"},
-                {"Brown", "Kahverengi", "Renkler"}, {"Build", "\u0130n\u015fa etmek", "Fiiller"}, {"Candy", "\u015eeker", "Yiyecek"},
-                {"Carry", "Ta\u015f\u0131mak", "Fiiller"}, {"Catch", "Yakalamak", "Fiiller"}, {"Cause", "Sebep", "Soyut"},
+                {"Hard", "Zor", CATEGORY_SIFATLAR_ASCII}, {"Read", "Okumak", CATEGORY_FIILLER}, {"Write", "Yazmak", CATEGORY_FIILLER},
+                {"Listen", "Dinlemek", CATEGORY_FIILLER}, {"Speak", "Konu\u015fmak", CATEGORY_FIILLER}, {"Run", "Ko\u015fmak", CATEGORY_FIILLER},
+                {"Walk", "Y\u00fcr\u00fcmek", CATEGORY_FIILLER}, {"Eat", "Yemek Yemek", CATEGORY_FIILLER}, {"Drink", "\u0130\u00e7mek", CATEGORY_FIILLER},
+                {"Language", "Dil", "E\u011fitim"}, {"Bird", "Ku\u015f", CATEGORY_HAYVANLAR}, {"Dog", "K\u00f6pek", CATEGORY_HAYVANLAR},
+                {"Cat", "Kedi", CATEGORY_HAYVANLAR}, {"Flower", "\u00c7i\u00e7ek", "Do\u011fa"},
+                {"About", "Hakk\u0131nda", DEFAULT_CATEGORY}, {"Above", "\u00dcst\u00fcnde", "Yer"}, {"After", "Sonra", CATEGORY_ZAMAN},
+                {"Again", "Tekrar", CATEGORY_ZAMAN}, {"Agent", "Temsilci", "\u0130\u015f D\u00fcnyas\u0131"}, {"Agree", "Kat\u0131lmak", CATEGORY_FIILLER},
+                {"Alarm", "Alarm", DEFAULT_CATEGORY}, {"Album", "Alb\u00fcm", CATEGORY_SANAT}, {"Alive", "Canl\u0131", "S\u0131fatlar"},
+                {"Allow", "\u0130zin vermek", CATEGORY_FIILLER}, {"Alone", "Yaln\u0131z", "S\u0131fatlar"}, {"Along", "Boyunca", "Yer"},
+                {"Angel", "Melek", DEFAULT_CATEGORY}, {"Angry", "K\u0131zg\u0131n", CATEGORY_DUYGULAR}, {"Arena", "Arena", "Yer"},
+                {"Beach", "Plaj", "Yer"}, {"Begin", "Ba\u015flamak", CATEGORY_FIILLER}, {"Black", "Siyah", CATEGORY_RENKLER},
+                {"Brave", "Cesur", "S\u0131fatlar"}, {"Bread", "Ekmek", CATEGORY_YIYECEK}, {"Bring", "Getirmek", CATEGORY_FIILLER},
+                {"Brown", "Kahverengi", CATEGORY_RENKLER}, {"Build", "\u0130n\u015fa etmek", CATEGORY_FIILLER}, {"Candy", "\u015eeker", CATEGORY_YIYECEK},
+                {"Carry", "Ta\u015f\u0131mak", CATEGORY_FIILLER}, {"Catch", "Yakalamak", CATEGORY_FIILLER}, {"Cause", "Sebep", CATEGORY_SOYUT},
                 {"Clean", "Temiz", "S\u0131fatlar"}, {"Clear", "A\u00e7\u0131k", "S\u0131fatlar"}, {"Cloud", "Bulut", "Do\u011fa"},
-                {"Coast", "Sahil", "Yer"}, {"Cover", "\u00d6rtmek", "Fiiller"}, {"Cream", "Krema", "Yiyecek"},
-                {"Dance", "Dans", "Sanat"}, {"Dream", "R\u00fcya", "Soyut"}, {"Drive", "S\u00fcrmek", "Fiiller"},
-                {"Earth", "D\u00fcnya", "Do\u011fa"}, {"Empty", "Bo\u015f", "S\u0131fatlar"}, {"Enjoy", "Keyif almak", "Fiiller"},
-                {"Enter", "Girmek", "Fiiller"}, {"Event", "Etkinlik", DEFAULT_CATEGORY}, {"Every", "Her", DEFAULT_CATEGORY},
-                {"Field", "Alan", "Yer"}, {"Floor", "Zemin", "Ev"}, {"Focus", "Odak", "Soyut"},
-                {"Force", "G\u00fc\u00e7", "Soyut"}, {"Fresh", "Taze", "S\u0131fatlar"}, {"Front", "\u00d6n", "Yer"},
-                {"Fruit", "Meyve", "Yiyecek"}, {"Glass", "Cam", "Ev"}, {"Grace", "Zarafet", "Soyut"},
-                {"Grain", "Tah\u0131l", "Yiyecek"}, {"Green", "Ye\u015fil", "Renkler"}, {"Group", "Grup", "Sosyal"},
-                {"Guard", "Koruma", "\u0130\u015f D\u00fcnyas\u0131"}, {"Guess", "Tahmin", DEFAULT_CATEGORY}, {"Guide", "Rehber", "Sosyal"},
-                {"House", "Ev", "Ev"}, {"Human", "\u0130nsan", "Sosyal"}, {"Ideal", "\u0130deal", "S\u0131fatlar"},
-                {"Image", "G\u00f6rsel", "Teknoloji"}, {"Issue", "Konu", DEFAULT_CATEGORY}, {"Knife", "B\u0131\u00e7ak", "Ev"},
-                {"Laugh", "G\u00fclmek", "Fiiller"}, {"Learn", "\u00d6\u011frenmek", "E\u011fitim"}, {"Light", "I\u015f\u0131k", "Do\u011fa"},
-                {"Local", "Yerel", "S\u0131fatlar"}, {"Magic", "Sihir", "Soyut"}, {"March", "Mart", "Zaman"},
+                {"Coast", "Sahil", "Yer"}, {"Cover", "\u00d6rtmek", CATEGORY_FIILLER}, {"Cream", "Krema", CATEGORY_YIYECEK},
+                {"Dance", "Dans", CATEGORY_SANAT}, {"Dream", "R\u00fcya", CATEGORY_SOYUT}, {"Drive", "S\u00fcrmek", CATEGORY_FIILLER},
+                {"Earth", "D\u00fcnya", "Do\u011fa"}, {"Empty", "Bo\u015f", "S\u0131fatlar"}, {"Enjoy", "Keyif almak", CATEGORY_FIILLER},
+                {"Enter", "Girmek", CATEGORY_FIILLER}, {"Event", "Etkinlik", DEFAULT_CATEGORY}, {"Every", "Her", DEFAULT_CATEGORY},
+                {"Field", "Alan", "Yer"}, {"Floor", "Zemin", "Ev"}, {"Focus", "Odak", CATEGORY_SOYUT},
+                {"Force", "G\u00fc\u00e7", CATEGORY_SOYUT}, {"Fresh", "Taze", "S\u0131fatlar"}, {"Front", "\u00d6n", "Yer"},
+                {"Fruit", "Meyve", CATEGORY_YIYECEK}, {"Glass", "Cam", "Ev"}, {"Grace", "Zarafet", CATEGORY_SOYUT},
+                {"Grain", "Tah\u0131l", CATEGORY_YIYECEK}, {"Green", "Ye\u015fil", CATEGORY_RENKLER}, {"Group", "Grup", CATEGORY_SOSYAL},
+                {"Guard", "Koruma", "\u0130\u015f D\u00fcnyas\u0131"}, {"Guess", "Tahmin", DEFAULT_CATEGORY}, {"Guide", "Rehber", CATEGORY_SOSYAL},
+                {"House", "Ev", "Ev"}, {"Human", "\u0130nsan", CATEGORY_SOSYAL}, {"Ideal", "\u0130deal", "S\u0131fatlar"},
+                {"Image", "G\u00f6rsel", CATEGORY_TEKNOLOJI}, {"Issue", "Konu", DEFAULT_CATEGORY}, {"Knife", "B\u0131\u00e7ak", "Ev"},
+                {"Laugh", "G\u00fclmek", CATEGORY_FIILLER}, {"Learn", "\u00d6\u011frenmek", "E\u011fitim"}, {"Light", "I\u015f\u0131k", "Do\u011fa"},
+                {"Local", "Yerel", "S\u0131fatlar"}, {"Magic", "Sihir", CATEGORY_SOYUT}, {"March", "Mart", CATEGORY_ZAMAN},
                 {"Match", "E\u015fle\u015fme", DEFAULT_CATEGORY}, {"Maybe", "Belki", DEFAULT_CATEGORY}, {"Metal", "Metal", "Malzemeler"},
-                {"Music", "M\u00fczik", "Sanat"}, {"Night", "Gece", "Zaman"}, {"Noise", "G\u00fcr\u00fclt\u00fc", DEFAULT_CATEGORY},
+                {"Music", "M\u00fczik", CATEGORY_SANAT}, {"Night", "Gece", CATEGORY_ZAMAN}, {"Noise", "G\u00fcr\u00fclt\u00fc", DEFAULT_CATEGORY},
                 {"North", "Kuzey", "Yer"}, {"Ocean", "Okyanus", "Do\u011fa"}, {"Offer", "Teklif", "\u0130\u015f D\u00fcnyas\u0131"},
-                {"Order", "Sipari\u015f", "\u0130\u015f D\u00fcnyas\u0131"}, {"Paint", "Boya", "Sanat"}, {"Paper", "Ka\u011f\u0131t", "E\u011fitim"},
-                {"Party", "Parti", "Sosyal"}, {"Peace", "Bar\u0131\u015f", "Soyut"}, {"Phone", "Telefon", "Teknoloji"},
+                {"Order", "Sipari\u015f", "\u0130\u015f D\u00fcnyas\u0131"}, {"Paint", "Boya", CATEGORY_SANAT}, {"Paper", "Ka\u011f\u0131t", "E\u011fitim"},
+                {"Party", "Parti", CATEGORY_SOSYAL}, {"Peace", "Bar\u0131\u015f", CATEGORY_SOYUT}, {"Phone", "Telefon", CATEGORY_TEKNOLOJI},
                 {"Place", "Yer", "Yer"}, {"Plant", "Bitki", "Do\u011fa"}, {"Plate", "Tabak", "Ev"},
-                {"Point", "Nokta", DEFAULT_CATEGORY}, {"Power", "G\u00fc\u00e7", "Soyut"}, {"Price", "Fiyat", "Ekonomi"},
-                {"Pride", "Gurur", "Duygular"}, {"Queen", "Krali\u00e7e", "Sosyal"}, {"Quick", "\u00c7abuk", "S\u0131fatlar"},
-                {"Quiet", "Sessiz", "S\u0131fatlar"}, {"Radio", "Radyo", "Teknoloji"}, {"Reach", "Ula\u015fmak", "Fiiller"},
+                {"Point", "Nokta", DEFAULT_CATEGORY}, {"Power", "G\u00fc\u00e7", CATEGORY_SOYUT}, {"Price", "Fiyat", "Ekonomi"},
+                {"Pride", "Gurur", CATEGORY_DUYGULAR}, {"Queen", "Krali\u00e7e", CATEGORY_SOSYAL}, {"Quick", "\u00c7abuk", "S\u0131fatlar"},
+                {"Quiet", "Sessiz", "S\u0131fatlar"}, {"Radio", "Radyo", CATEGORY_TEKNOLOJI}, {"Reach", "Ula\u015fmak", CATEGORY_FIILLER},
                 {"Right", "Do\u011fru", "S\u0131fatlar"}, {"River", "Nehir", "Do\u011fa"}, {"Round", "Yuvarlak", "\u015eekiller"},
-                {"Serve", "Hizmet etmek", "Fiiller"}, {"Shape", "\u015eekil", "\u015eekiller"}, {"Share", "Payla\u015fmak", "Fiiller"},
-                {"Short", "K\u0131sa", "S\u0131fatlar"}, {"Skill", "Beceri", "E\u011fitim"}, {"Smile", "G\u00fcl\u00fcmseme", "Duygular"},
+                {"Serve", "Hizmet etmek", CATEGORY_FIILLER}, {"Shape", "\u015eekil", "\u015eekiller"}, {"Share", "Payla\u015fmak", CATEGORY_FIILLER},
+                {"Short", "K\u0131sa", "S\u0131fatlar"}, {"Skill", "Beceri", "E\u011fitim"}, {"Smile", "G\u00fcl\u00fcmseme", CATEGORY_DUYGULAR},
                 {"Sound", "Ses", DEFAULT_CATEGORY}, {"South", "G\u00fcney", "Yer"}, {"Space", "Uzay", "Do\u011fa"},
-                {"Sport", "Spor", "Sa\u011fl\u0131k"}, {"Story", "Hikaye", "E\u011fitim"}, {"Sugar", "\u015eeker", "Yiyecek"},
+                {"Sport", "Spor", "Sa\u011fl\u0131k"}, {"Story", "Hikaye", "E\u011fitim"}, {"Sugar", "\u015eeker", CATEGORY_YIYECEK},
                 {"Sweet", "Tatl\u0131", "S\u0131fatlar"}, {"Teach", "\u00d6\u011fretmek", "E\u011fitim"}, {"Theme", "Tema", DEFAULT_CATEGORY},
-                {"Thing", "\u015eey", DEFAULT_CATEGORY}, {"Think", "D\u00fc\u015f\u00fcnmek", "Fiiller"}, {"Touch", "Dokunmak", "Fiiller"},
-                {"Train", "Tren", "Ula\u015f\u0131m"}, {"Trust", "G\u00fcven", "Duygular"}, {"Voice", "Ses", "V\u00fccut"},
-                {"Watch", "Saat", DEFAULT_CATEGORY}, {"White", "Beyaz", "Renkler"}, {"World", "D\u00fcnya", "Yer"},
-                {"Youth", "Gen\u00e7lik", "Sosyal"}
+                {"Thing", "\u015eey", DEFAULT_CATEGORY}, {"Think", "D\u00fc\u015f\u00fcnmek", CATEGORY_FIILLER}, {"Touch", "Dokunmak", CATEGORY_FIILLER},
+                {"Train", "Tren", "Ula\u015f\u0131m"}, {"Trust", "G\u00fcven", CATEGORY_DUYGULAR}, {"Voice", "Ses", "V\u00fccut"},
+                {"Watch", "Saat", DEFAULT_CATEGORY}, {"White", "Beyaz", CATEGORY_RENKLER}, {"World", "D\u00fcnya", "Yer"},
+                {"Youth", "Gen\u00e7lik", CATEGORY_SOSYAL}
         };
 
         SQLiteDatabase dbWrite = this.getWritableDatabase();
@@ -632,7 +661,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private void syncSeedWordSamples(SQLiteDatabase dbWrite, String english, String turkish, String category) {
         Cursor cursor = dbWrite.rawQuery(
                 SQL_SELECT + COL_WORD_ID + SQL_FROM + TABLE_WORDS +
-                        " WHERE lower(trim(" + COL_ENG_WORD + ")) = lower(trim(?)) LIMIT 1",
+                        SQL_WHERE + "lower(trim(" + COL_ENG_WORD + ")) = lower(trim(?)) LIMIT 1",
                 new String[]{english}
         );
         if (!cursor.moveToFirst()) {
@@ -653,7 +682,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     private void insertSeedWordIfMissing(SQLiteDatabase dbWrite, String english, String turkish, String category) {
         Cursor cursor = dbWrite.rawQuery(
-                SQL_SELECT + "1" + SQL_FROM + TABLE_WORDS + " WHERE lower(trim(" + COL_ENG_WORD + ")) = lower(trim(?)) LIMIT 1",
+                SQL_SELECT + "1" + SQL_FROM + TABLE_WORDS + SQL_WHERE + "lower(trim(" + COL_ENG_WORD + ")) = lower(trim(?)) LIMIT 1",
                 new String[]{english}
         );
         boolean exists = cursor.moveToFirst();
@@ -786,7 +815,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         String[] templates;
         switch (cleanCategory) {
-            case "Fiiller":
+            case CATEGORY_FIILLER:
                 templates = new String[]{
                         "I try to %s for a few minutes every day.",
                         "She plans to %s before dinner tonight.",
@@ -796,8 +825,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         "The coach asked us to %s together after school."
                 };
                 return pickTemplates(templates, lowerWord);
-            case "Sifatlar":
-            case "Sıfatlar":
+            case CATEGORY_SIFATLAR_ASCII:
+            case CATEGORY_SIFATLAR:
                 templates = new String[]{
                         "The room felt %s after the windows were opened.",
                         "She chose a %s style for her project.",
@@ -807,7 +836,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         "The teacher gave a %s example to explain the idea."
                 };
                 return pickTemplates(templates, lowerWord);
-            case "Renkler":
+            case CATEGORY_RENKLER:
                 templates = new String[]{
                         "She painted the wall %s before the guests arrived.",
                         "He wore a %s shirt to the concert.",
@@ -817,7 +846,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         "A %s light flashed near the door."
                 };
                 return pickTemplates(templates, lowerWord);
-            case "Hayvanlar":
+            case CATEGORY_HAYVANLAR:
                 templates = new String[]{
                         "The %s moved quietly across the garden.",
                         "We saw a %s near the lake this morning.",
@@ -867,7 +896,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         "The presenter used a photo to explain %s."
                 };
                 return pickTemplates(templates, lowerWord);
-            case "Yiyecek":
+            case CATEGORY_YIYECEK:
                 templates = new String[]{
                         "She bought fresh %s from the market.",
                         "We served %s with tea in the afternoon.",
@@ -887,7 +916,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         "Learning %s made the topic easier to understand."
                 };
                 return pickTemplates(templates, lowerWord);
-            case "Doğa":
+            case CATEGORY_DOGA:
                 templates = new String[]{
                         "We watched the %s during our trip.",
                         "The %s changed the view outside the window.",
@@ -907,7 +936,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         "The new %s changed the look of the house."
                 };
                 return pickTemplates(templates, lowerWord);
-            case "Eğitim":
+            case CATEGORY_EGITIM:
             case "Okul":
                 templates = new String[]{
                         "The teacher wrote %s on the board.",
@@ -928,7 +957,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         "The department meeting briefly mentioned %s."
                 };
                 return pickTemplates(templates, lowerWord);
-            case "İş Dünyası":
+            case CATEGORY_IS_DUNYASI:
             case "Ofis":
                 templates = new String[]{
                         "The manager discussed the %s during the meeting.",
@@ -989,7 +1018,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         "Everyone asked how to find the %s."
                 };
                 return pickTemplates(templates, lowerWord);
-            case "Duygular":
+            case CATEGORY_DUYGULAR:
                 templates = new String[]{
                         "The news brought a feeling of %s to the room.",
                         "You could see %s on his face.",
@@ -1019,7 +1048,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         "The discussion connected %s with social change."
                 };
                 return pickTemplates(templates, lowerWord);
-            case "Teknoloji":
+            case CATEGORY_TEKNOLOJI:
             case "Yazılım":
                 templates = new String[]{
                         "The new %s worked faster than the old one.",
