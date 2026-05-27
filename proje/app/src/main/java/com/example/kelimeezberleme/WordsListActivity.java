@@ -73,6 +73,7 @@ public class WordsListActivity extends BottomNavActivity {
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
+                // Spinner selection is restored from saved state, so no action is needed here.
             }
         });
     }
