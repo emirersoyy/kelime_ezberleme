@@ -21,7 +21,8 @@ final class WordleWordBank {
         if (pool.isEmpty()) {
             return null;
         }
-        return pool.get(RANDOM.nextInt(pool.size())).toUpperCase(Locale.US);
+        int randomIndex = RANDOM.nextInt(pool.size());
+        return pool.get(randomIndex).toUpperCase(Locale.US);
     }
 
     static boolean containsGuess(List<Word> allWords, String guess) {
