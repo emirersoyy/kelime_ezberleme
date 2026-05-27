@@ -1107,12 +1107,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     private String[] pickTemplates(String[] templates, String value) {
-        int sampleCount = Math.abs(value.hashCode()) % 2 == 0 ? 1 : 2;
+        String safeValue = value == null ? "" : value;
+        int sampleCount = safeValue.length() % 2 == 0 ? 1 : 2;
         String[] samples = new String[sampleCount];
-        int start = Math.abs(value.hashCode()) % templates.length;
+        int start = safeValue.length() % templates.length;
         for (int i = 0; i < samples.length; i++) {
             String template = templates[(start + (i * 2)) % templates.length];
-            samples[i] = String.format(Locale.US, template, value);
+            samples[i] = String.format(Locale.US, template, safeValue);
         }
         return samples;
     }

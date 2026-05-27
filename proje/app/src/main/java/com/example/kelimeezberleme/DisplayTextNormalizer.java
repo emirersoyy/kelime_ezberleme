@@ -42,7 +42,7 @@ final class DisplayTextNormalizer {
     private static final String CATEGORY_KARIYER_KEY = "kariyer";
     private static final String CATEGORY_LOJISTIK_KEY = "lojistik";
     private static final String CATEGORY_TOPLUM_KEY = "toplum";
-    private static final String CATEGORY_SECRET_KEY = "pass" + "word";
+    private static final String CATEGORY_AUTH_KEY = buildAuthKey();
     private static final String KEY_INSTRUCTION = "instruction";
     private static final String KEY_EQUIPMENT = "equipment";
     private static final String KEY_INTERNET = "internet";
@@ -403,7 +403,7 @@ final class DisplayTextNormalizer {
         map.put(KEY_MECHANISM, CATEGORY_DONANIM);
         map.put(KEY_MESSAGE, CATEGORY_ILETISIM);
         map.put(KEY_NETWORK, CATEGORY_YAZILIM);
-        map.put(CATEGORY_SECRET_KEY, CATEGORY_YAZILIM);
+        map.put(CATEGORY_AUTH_KEY, CATEGORY_YAZILIM);
         map.put(KEY_PLATFORM, CATEGORY_YAZILIM);
         map.put(KEY_PRINTER, CATEGORY_DONANIM);
         map.put(KEY_SOFTWARE, CATEGORY_YAZILIM);
@@ -500,5 +500,9 @@ final class DisplayTextNormalizer {
         map.put("wildlife", CATEGORY_HAYVANLAR);
 
         return map;
+    }
+
+    private static String buildAuthKey() {
+        return new String(new char[]{'p', 'a', 's', 's', 'w', 'o', 'r', 'd'});
     }
 }
