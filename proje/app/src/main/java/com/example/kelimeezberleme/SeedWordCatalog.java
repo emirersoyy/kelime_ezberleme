@@ -236,7 +236,12 @@ final class SeedWordCatalog {
     }
     private static String drawableNameForWord(String english) {
         String clean = english == null ? "" : english.trim().toLowerCase(Locale.US).replaceAll("[^a-z0-9]+", "_");
-        clean = clean.replaceAll("^_+|_+$", "");
+        while (clean.startsWith("_")) {
+            clean = clean.substring(1);
+        }
+        while (clean.endsWith("_")) {
+            clean = clean.substring(0, clean.length() - 1);
+        }
         if (clean.isEmpty()) clean = "general";
         return "word_img_" + clean;
     }

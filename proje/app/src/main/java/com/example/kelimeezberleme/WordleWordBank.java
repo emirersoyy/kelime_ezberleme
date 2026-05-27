@@ -4,12 +4,10 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 
 final class WordleWordBank {
-    private static final Random RANDOM = new Random();
-
     private WordleWordBank() {
     }
 
@@ -21,7 +19,7 @@ final class WordleWordBank {
         if (pool.isEmpty()) {
             return null;
         }
-        return pool.get(RANDOM.nextInt(pool.size())).toUpperCase(Locale.US);
+        return pool.get(ThreadLocalRandom.current().nextInt(pool.size())).toUpperCase(Locale.US);
     }
 
     static boolean containsGuess(List<Word> allWords, String guess) {

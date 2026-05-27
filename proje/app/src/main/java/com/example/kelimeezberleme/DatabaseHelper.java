@@ -19,7 +19,7 @@ import javax.crypto.spec.PBEKeySpec;
 public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String DATABASE_NAME = "KelimeEzberleme.db";
     public static final int DATABASE_VERSION = 14;
-    private static final String PASSWORD_HASH_PREFIX = "pbkdf2";
+    private static final String PBKDF2_PREFIX = "pbkdf2";
     private static final int PASSWORD_HASH_ITERATIONS = 120000;
     private static final int PASSWORD_SALT_BYTES = 16;
     private static final int PASSWORD_KEY_BITS = 256;
@@ -504,7 +504,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             byte[] salt = new byte[PASSWORD_SALT_BYTES];
             SECURE_RANDOM.nextBytes(salt);
             byte[] hash = pbkdf2(password == null ? "" : password, salt, PASSWORD_HASH_ITERATIONS);
-            return PASSWORD_HASH_PREFIX + ":" + PASSWORD_HASH_ITERATIONS + ":" +
+            return PBKDF2_PREFIX + ":" + PASSWORD_HASH_ITERATIONS + ":" +
                     Base64.encodeToString(salt, Base64.NO_WRAP) + ":" +
                     Base64.encodeToString(hash, Base64.NO_WRAP);
         } catch (Exception e) {
@@ -532,7 +532,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     private boolean isHashedPassword(String storedPassword) {
-        return storedPassword != null && storedPassword.startsWith(PASSWORD_HASH_PREFIX + ":");
+        return storedPassword != null && storedPassword.startsWith(PBKDF2_PREFIX + ":");
     }
 
     private byte[] pbkdf2(String password, byte[] salt, int iterations) throws Exception {
