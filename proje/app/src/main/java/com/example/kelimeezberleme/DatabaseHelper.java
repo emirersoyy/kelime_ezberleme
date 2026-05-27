@@ -23,6 +23,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final int PASSWORD_HASH_ITERATIONS = 120000;
     private static final int PASSWORD_SALT_BYTES = 16;
     private static final int PASSWORD_KEY_BITS = 256;
+    private static final String SQL_SELECT = "SELECT ";
+    private static final String SQL_FROM = " FROM ";
+    private static final String SQL_SELECT_STAR_FROM = "SELECT * FROM ";
+    private static final String DEFAULT_CATEGORY = "Genel";
 
     public static final String TABLE_USERS = "Users";
     public static final String COL_USER_ID = "UserID";
@@ -62,7 +66,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 COL_PICTURE + " TEXT, " +
                 COL_STEP_COUNT + " INTEGER DEFAULT 0, " +
                 COL_NEXT_QUIZ_DATE + " LONG DEFAULT 0, " +
-                COL_CATEGORY + " TEXT DEFAULT 'Genel', " +
+                COL_CATEGORY + " TEXT DEFAULT '" + DEFAULT_CATEGORY + "', " +
                 COL_TOTAL_ATTEMPTS + " INTEGER DEFAULT 0, " +
                 COL_CORRECT_ATTEMPTS + " INTEGER DEFAULT 0)");
         db.execSQL("CREATE TABLE " + TABLE_SAMPLES + " (" +
@@ -92,7 +96,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         ensureColumn(db, TABLE_WORDS, COL_STEP_COUNT, "INTEGER DEFAULT 0");
         ensureColumn(db, TABLE_WORDS, COL_NEXT_QUIZ_DATE, "LONG DEFAULT 0");
-        ensureColumn(db, TABLE_WORDS, COL_CATEGORY, "TEXT DEFAULT 'Genel'");
+        ensureColumn(db, TABLE_WORDS, COL_CATEGORY, "TEXT DEFAULT '" + DEFAULT_CATEGORY + "'");
         ensureColumn(db, TABLE_WORDS, COL_TOTAL_ATTEMPTS, "INTEGER DEFAULT 0");
         ensureColumn(db, TABLE_WORDS, COL_CORRECT_ATTEMPTS, "INTEGER DEFAULT 0");
         ensureColumn(db, TABLE_SAMPLES, COL_SAMPLE_USED, "INTEGER DEFAULT 0");
@@ -127,7 +131,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         contentValues.put(COL_ENG_WORD, eng);
         contentValues.put(COL_TUR_WORD, tur);
         contentValues.put(COL_PICTURE, picPath);
-        contentValues.put(COL_CATEGORY, (category == null || category.isEmpty()) ? "Genel" : category);
+        contentValues.put(COL_CATEGORY, (category == null || category.isEmpty()) ? DEFAULT_CATEGORY : category);
         contentValues.put(COL_STEP_COUNT, 0);
         contentValues.put(COL_NEXT_QUIZ_DATE, System.currentTimeMillis());
         contentValues.put(COL_TOTAL_ATTEMPTS, 0);
@@ -148,7 +152,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public List<String> getSamplesForWord(int wordId) {
         List<String> samples = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT " + COL_SAMPLE_TEXT + " FROM " + TABLE_SAMPLES +
+        Cursor cursor = db.rawQuery(SQL_SELECT + COL_SAMPLE_TEXT + SQL_FROM + TABLE_SAMPLES +
                         " WHERE " + COL_WORD_ID + "=? ORDER BY " + COL_SAMPLE_ID,
                 new String[]{String.valueOf(wordId)});
         if (cursor != null && cursor.moveToFirst()) {
@@ -175,8 +179,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public SampleSentence getNextUnusedSampleForWord(int wordId) {
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT " + COL_SAMPLE_ID + ", " + COL_SAMPLE_TEXT +
-                        " FROM " + TABLE_SAMPLES +
+        Cursor cursor = db.rawQuery(SQL_SELECT + COL_SAMPLE_ID + ", " + COL_SAMPLE_TEXT +
+                        SQL_FROM + TABLE_SAMPLES +
                         " WHERE " + COL_WORD_ID + "=? AND " + COL_SAMPLE_USED + "=0" +
                         " ORDER BY " + COL_SAMPLE_ID + " LIMIT 1",
                 new String[]{String.valueOf(wordId)});
@@ -209,7 +213,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         long currentTime = System.currentTimeMillis();
 
         // First bring in every overdue review item so missed study days do not skip scheduled repetitions.
-        Cursor dueCursor = db.rawQuery("SELECT * FROM " + TABLE_WORDS +
+        Cursor dueCursor = db.rawQuery(SQL_SELECT_STAR_FROM + TABLE_WORDS +
                         " WHERE " + COL_NEXT_QUIZ_DATE + " <= ? AND " + COL_STEP_COUNT + " < 6" +
                         " AND " + COL_TOTAL_ATTEMPTS + " > 0" +
                         " ORDER BY " + COL_NEXT_QUIZ_DATE + " ASC",
@@ -217,7 +221,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         appendWordsFromCursor(words, dueCursor);
 
         // Then add only unseen/new words according to the configured new-question limit.
-        Cursor newCursor = db.rawQuery("SELECT * FROM " + TABLE_WORDS +
+        Cursor newCursor = db.rawQuery(SQL_SELECT_STAR_FROM + TABLE_WORDS +
                         " WHERE " + COL_STEP_COUNT + " = 0 AND " + COL_TOTAL_ATTEMPTS + " = 0" +
                         " ORDER BY RANDOM() LIMIT ?",
                 new String[]{String.valueOf(Math.max(0, limit))});
@@ -246,7 +250,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public List<String> getRandomWrongAnswers(int correctWordId) {
         List<String> wrongs = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT " + COL_TUR_WORD + " FROM " + TABLE_WORDS +
+        Cursor cursor = db.rawQuery(SQL_SELECT + COL_TUR_WORD + SQL_FROM + TABLE_WORDS +
                         " WHERE " + COL_WORD_ID + " != ? ORDER BY RANDOM() LIMIT 3",
                 new String[]{String.valueOf(correctWordId)});
         if (cursor != null && cursor.moveToFirst()) {
@@ -261,8 +265,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void updateWordProgress(int wordId, int currentStep, boolean isCorrect) {
         SQLiteDatabase db = this.getWritableDatabase();
 
-        Cursor cursor = db.rawQuery("SELECT " + COL_TOTAL_ATTEMPTS + ", " + COL_CORRECT_ATTEMPTS +
-                " FROM " + TABLE_WORDS + " WHERE " + COL_WORD_ID + "=?", new String[]{String.valueOf(wordId)});
+        Cursor cursor = db.rawQuery(SQL_SELECT + COL_TOTAL_ATTEMPTS + ", " + COL_CORRECT_ATTEMPTS +
+                SQL_FROM + TABLE_WORDS + " WHERE " + COL_WORD_ID + "=?", new String[]{String.valueOf(wordId)});
         int total = 0, correct = 0;
         if (cursor.moveToFirst()) {
             total = cursor.getInt(0);
@@ -324,7 +328,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public boolean isUsernameTaken(String username) {
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT 1 FROM " + TABLE_USERS + " WHERE LOWER(" + COL_USER_NAME + ") = LOWER(?) LIMIT 1",
+        Cursor cursor = db.rawQuery(SQL_SELECT + "1" + SQL_FROM + TABLE_USERS + " WHERE LOWER(" + COL_USER_NAME + ") = LOWER(?) LIMIT 1",
                 new String[]{username == null ? "" : username.trim()});
         boolean exists = cursor.moveToFirst();
         cursor.close();
@@ -334,7 +338,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public boolean checkUser(String username, String password) {
         String cleanUsername = username == null ? "" : username.trim();
         SQLiteDatabase db = this.getWritableDatabase();
-        Cursor cursor = db.rawQuery("SELECT " + COL_PASSWORD + " FROM " + TABLE_USERS + " WHERE LOWER(" + COL_USER_NAME + ") = LOWER(?) LIMIT 1",
+        Cursor cursor = db.rawQuery(SQL_SELECT + COL_PASSWORD + SQL_FROM + TABLE_USERS + " WHERE LOWER(" + COL_USER_NAME + ") = LOWER(?) LIMIT 1",
                 new String[]{cleanUsername});
         boolean exists = false;
         if (cursor.moveToFirst()) {
@@ -361,8 +365,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public UserProfile getUserProfile(String username) {
         String cleanUsername = username == null ? "" : username.trim();
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT " + COL_USER_NAME + ", " + COL_FULL_NAME + ", " + COL_PROFILE_IMAGE +
-                        " FROM " + TABLE_USERS + " WHERE LOWER(" + COL_USER_NAME + ") = LOWER(?) LIMIT 1",
+        Cursor cursor = db.rawQuery(SQL_SELECT + COL_USER_NAME + ", " + COL_FULL_NAME + ", " + COL_PROFILE_IMAGE +
+                        SQL_FROM + TABLE_USERS + " WHERE LOWER(" + COL_USER_NAME + ") = LOWER(?) LIMIT 1",
                 new String[]{cleanUsername});
 
         UserProfile profile = null;
@@ -381,7 +385,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(
-                "SELECT " + COL_CREATED_AT + " FROM " + TABLE_USERS +
+                SQL_SELECT + COL_CREATED_AT + SQL_FROM + TABLE_USERS +
                         " WHERE LOWER(" + COL_USER_NAME + ") = LOWER(?) LIMIT 1",
                 new String[]{cleanUsername}
         );
@@ -415,7 +419,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public boolean isUsernameTakenByOtherUser(String username, String currentUsername) {
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT 1 FROM " + TABLE_USERS +
+        Cursor cursor = db.rawQuery(SQL_SELECT + "1" + SQL_FROM + TABLE_USERS +
                         " WHERE LOWER(" + COL_USER_NAME + ") = LOWER(?) AND LOWER(" + COL_USER_NAME + ") != LOWER(?) LIMIT 1",
                 new String[]{
                         username == null ? "" : username.trim(),
@@ -512,7 +516,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public List<Word> getAllWords() {
         List<Word> words = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_WORDS, null);
+        Cursor cursor = db.rawQuery(SQL_SELECT_STAR_FROM + TABLE_WORDS, null);
         if (cursor != null && cursor.moveToFirst()) {
             do {
                 words.add(new Word(cursor.getInt(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), 
@@ -553,11 +557,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 {"Walk", "Y\u00fcr\u00fcmek", "Fiiller"}, {"Eat", "Yemek Yemek", "Fiiller"}, {"Drink", "\u0130\u00e7mek", "Fiiller"},
                 {"Language", "Dil", "E\u011fitim"}, {"Bird", "Ku\u015f", "Hayvanlar"}, {"Dog", "K\u00f6pek", "Hayvanlar"},
                 {"Cat", "Kedi", "Hayvanlar"}, {"Flower", "\u00c7i\u00e7ek", "Do\u011fa"},
-                {"About", "Hakk\u0131nda", "Genel"}, {"Above", "\u00dcst\u00fcnde", "Yer"}, {"After", "Sonra", "Zaman"},
+                {"About", "Hakk\u0131nda", DEFAULT_CATEGORY}, {"Above", "\u00dcst\u00fcnde", "Yer"}, {"After", "Sonra", "Zaman"},
                 {"Again", "Tekrar", "Zaman"}, {"Agent", "Temsilci", "\u0130\u015f D\u00fcnyas\u0131"}, {"Agree", "Kat\u0131lmak", "Fiiller"},
-                {"Alarm", "Alarm", "Genel"}, {"Album", "Alb\u00fcm", "Sanat"}, {"Alive", "Canl\u0131", "S\u0131fatlar"},
+                {"Alarm", "Alarm", DEFAULT_CATEGORY}, {"Album", "Alb\u00fcm", "Sanat"}, {"Alive", "Canl\u0131", "S\u0131fatlar"},
                 {"Allow", "\u0130zin vermek", "Fiiller"}, {"Alone", "Yaln\u0131z", "S\u0131fatlar"}, {"Along", "Boyunca", "Yer"},
-                {"Angel", "Melek", "Genel"}, {"Angry", "K\u0131zg\u0131n", "Duygular"}, {"Arena", "Arena", "Yer"},
+                {"Angel", "Melek", DEFAULT_CATEGORY}, {"Angry", "K\u0131zg\u0131n", "Duygular"}, {"Arena", "Arena", "Yer"},
                 {"Beach", "Plaj", "Yer"}, {"Begin", "Ba\u015flamak", "Fiiller"}, {"Black", "Siyah", "Renkler"},
                 {"Brave", "Cesur", "S\u0131fatlar"}, {"Bread", "Ekmek", "Yiyecek"}, {"Bring", "Getirmek", "Fiiller"},
                 {"Brown", "Kahverengi", "Renkler"}, {"Build", "\u0130n\u015fa etmek", "Fiiller"}, {"Candy", "\u015eeker", "Yiyecek"},
@@ -566,34 +570,34 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 {"Coast", "Sahil", "Yer"}, {"Cover", "\u00d6rtmek", "Fiiller"}, {"Cream", "Krema", "Yiyecek"},
                 {"Dance", "Dans", "Sanat"}, {"Dream", "R\u00fcya", "Soyut"}, {"Drive", "S\u00fcrmek", "Fiiller"},
                 {"Earth", "D\u00fcnya", "Do\u011fa"}, {"Empty", "Bo\u015f", "S\u0131fatlar"}, {"Enjoy", "Keyif almak", "Fiiller"},
-                {"Enter", "Girmek", "Fiiller"}, {"Event", "Etkinlik", "Genel"}, {"Every", "Her", "Genel"},
+                {"Enter", "Girmek", "Fiiller"}, {"Event", "Etkinlik", DEFAULT_CATEGORY}, {"Every", "Her", DEFAULT_CATEGORY},
                 {"Field", "Alan", "Yer"}, {"Floor", "Zemin", "Ev"}, {"Focus", "Odak", "Soyut"},
                 {"Force", "G\u00fc\u00e7", "Soyut"}, {"Fresh", "Taze", "S\u0131fatlar"}, {"Front", "\u00d6n", "Yer"},
                 {"Fruit", "Meyve", "Yiyecek"}, {"Glass", "Cam", "Ev"}, {"Grace", "Zarafet", "Soyut"},
                 {"Grain", "Tah\u0131l", "Yiyecek"}, {"Green", "Ye\u015fil", "Renkler"}, {"Group", "Grup", "Sosyal"},
-                {"Guard", "Koruma", "\u0130\u015f D\u00fcnyas\u0131"}, {"Guess", "Tahmin", "Genel"}, {"Guide", "Rehber", "Sosyal"},
+                {"Guard", "Koruma", "\u0130\u015f D\u00fcnyas\u0131"}, {"Guess", "Tahmin", DEFAULT_CATEGORY}, {"Guide", "Rehber", "Sosyal"},
                 {"House", "Ev", "Ev"}, {"Human", "\u0130nsan", "Sosyal"}, {"Ideal", "\u0130deal", "S\u0131fatlar"},
-                {"Image", "G\u00f6rsel", "Teknoloji"}, {"Issue", "Konu", "Genel"}, {"Knife", "B\u0131\u00e7ak", "Ev"},
+                {"Image", "G\u00f6rsel", "Teknoloji"}, {"Issue", "Konu", DEFAULT_CATEGORY}, {"Knife", "B\u0131\u00e7ak", "Ev"},
                 {"Laugh", "G\u00fclmek", "Fiiller"}, {"Learn", "\u00d6\u011frenmek", "E\u011fitim"}, {"Light", "I\u015f\u0131k", "Do\u011fa"},
                 {"Local", "Yerel", "S\u0131fatlar"}, {"Magic", "Sihir", "Soyut"}, {"March", "Mart", "Zaman"},
-                {"Match", "E\u015fle\u015fme", "Genel"}, {"Maybe", "Belki", "Genel"}, {"Metal", "Metal", "Malzemeler"},
-                {"Music", "M\u00fczik", "Sanat"}, {"Night", "Gece", "Zaman"}, {"Noise", "G\u00fcr\u00fclt\u00fc", "Genel"},
+                {"Match", "E\u015fle\u015fme", DEFAULT_CATEGORY}, {"Maybe", "Belki", DEFAULT_CATEGORY}, {"Metal", "Metal", "Malzemeler"},
+                {"Music", "M\u00fczik", "Sanat"}, {"Night", "Gece", "Zaman"}, {"Noise", "G\u00fcr\u00fclt\u00fc", DEFAULT_CATEGORY},
                 {"North", "Kuzey", "Yer"}, {"Ocean", "Okyanus", "Do\u011fa"}, {"Offer", "Teklif", "\u0130\u015f D\u00fcnyas\u0131"},
                 {"Order", "Sipari\u015f", "\u0130\u015f D\u00fcnyas\u0131"}, {"Paint", "Boya", "Sanat"}, {"Paper", "Ka\u011f\u0131t", "E\u011fitim"},
                 {"Party", "Parti", "Sosyal"}, {"Peace", "Bar\u0131\u015f", "Soyut"}, {"Phone", "Telefon", "Teknoloji"},
                 {"Place", "Yer", "Yer"}, {"Plant", "Bitki", "Do\u011fa"}, {"Plate", "Tabak", "Ev"},
-                {"Point", "Nokta", "Genel"}, {"Power", "G\u00fc\u00e7", "Soyut"}, {"Price", "Fiyat", "Ekonomi"},
+                {"Point", "Nokta", DEFAULT_CATEGORY}, {"Power", "G\u00fc\u00e7", "Soyut"}, {"Price", "Fiyat", "Ekonomi"},
                 {"Pride", "Gurur", "Duygular"}, {"Queen", "Krali\u00e7e", "Sosyal"}, {"Quick", "\u00c7abuk", "S\u0131fatlar"},
                 {"Quiet", "Sessiz", "S\u0131fatlar"}, {"Radio", "Radyo", "Teknoloji"}, {"Reach", "Ula\u015fmak", "Fiiller"},
                 {"Right", "Do\u011fru", "S\u0131fatlar"}, {"River", "Nehir", "Do\u011fa"}, {"Round", "Yuvarlak", "\u015eekiller"},
                 {"Serve", "Hizmet etmek", "Fiiller"}, {"Shape", "\u015eekil", "\u015eekiller"}, {"Share", "Payla\u015fmak", "Fiiller"},
                 {"Short", "K\u0131sa", "S\u0131fatlar"}, {"Skill", "Beceri", "E\u011fitim"}, {"Smile", "G\u00fcl\u00fcmseme", "Duygular"},
-                {"Sound", "Ses", "Genel"}, {"South", "G\u00fcney", "Yer"}, {"Space", "Uzay", "Do\u011fa"},
+                {"Sound", "Ses", DEFAULT_CATEGORY}, {"South", "G\u00fcney", "Yer"}, {"Space", "Uzay", "Do\u011fa"},
                 {"Sport", "Spor", "Sa\u011fl\u0131k"}, {"Story", "Hikaye", "E\u011fitim"}, {"Sugar", "\u015eeker", "Yiyecek"},
-                {"Sweet", "Tatl\u0131", "S\u0131fatlar"}, {"Teach", "\u00d6\u011fretmek", "E\u011fitim"}, {"Theme", "Tema", "Genel"},
-                {"Thing", "\u015eey", "Genel"}, {"Think", "D\u00fc\u015f\u00fcnmek", "Fiiller"}, {"Touch", "Dokunmak", "Fiiller"},
+                {"Sweet", "Tatl\u0131", "S\u0131fatlar"}, {"Teach", "\u00d6\u011fretmek", "E\u011fitim"}, {"Theme", "Tema", DEFAULT_CATEGORY},
+                {"Thing", "\u015eey", DEFAULT_CATEGORY}, {"Think", "D\u00fc\u015f\u00fcnmek", "Fiiller"}, {"Touch", "Dokunmak", "Fiiller"},
                 {"Train", "Tren", "Ula\u015f\u0131m"}, {"Trust", "G\u00fcven", "Duygular"}, {"Voice", "Ses", "V\u00fccut"},
-                {"Watch", "Saat", "Genel"}, {"White", "Beyaz", "Renkler"}, {"World", "D\u00fcnya", "Yer"},
+                {"Watch", "Saat", DEFAULT_CATEGORY}, {"White", "Beyaz", "Renkler"}, {"World", "D\u00fcnya", "Yer"},
                 {"Youth", "Gen\u00e7lik", "Sosyal"}
         };
 
@@ -627,7 +631,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     private void syncSeedWordSamples(SQLiteDatabase dbWrite, String english, String turkish, String category) {
         Cursor cursor = dbWrite.rawQuery(
-                "SELECT " + COL_WORD_ID + " FROM " + TABLE_WORDS +
+                SQL_SELECT + COL_WORD_ID + SQL_FROM + TABLE_WORDS +
                         " WHERE lower(trim(" + COL_ENG_WORD + ")) = lower(trim(?)) LIMIT 1",
                 new String[]{english}
         );
@@ -649,7 +653,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     private void insertSeedWordIfMissing(SQLiteDatabase dbWrite, String english, String turkish, String category) {
         Cursor cursor = dbWrite.rawQuery(
-                "SELECT 1 FROM " + TABLE_WORDS + " WHERE lower(trim(" + COL_ENG_WORD + ")) = lower(trim(?)) LIMIT 1",
+                SQL_SELECT + "1" + SQL_FROM + TABLE_WORDS + " WHERE lower(trim(" + COL_ENG_WORD + ")) = lower(trim(?)) LIMIT 1",
                 new String[]{english}
         );
         boolean exists = cursor.moveToFirst();
@@ -1046,7 +1050,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         "The clinic used %s as part of the treatment plan."
                 };
                 return pickTemplates(templates, lowerWord);
-            case "Genel":
+            case DEFAULT_CATEGORY:
             default:
                 templates = new String[]{
                         "We heard the word %s in today's lesson.",
