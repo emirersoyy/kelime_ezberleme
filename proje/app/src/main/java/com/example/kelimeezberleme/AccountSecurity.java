@@ -25,24 +25,70 @@ public final class AccountSecurity {
         if (pass.length() < 8 || pass.length() > 64) {
             return "Şifre 8-64 karakter arasında olmalıdır";
         }
-        if (pass.matches(".*\\s.*")) {
+        if (containsWhitespace(pass)) {
             return "Şifre boşluk içermemelidir";
         }
         if (!cleanUsername.isEmpty() && pass.toLowerCase().contains(cleanUsername)) {
             return "Şifre kullanıcı adınızı içermemelidir";
         }
-        if (!pass.matches(".*[a-z].*")) {
+        if (!containsLowerCase(pass)) {
             return "Şifre en az bir küçük harf içermelidir";
         }
-        if (!pass.matches(".*[A-Z].*")) {
+        if (!containsUpperCase(pass)) {
             return "Şifre en az bir büyük harf içermelidir";
         }
-        if (!pass.matches(".*\\d.*")) {
+        if (!containsDigit(pass)) {
             return "Şifre en az bir rakam içermelidir";
         }
-        if (!pass.matches(".*[^A-Za-z0-9].*")) {
+        if (!containsSpecialCharacter(pass)) {
             return "Şifre en az bir özel karakter içermelidir";
         }
         return null;
+    }
+
+    private static boolean containsWhitespace(String value) {
+        for (int i = 0; i < value.length(); i++) {
+            if (Character.isWhitespace(value.charAt(i))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean containsLowerCase(String value) {
+        for (int i = 0; i < value.length(); i++) {
+            if (Character.isLowerCase(value.charAt(i))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean containsUpperCase(String value) {
+        for (int i = 0; i < value.length(); i++) {
+            if (Character.isUpperCase(value.charAt(i))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean containsDigit(String value) {
+        for (int i = 0; i < value.length(); i++) {
+            if (Character.isDigit(value.charAt(i))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean containsSpecialCharacter(String value) {
+        for (int i = 0; i < value.length(); i++) {
+            char c = value.charAt(i);
+            if (!Character.isLetterOrDigit(c)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

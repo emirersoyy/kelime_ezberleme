@@ -73,6 +73,9 @@ public class AccountActivity extends BottomNavActivity {
     private static final int ANALYSIS_PREFETCH_DISTANCE = 20;
     private static final int ANALYSIS_KEEP_BEFORE = 225;
     private static final int ANALYSIS_KEEP_AFTER = 175;
+    private static final String EMPTY_ANALYSIS_MESSAGE = "Gösterilecek veri yok.";
+    private static final String LEVEL_LABEL_PREFIX = "Seviye ";
+    private static final String WORD_COUNT_SUFFIX = " kelime";
     private DatabaseHelper db;
     private ImageView imgAccountProfile;
     private TextView tvCurrentUser;
@@ -290,20 +293,49 @@ public class AccountActivity extends BottomNavActivity {
     }
 
     private void refreshAnalysisContent() {
+        clearAnalysisContainers();
+
+        List<Word> words = getMergedAnalysisWords();
+        if (words.isEmpty()) {
+            addEmbeddedEmptyState(EMPTY_ANALYSIS_MESSAGE);
+            return;
+        }
+
+        List<Word> sortedWords = new ArrayList<>(words);
+        Collections.sort(sortedWords, Comparator.comparing(w -> w.eng == null ? "" : w.eng.toLowerCase(Locale.US)));
+
+        Map<Integer, List<Word>> wordsByLevel = groupWordsByLevel(sortedWords);
+
+        populateAnalysisChips();
+
+        List<Word> filteredWords = filterAnalysisWords(sortedWords, wordsByLevel);
+        sortAnalysisWords(filteredWords);
+        resetAnalysisWindowState(filteredWords);
+
+        String summaryText = filteredWords.size() + WORD_COUNT_SUFFIX;
+
+        tvEmbeddedFilterSummary.setText(summaryText);
+        tvStickyFilterSummary.setText(summaryText);
+        updateAnalysisSortView();
+        hsvEmbeddedSummaryChips.post(this::updateSummaryChipFadeState);
+        syncStickyFilterScroll();
+        svAccountRoot.post(this::updateStickyAnalysisFiltersState);
+        addAnalysisWordCards(filteredWords);
+    }
+
+    private void clearAnalysisContainers() {
         llEmbeddedAllChip.removeAllViews();
         llEmbeddedSummaryChips.removeAllViews();
         llStickyAllChip.removeAllViews();
         llStickySummaryChips.removeAllViews();
         llEmbeddedCategoryStats.removeAllViews();
+    }
 
-        List<Word> words = WordleWordBank.mergeDisplayWords(db.getAllWords());
-        if (words.isEmpty()) {
-            addEmbeddedEmptyState("Gösterilecek veri yok.");
-            return;
-        }
+    private List<Word> getMergedAnalysisWords() {
+        return WordleWordBank.mergeDisplayWords(db.getAllWords());
+    }
 
-        Collections.sort(words, Comparator.comparing(w -> w.eng == null ? "" : w.eng.toLowerCase(Locale.US)));
-
+    private Map<Integer, List<Word>> groupWordsByLevel(List<Word> words) {
         Map<Integer, List<Word>> wordsByLevel = new LinkedHashMap<>();
         for (Word word : words) {
             int level = Math.max(word.stepCount, 0);
@@ -314,48 +346,52 @@ public class AccountActivity extends BottomNavActivity {
             }
             levelWords.add(word);
         }
+        return wordsByLevel;
+    }
 
+    private void populateAnalysisChips() {
         addMetricChip(llEmbeddedAllChip, "Tümü", R.color.primary, ANALYSIS_FILTER_ALL);
         addMetricChip(llStickyAllChip, "Tümü", R.color.primary, ANALYSIS_FILTER_ALL);
         for (int level = 0; level <= MAX_ANALYSIS_LEVEL; level++) {
-            addMetricChip(llEmbeddedSummaryChips, "Seviye " + level, getLevelAccentColorRes(level), createLevelFilterKey(level));
-            addMetricChip(llStickySummaryChips, "Seviye " + level, getLevelAccentColorRes(level), createLevelFilterKey(level));
+            String filterKey = createLevelFilterKey(level);
+            int accentColor = getLevelAccentColorRes(level);
+            addMetricChip(llEmbeddedSummaryChips, LEVEL_LABEL_PREFIX + level, accentColor, filterKey);
+            addMetricChip(llStickySummaryChips, LEVEL_LABEL_PREFIX + level, accentColor, filterKey);
         }
+    }
 
+    private List<Word> filterAnalysisWords(List<Word> words, Map<Integer, List<Word>> wordsByLevel) {
         List<Word> filteredWords = new ArrayList<>();
-        String summaryText;
         if (ANALYSIS_FILTER_ALL.equals(selectedAnalysisFilter)) {
             filteredWords.addAll(words);
-            summaryText = words.size() + " kelime";
-        } else {
-            Integer selectedLevel = parseLevelFilter(selectedAnalysisFilter);
-            if (selectedLevel != null && wordsByLevel.containsKey(selectedLevel)) {
-                filteredWords.addAll(wordsByLevel.get(selectedLevel));
-            }
-            summaryText = filteredWords.size() + " kelime";
+            return filteredWords;
         }
 
-        Collections.sort(filteredWords, analysisSortAscending
-                ? Comparator.comparing(w -> w.eng == null ? "" : w.eng.toLowerCase(Locale.US))
-                : (left, right) -> {
-                    String a = left == null || left.eng == null ? "" : left.eng.toLowerCase(Locale.US);
-                    String b = right == null || right.eng == null ? "" : right.eng.toLowerCase(Locale.US);
-                    return b.compareTo(a);
-                });
+        Integer selectedLevel = parseLevelFilter(selectedAnalysisFilter);
+        if (selectedLevel != null && wordsByLevel.containsKey(selectedLevel)) {
+            filteredWords.addAll(wordsByLevel.get(selectedLevel));
+        }
+        return filteredWords;
+    }
 
+    private void sortAnalysisWords(List<Word> words) {
+        Comparator<Word> comparator = Comparator.comparing(w -> w.eng == null ? "" : w.eng.toLowerCase(Locale.US));
+        if (!analysisSortAscending) {
+            comparator = (left, right) -> {
+                String a = left == null || left.eng == null ? "" : left.eng.toLowerCase(Locale.US);
+                String b = right == null || right.eng == null ? "" : right.eng.toLowerCase(Locale.US);
+                return b.compareTo(a);
+            };
+        }
+        Collections.sort(words, comparator);
+    }
+
+    private void resetAnalysisWindowState(List<Word> filteredWords) {
         analysisSourceWords = filteredWords;
         analysisWindowStart = 0;
         analysisWindowEnd = 0;
         analysisWindowUpdateLocked = false;
         btnEmbeddedLoadMoreAnalysis.setVisibility(View.GONE);
-
-        tvEmbeddedFilterSummary.setText(summaryText);
-        tvStickyFilterSummary.setText(summaryText);
-        updateAnalysisSortView();
-        hsvEmbeddedSummaryChips.post(this::updateSummaryChipFadeState);
-        syncStickyFilterScroll();
-        svAccountRoot.post(this::updateStickyAnalysisFiltersState);
-        addAnalysisWordCards(filteredWords);
     }
 
     private void addMetricChip(LinearLayout container, String label, int colorResId, String filterKey) {
@@ -405,11 +441,11 @@ public class AccountActivity extends BottomNavActivity {
     private void addAnalysisWordCards(List<Word> items) {
         if (items.isEmpty()) {
             if (ANALYSIS_FILTER_ALL.equals(selectedAnalysisFilter)) {
-                addEmbeddedEmptyState("Gösterilecek veri yok.");
+                addEmbeddedEmptyState(EMPTY_ANALYSIS_MESSAGE);
             } else {
                 Integer selectedLevel = parseLevelFilter(selectedAnalysisFilter);
                 addEmbeddedEmptyState(selectedLevel == null
-                        ? "Gösterilecek veri yok."
+                        ? EMPTY_ANALYSIS_MESSAGE
                         : "Henüz " + selectedLevel + ". seviye bir kelimeye sahip değilsiniz.");
             }
             return;
@@ -629,21 +665,106 @@ public class AccountActivity extends BottomNavActivity {
         if (btnScrollAccountTop == null || svAccountRoot == null || llEmbeddedCategoryStats == null) {
             return;
         }
-        boolean firstWordGone = false;
-        if (showingAnalysis && analysisSourceWords != null && !analysisSourceWords.isEmpty()) {
-            firstWordGone = svAccountRoot.getScrollY() > 0 && analysisWindowStart > 0;
-            if (!firstWordGone) {
-                for (int i = 0; i < llEmbeddedCategoryStats.getChildCount(); i++) {
-                    View child = llEmbeddedCategoryStats.getChildAt(i);
-                    if (getAnalysisIndex(child) == 0) {
-                        firstWordGone = svAccountRoot.getScrollY() > 0
-                                && getViewTopInScroll(child) + child.getHeight() <= svAccountRoot.getScrollY();
-                        break;
-                    }
-                }
+        btnScrollAccountTop.setVisibility(shouldShowScrollToTopButton() ? View.VISIBLE : View.GONE);
+    }
+
+    private boolean shouldShowScrollToTopButton() {
+        if (!showingAnalysis || analysisSourceWords == null || analysisSourceWords.isEmpty()) {
+            return false;
+        }
+        if (svAccountRoot.getScrollY() <= 0) {
+            return false;
+        }
+        if (analysisWindowStart > 0) {
+            return true;
+        }
+        return isFirstAnalysisCardAboveViewport();
+    }
+
+    private boolean isFirstAnalysisCardAboveViewport() {
+        for (int i = 0; i < llEmbeddedCategoryStats.getChildCount(); i++) {
+            View child = llEmbeddedCategoryStats.getChildAt(i);
+            if (getAnalysisIndex(child) == 0) {
+                return getViewTopInScroll(child) + child.getHeight() <= svAccountRoot.getScrollY();
             }
         }
-        btnScrollAccountTop.setVisibility(firstWordGone ? View.VISIBLE : View.GONE);
+        return false;
+    }
+
+    private void configureAnalysisCard(MaterialCardView card) {
+        LinearLayout.LayoutParams cardParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        cardParams.bottomMargin = dp(10);
+        card.setLayoutParams(cardParams);
+        card.setCardBackgroundColor(getResources().getColor(R.color.background));
+        card.setCardElevation(dpFloat(0.5f));
+        card.setRadius(getResources().getDimension(R.dimen.radius_sm));
+        card.setStrokeWidth(0);
+    }
+
+    private void configureAnalysisCardContent(LinearLayout content) {
+        content.setOrientation(LinearLayout.VERTICAL);
+        content.setPadding(dp(16), dp(14), dp(16), dp(14));
+    }
+
+    private void configureAnalysisTopRow(LinearLayout topRow) {
+        topRow.setOrientation(LinearLayout.HORIZONTAL);
+        topRow.setGravity(android.view.Gravity.CENTER_VERTICAL);
+    }
+
+    private void configureAnalysisEnglishText(TextView englishText, String english) {
+        englishText.setText(english);
+        englishText.setTextColor(getResources().getColor(R.color.text_primary));
+        englishText.setTextSize(16);
+        englishText.setTypeface(Typeface.DEFAULT_BOLD);
+        englishText.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+    }
+
+    private void configureAnalysisLevelText(TextView levelText, Word word, int accentColor, boolean showLevelBadge) {
+        levelText.setText(LEVEL_LABEL_PREFIX + Math.max(word.stepCount, 0));
+        levelText.setTextColor(accentColor);
+        levelText.setTextSize(12);
+        levelText.setTypeface(Typeface.DEFAULT_BOLD);
+        levelText.setPadding(dp(14), dp(8), dp(14), dp(8));
+        levelText.setBackground(createRoundedChipBackground(accentColor, false));
+        levelText.setVisibility(showLevelBadge ? View.VISIBLE : View.GONE);
+    }
+
+    private void configureAnalysisTurkishText(TextView turkishText, String turkish) {
+        turkishText.setText(turkish);
+        turkishText.setTextColor(getResources().getColor(R.color.text_secondary));
+        turkishText.setTextSize(14);
+        turkishText.setPadding(0, dp(6), 0, 0);
+    }
+
+    private void configureAnalysisDetailsContainer(LinearLayout detailsContainer) {
+        detailsContainer.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+        detailsContainer.setOrientation(LinearLayout.HORIZONTAL);
+        detailsContainer.setGravity(android.view.Gravity.CENTER_VERTICAL);
+        detailsContainer.setPadding(0, dp(12), 0, 0);
+    }
+
+    private void configureAnalysisDetailsTextColumn(LinearLayout detailsTextColumn) {
+        detailsTextColumn.setLayoutParams(new LinearLayout.LayoutParams(
+                0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+        detailsTextColumn.setOrientation(LinearLayout.VERTICAL);
+    }
+
+    private void configureAnalysisSampleText(TextView sampleText) {
+        sampleText.setTextColor(getResources().getColor(R.color.text_primary));
+        sampleText.setTextSize(13);
+        sampleText.setVisibility(View.GONE);
+    }
+
+    private void configureAnalysisWordImage(ImageView wordImage) {
+        LinearLayout.LayoutParams imageParams = new LinearLayout.LayoutParams(dp(76), dp(76));
+        imageParams.leftMargin = dp(12);
+        wordImage.setLayoutParams(imageParams);
+        wordImage.setBackgroundResource(R.drawable.soft_chip_bg);
+        wordImage.setClipToOutline(true);
+        wordImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        wordImage.setVisibility(View.GONE);
     }
 
     private void scrollAnalysisToTop() {
@@ -668,47 +789,25 @@ public class AccountActivity extends BottomNavActivity {
         boolean showLevelBadge = ANALYSIS_FILTER_ALL.equals(selectedAnalysisFilter);
 
         MaterialCardView card = new MaterialCardView(this);
-        LinearLayout.LayoutParams cardParams = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        cardParams.bottomMargin = dp(10);
-        card.setLayoutParams(cardParams);
-        card.setCardBackgroundColor(getResources().getColor(R.color.background));
-        card.setCardElevation(dpFloat(0.5f));
-        card.setRadius(getResources().getDimension(R.dimen.radius_sm));
-        card.setStrokeWidth(0);
+        configureAnalysisCard(card);
 
         LinearLayout content = new LinearLayout(this);
-        content.setOrientation(LinearLayout.VERTICAL);
-        content.setPadding(dp(16), dp(14), dp(16), dp(14));
+        configureAnalysisCardContent(content);
 
         LinearLayout topRow = new LinearLayout(this);
-        topRow.setOrientation(LinearLayout.HORIZONTAL);
-        topRow.setGravity(android.view.Gravity.CENTER_VERTICAL);
+        configureAnalysisTopRow(topRow);
 
         TextView englishText = new TextView(this);
-        englishText.setText(english);
-        englishText.setTextColor(getResources().getColor(R.color.text_primary));
-        englishText.setTextSize(16);
-        englishText.setTypeface(Typeface.DEFAULT_BOLD);
-        englishText.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+        configureAnalysisEnglishText(englishText, english);
 
         TextView levelText = new TextView(this);
-        levelText.setText("Seviye " + Math.max(word.stepCount, 0));
-        levelText.setTextColor(accentColor);
-        levelText.setTextSize(12);
-        levelText.setTypeface(Typeface.DEFAULT_BOLD);
-        levelText.setPadding(dp(14), dp(8), dp(14), dp(8));
-        levelText.setBackground(createRoundedChipBackground(accentColor, false));
-        levelText.setVisibility(showLevelBadge ? View.VISIBLE : View.GONE);
+        configureAnalysisLevelText(levelText, word, accentColor, showLevelBadge);
 
         topRow.addView(englishText);
         topRow.addView(levelText);
 
         TextView turkishText = new TextView(this);
-        turkishText.setText(turkish);
-        turkishText.setTextColor(getResources().getColor(R.color.text_secondary));
-        turkishText.setTextSize(14);
-        turkishText.setPadding(0, dp(6), 0, 0);
+        configureAnalysisTurkishText(turkishText, turkish);
 
         TextView metaText = new TextView(this);
         metaText.setText("Kategori: " + category);
@@ -717,31 +816,17 @@ public class AccountActivity extends BottomNavActivity {
         metaText.setPadding(0, dp(8), 0, 0);
 
         LinearLayout detailsContainer = new LinearLayout(this);
-        detailsContainer.setLayoutParams(new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-        detailsContainer.setOrientation(LinearLayout.HORIZONTAL);
-        detailsContainer.setGravity(android.view.Gravity.CENTER_VERTICAL);
-        detailsContainer.setPadding(0, dp(12), 0, 0);
+        configureAnalysisDetailsContainer(detailsContainer);
         detailsContainer.setVisibility(word.expanded ? View.VISIBLE : View.GONE);
 
         LinearLayout detailsTextColumn = new LinearLayout(this);
-        detailsTextColumn.setLayoutParams(new LinearLayout.LayoutParams(
-                0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
-        detailsTextColumn.setOrientation(LinearLayout.VERTICAL);
+        configureAnalysisDetailsTextColumn(detailsTextColumn);
 
         TextView sampleText = new TextView(this);
-        sampleText.setTextColor(getResources().getColor(R.color.text_primary));
-        sampleText.setTextSize(13);
-        sampleText.setVisibility(View.GONE);
+        configureAnalysisSampleText(sampleText);
 
         ImageView wordImage = new ImageView(this);
-        LinearLayout.LayoutParams imageParams = new LinearLayout.LayoutParams(dp(76), dp(76));
-        imageParams.leftMargin = dp(12);
-        wordImage.setLayoutParams(imageParams);
-        wordImage.setBackgroundResource(R.drawable.soft_chip_bg);
-        wordImage.setClipToOutline(true);
-        wordImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        wordImage.setVisibility(View.GONE);
+        configureAnalysisWordImage(wordImage);
 
         detailsTextColumn.addView(sampleText);
         detailsContainer.addView(detailsTextColumn);
