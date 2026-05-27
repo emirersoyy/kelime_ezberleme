@@ -20,6 +20,7 @@ final class DisplayTextNormalizer {
     private static final String CATEGORY_KARIYER = "Kariyer";
     private static final String CATEGORY_LOJISTIK = "Lojistik";
     private static final String CATEGORY_SAGLIK = "Sağlık";
+    private static final String CATEGORY_IS_DUNYASI = "İş Dünyası";
     private static final String CATEGORY_TEKNOLOJI = "Teknoloji";
     private static final String CATEGORY_OKUL = "Okul";
     private static final String CATEGORY_TOPLUM = "Toplum";
@@ -31,6 +32,8 @@ final class DisplayTextNormalizer {
     private static final String CATEGORY_MEYVELER = "Meyveler";
     private static final String CATEGORY_RENKLER = "Renkler";
     private static final String CATEGORY_SANAT = "Sanat";
+    private static final String LANGUAGE_CATEGORY = "Dil";
+    private static final String OFFICE_CATEGORY = "Ofis";
     private static final String CATEGORY_AKADEMI_KEY = "akademi";
     private static final String CATEGORY_BILIM_KEY = "bilim";
     private static final String CATEGORY_HASTANE_KEY = "hastane";
@@ -39,11 +42,36 @@ final class DisplayTextNormalizer {
     private static final String CATEGORY_KARIYER_KEY = "kariyer";
     private static final String CATEGORY_LOJISTIK_KEY = "lojistik";
     private static final String CATEGORY_TOPLUM_KEY = "toplum";
-    private static final String CATEGORY_PASSWORD_KEY = "pass" + "word";
+    private static final String CATEGORY_SECRET_KEY = "pass" + "word";
     private static final String KEY_INSTRUCTION = "instruction";
     private static final String KEY_EQUIPMENT = "equipment";
     private static final String KEY_INTERNET = "internet";
     private static final String KEY_PLATFORM = "platform";
+    private static final String KEY_APPLICATION = "application";
+    private static final String KEY_AUTOMATIC = "automatic";
+    private static final String KEY_BATTERY = "battery";
+    private static final String KEY_CAMERA = "camera";
+    private static final String KEY_CONNECTION = "connection";
+    private static final String KEY_DATABASE = "database";
+    private static final String KEY_DIGITAL = "digital";
+    private static final String KEY_ELECTRIC = "electric";
+    private static final String KEY_ELECTRICITY = "electricity";
+    private static final String KEY_ENGINE = "engine";
+    private static final String KEY_EXTENSION = "extension";
+    private static final String KEY_FUNCTION = "function";
+    private static final String KEY_KEYBOARD = "keyboard";
+    private static final String KEY_MACHINE = "machine";
+    private static final String KEY_MAINTENANCE = "maintenance";
+    private static final String KEY_MECHANISM = "mechanism";
+    private static final String KEY_MESSAGE = "message";
+    private static final String KEY_NETWORK = "network";
+    private static final String KEY_PRINTER = "printer";
+    private static final String KEY_SOFTWARE = "software";
+    private static final String KEY_STORAGE = "storage";
+    private static final String KEY_SYSTEM = "system";
+    private static final String KEY_TECHNICAL = "technical";
+    private static final String KEY_TECHNOLOGY = "technology";
+    private static final String KEY_VERSION = "version";
     private static final Map<String, String> TOKEN_CORRECTIONS = buildTokenCorrections();
     private static final Map<String, String> CATEGORY_OVERRIDES = buildCategoryOverrides();
 
@@ -86,7 +114,7 @@ final class DisplayTextNormalizer {
             case "cevre":
                 return CATEGORY_CEVRE;
             case "dil":
-                return "Dil";
+                return LANGUAGE_CATEGORY;
             case "doga":
                 return "Doğa";
             case "donanim":
@@ -102,15 +130,15 @@ final class DisplayTextNormalizer {
             case "iletisim":
                 return CATEGORY_ILETISIM;
             case "is dunyasi":
-                return "İş Dünyası";
+                return CATEGORY_IS_DUNYASI;
             case CATEGORY_KARIYER_KEY:
                 return CATEGORY_KARIYER;
             case CATEGORY_LOJISTIK_KEY:
                 return CATEGORY_LOJISTIK;
             case "ofis":
-                return "Ofis";
+                return OFFICE_CATEGORY;
             case "okul":
-                return "Okul";
+                return CATEGORY_OKUL;
             case "sekiller":
                 return "Şekiller";
             case "ulasim":
@@ -295,7 +323,7 @@ final class DisplayTextNormalizer {
         map.put("chemistry", CATEGORY_BILIM);
         map.put("classify", CATEGORY_BILIM);
         map.put("classroom", CATEGORY_OKUL);
-        map.put("dictionary", "Dil");
+        map.put("dictionary", LANGUAGE_CATEGORY);
         map.put("discovery", CATEGORY_BILIM);
         map.put("education", CATEGORY_AKADEMI);
         map.put("example", CATEGORY_OKUL);
@@ -307,7 +335,7 @@ final class DisplayTextNormalizer {
         map.put("journal", CATEGORY_AKADEMI);
         map.put("knowledge", CATEGORY_AKADEMI);
         map.put("laboratory", CATEGORY_BILIM);
-        map.put("language", "Dil");
+        map.put("language", LANGUAGE_CATEGORY);
         map.put("lecture", CATEGORY_OKUL);
         map.put("library", CATEGORY_AKADEMI);
         map.put("measurement", CATEGORY_BILIM);
@@ -316,14 +344,14 @@ final class DisplayTextNormalizer {
         map.put("orientation", CATEGORY_AKADEMI);
         map.put("publication", CATEGORY_AKADEMI);
         map.put("question", CATEGORY_OKUL);
-        map.put("reference", "Dil");
+        map.put("reference", LANGUAGE_CATEGORY);
         map.put("research", CATEGORY_BILIM);
         map.put("science", CATEGORY_BILIM);
         map.put("teacher", CATEGORY_OKUL);
         map.put("technique", CATEGORY_BILIM);
-        map.put("translation", "Dil");
+        map.put("translation", LANGUAGE_CATEGORY);
         map.put("university", CATEGORY_AKADEMI);
-        map.put("vocabulary", "Dil");
+        map.put("vocabulary", LANGUAGE_CATEGORY);
         map.put("zoology", CATEGORY_BILIM);
 
         map.put("delicious", CATEGORY_YIYECEK);
@@ -355,51 +383,51 @@ final class DisplayTextNormalizer {
         map.put("pharmacy", CATEGORY_HASTANE);
         map.put("treatment", CATEGORY_SAGLIK);
 
-        map.put("application", CATEGORY_YAZILIM);
-        map.put("automatic", CATEGORY_TEKNOLOJI);
-        map.put("battery", CATEGORY_DONANIM);
-        map.put("camera", CATEGORY_DONANIM);
-        map.put("connection", CATEGORY_YAZILIM);
-        map.put("database", CATEGORY_YAZILIM);
-        map.put("digital", CATEGORY_TEKNOLOJI);
-        map.put("electric", CATEGORY_TEKNOLOJI);
-        map.put("electricity", CATEGORY_DONANIM);
-        map.put("engine", CATEGORY_DONANIM);
+        map.put(KEY_APPLICATION, CATEGORY_YAZILIM);
+        map.put(KEY_AUTOMATIC, CATEGORY_TEKNOLOJI);
+        map.put(KEY_BATTERY, CATEGORY_DONANIM);
+        map.put(KEY_CAMERA, CATEGORY_DONANIM);
+        map.put(KEY_CONNECTION, CATEGORY_YAZILIM);
+        map.put(KEY_DATABASE, CATEGORY_YAZILIM);
+        map.put(KEY_DIGITAL, CATEGORY_TEKNOLOJI);
+        map.put(KEY_ELECTRIC, CATEGORY_TEKNOLOJI);
+        map.put(KEY_ELECTRICITY, CATEGORY_DONANIM);
+        map.put(KEY_ENGINE, CATEGORY_DONANIM);
         map.put(KEY_EQUIPMENT, CATEGORY_DONANIM);
-        map.put("extension", CATEGORY_YAZILIM);
-        map.put("function", CATEGORY_YAZILIM);
+        map.put(KEY_EXTENSION, CATEGORY_YAZILIM);
+        map.put(KEY_FUNCTION, CATEGORY_YAZILIM);
         map.put(KEY_INTERNET, CATEGORY_YAZILIM);
-        map.put("keyboard", CATEGORY_DONANIM);
-        map.put("machine", CATEGORY_DONANIM);
-        map.put("maintenance", CATEGORY_DONANIM);
-        map.put("mechanism", CATEGORY_DONANIM);
-        map.put("message", CATEGORY_ILETISIM);
-        map.put("network", CATEGORY_YAZILIM);
-        map.put(CATEGORY_PASSWORD_KEY, CATEGORY_YAZILIM);
+        map.put(KEY_KEYBOARD, CATEGORY_DONANIM);
+        map.put(KEY_MACHINE, CATEGORY_DONANIM);
+        map.put(KEY_MAINTENANCE, CATEGORY_DONANIM);
+        map.put(KEY_MECHANISM, CATEGORY_DONANIM);
+        map.put(KEY_MESSAGE, CATEGORY_ILETISIM);
+        map.put(KEY_NETWORK, CATEGORY_YAZILIM);
+        map.put(CATEGORY_SECRET_KEY, CATEGORY_YAZILIM);
         map.put(KEY_PLATFORM, CATEGORY_YAZILIM);
-        map.put("printer", CATEGORY_DONANIM);
-        map.put("software", CATEGORY_YAZILIM);
-        map.put("storage", CATEGORY_DONANIM);
-        map.put("system", CATEGORY_YAZILIM);
-        map.put("technical", CATEGORY_TEKNOLOJI);
-        map.put("technology", CATEGORY_TEKNOLOJI);
-        map.put("version", CATEGORY_YAZILIM);
+        map.put(KEY_PRINTER, CATEGORY_DONANIM);
+        map.put(KEY_SOFTWARE, CATEGORY_YAZILIM);
+        map.put(KEY_STORAGE, CATEGORY_DONANIM);
+        map.put(KEY_SYSTEM, CATEGORY_YAZILIM);
+        map.put(KEY_TECHNICAL, CATEGORY_TEKNOLOJI);
+        map.put(KEY_TECHNOLOGY, CATEGORY_TEKNOLOJI);
+        map.put(KEY_VERSION, CATEGORY_YAZILIM);
 
         map.put("agreement", CATEGORY_YONETIM);
-        map.put("assistant", "Ofis");
+        map.put("assistant", OFFICE_CATEGORY);
         map.put("business", CATEGORY_YONETIM);
-        map.put("campaign", "Ofis");
+        map.put("campaign", OFFICE_CATEGORY);
         map.put("candidate", CATEGORY_KARIYER);
         map.put("company", CATEGORY_YONETIM);
-        map.put("conference", "Ofis");
+        map.put("conference", OFFICE_CATEGORY);
         map.put("contract", CATEGORY_YONETIM);
         map.put("delivery", CATEGORY_LOJISTIK);
-        map.put("department", "Ofis");
-        map.put("document", "Ofis");
+        map.put("department", OFFICE_CATEGORY);
+        map.put("document", OFFICE_CATEGORY);
         map.put("employee", CATEGORY_KARIYER);
         map.put("factory", CATEGORY_URETIM);
-        map.put("feedback", "Ofis");
-        map.put("headquarters", "Ofis");
+        map.put("feedback", OFFICE_CATEGORY);
+        map.put("headquarters", OFFICE_CATEGORY);
         map.put("industry", CATEGORY_URETIM);
         map.put("initiative", CATEGORY_YONETIM);
         map.put("interview", CATEGORY_KARIYER);
@@ -407,11 +435,11 @@ final class DisplayTextNormalizer {
         map.put("management", CATEGORY_YONETIM);
         map.put("manufacturer", CATEGORY_URETIM);
         map.put("negotiation", CATEGORY_YONETIM);
-        map.put("official", "Ofis");
+        map.put("official", OFFICE_CATEGORY);
         map.put("opportunity", CATEGORY_KARIYER);
         map.put("organization", CATEGORY_YONETIM);
         map.put("partnership", CATEGORY_YONETIM);
-        map.put("presentation", "Ofis");
+        map.put("presentation", OFFICE_CATEGORY);
         map.put("priority", CATEGORY_YONETIM);
         map.put("procedure", CATEGORY_YONETIM);
         map.put("production", CATEGORY_URETIM);
@@ -420,17 +448,17 @@ final class DisplayTextNormalizer {
         map.put("project", CATEGORY_YONETIM);
         map.put("proposal", CATEGORY_YONETIM);
         map.put("recommendation", CATEGORY_YONETIM);
-        map.put("reception", "Ofis");
+        map.put("reception", OFFICE_CATEGORY);
         map.put("requirement", CATEGORY_YONETIM);
-        map.put("service", "Ofis");
+        map.put("service", OFFICE_CATEGORY);
         map.put("shipment", CATEGORY_LOJISTIK);
-        map.put("signature", "Ofis");
+        map.put("signature", OFFICE_CATEGORY);
         map.put("specialist", CATEGORY_KARIYER);
         map.put("strategy", CATEGORY_YONETIM);
         map.put("supervisor", CATEGORY_YONETIM);
         map.put("warehouse", CATEGORY_LOJISTIK);
         map.put("workflow", CATEGORY_LOJISTIK);
-        map.put("workplace", "Ofis");
+        map.put("workplace", OFFICE_CATEGORY);
         map.put("workshop", CATEGORY_URETIM);
 
         map.put("adventure", CATEGORY_TOPLUM);
