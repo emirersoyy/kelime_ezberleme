@@ -74,6 +74,8 @@ public class AccountActivity extends BottomNavActivity {
     private static final int ANALYSIS_KEEP_BEFORE = 225;
     private static final int ANALYSIS_KEEP_AFTER = 175;
     private static final String EMPTY_ANALYSIS_MESSAGE = "Gösterilecek veri yok.";
+    private static final String DEFAULT_CATEGORY_LABEL = "Genel";
+    private static final String LEVEL_FILTER_PREFIX = "level_";
     private static final String LEVEL_LABEL_PREFIX = "Seviye ";
     private static final String WORD_COUNT_SUFFIX = " kelime";
     private DatabaseHelper db;
@@ -783,7 +785,7 @@ public class AccountActivity extends BottomNavActivity {
 
     private MaterialCardView createAnalysisWordCard(Word word, int accentColor) {
         DisplayTextNormalizer.normalizeWordForDisplay(word);
-        String category = word.category == null || word.category.trim().isEmpty() ? "Genel" : word.category.trim();
+        String category = word.category == null || word.category.trim().isEmpty() ? DEFAULT_CATEGORY_LABEL : word.category.trim();
         String english = word.eng == null || word.eng.trim().isEmpty() ? "-" : word.eng.trim();
         String turkish = word.tur == null || word.tur.trim().isEmpty() ? "-" : word.tur.trim();
         boolean showLevelBadge = ANALYSIS_FILTER_ALL.equals(selectedAnalysisFilter);
@@ -867,15 +869,15 @@ public class AccountActivity extends BottomNavActivity {
     }
 
     private String createLevelFilterKey(int level) {
-        return "level_" + level;
+        return LEVEL_FILTER_PREFIX + level;
     }
 
     private Integer parseLevelFilter(String filterKey) {
-        if (filterKey == null || !filterKey.startsWith("level_")) {
+        if (filterKey == null || !filterKey.startsWith(LEVEL_FILTER_PREFIX)) {
             return null;
         }
         try {
-            return Integer.parseInt(filterKey.substring("level_".length()));
+            return Integer.parseInt(filterKey.substring(LEVEL_FILTER_PREFIX.length()));
         } catch (NumberFormatException ignored) {
             return null;
         }
@@ -1018,56 +1020,58 @@ public class AccountActivity extends BottomNavActivity {
 
             @Override
             public void onWrite(PageRange[] pages, ParcelFileDescriptor destination, CancellationSignal cancellationSignal, WriteResultCallback callback) {
-                PdfDocument pdfDocument = new PdfDocument();
-                try {
-                    List<String> lines = collectPrintableLines();
-                    final int pageWidth = 595;
-                    final int pageHeight = 842;
-                    final int left = 50;
-                    final int top = 50;
-                    final int contentStartY = 150;
-                    final int bottomMargin = 50;
-                    final int lineHeight = 22;
-                    final int linesPerPage = (pageHeight - contentStartY - bottomMargin) / lineHeight;
+                try (FileOutputStream outputStream = new FileOutputStream(destination.getFileDescriptor())) {
+                    PdfDocument pdfDocument = new PdfDocument();
+                    try {
+                        List<String> lines = collectPrintableLines();
+                        final int pageWidth = 595;
+                        final int pageHeight = 842;
+                        final int left = 50;
+                        final int top = 50;
+                        final int contentStartY = 150;
+                        final int bottomMargin = 50;
+                        final int lineHeight = 22;
+                        final int linesPerPage = (pageHeight - contentStartY - bottomMargin) / lineHeight;
 
-                    Paint titlePaint = new Paint();
-                    titlePaint.setColor(Color.BLACK);
-                    titlePaint.setTextSize(18);
-                    titlePaint.setTypeface(Typeface.DEFAULT_BOLD);
+                        Paint titlePaint = new Paint();
+                        titlePaint.setColor(Color.BLACK);
+                        titlePaint.setTextSize(18);
+                        titlePaint.setTypeface(Typeface.DEFAULT_BOLD);
 
-                    Paint bodyPaint = new Paint();
-                    bodyPaint.setColor(Color.BLACK);
-                    bodyPaint.setTextSize(14);
+                        Paint bodyPaint = new Paint();
+                        bodyPaint.setColor(Color.BLACK);
+                        bodyPaint.setTextSize(14);
 
-                    int pageNumber = 1;
-                    int index = 0;
-                    while (index < lines.size()) {
-                        PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber).create();
-                        PdfDocument.Page page = pdfDocument.startPage(pageInfo);
-                        Canvas canvas = page.getCanvas();
+                        int pageNumber = 1;
+                        int index = 0;
+                        while (index < lines.size()) {
+                            PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber).create();
+                            PdfDocument.Page page = pdfDocument.startPage(pageInfo);
+                            Canvas canvas = page.getCanvas();
 
-                        canvas.drawText("KELIME EZBERLEME SISTEMI - ANALIZ RAPORU", left, top, titlePaint);
-                        canvas.drawText("Sayfa " + pageNumber, 500, 24, bodyPaint);
+                            canvas.drawText("KELIME EZBERLEME SISTEMI - ANALIZ RAPORU", left, top, titlePaint);
+                            canvas.drawText("Sayfa " + pageNumber, 500, 24, bodyPaint);
 
-                        int y = contentStartY;
-                        int drawn = 0;
-                        while (index < lines.size() && drawn < linesPerPage) {
-                            String line = lines.get(index++);
-                            canvas.drawText(line, left, y, bodyPaint);
-                            y += line.contains("•") ? 24 : 28;
-                            drawn++;
+                            int y = contentStartY;
+                            int drawn = 0;
+                            while (index < lines.size() && drawn < linesPerPage) {
+                                String line = lines.get(index++);
+                                canvas.drawText(line, left, y, bodyPaint);
+                                y += line.contains("•") ? 24 : 28;
+                                drawn++;
+                            }
+
+                            pdfDocument.finishPage(page);
+                            pageNumber++;
                         }
 
-                        pdfDocument.finishPage(page);
-                        pageNumber++;
+                        pdfDocument.writeTo(outputStream);
+                    } finally {
+                        pdfDocument.close();
                     }
-
-                    pdfDocument.writeTo(new FileOutputStream(destination.getFileDescriptor()));
                 } catch (IOException e) {
                     callback.onWriteFailed(e.toString());
                     return;
-                } finally {
-                    pdfDocument.close();
                 }
                 callback.onWriteFinished(new PageRange[]{PageRange.ALL_PAGES});
             }
@@ -1240,42 +1244,59 @@ public class AccountActivity extends BottomNavActivity {
     }
 
     private void showEditProfileDialog() {
-        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_edit_profile, null);
-        dialogProfileImage = dialogView.findViewById(R.id.imgEditProfile);
-        MaterialButton btnShowPasswordReset = dialogView.findViewById(R.id.btnShowPasswordReset);
-        MaterialButton btnDialogLogout = dialogView.findViewById(R.id.btnDialogLogout);
-        TextInputLayout tilUsername = dialogView.findViewById(R.id.tilEditUsername);
-        TextInputLayout tilFullName = dialogView.findViewById(R.id.tilEditFullName);
-        TextInputEditText etUsername = dialogView.findViewById(R.id.etEditUsername);
-        TextInputEditText etFullName = dialogView.findViewById(R.id.etEditFullName);
-        MaterialButtonToggleGroup toggleTheme = dialogView.findViewById(R.id.toggleDialogTheme);
-        Slider sliderQuestionLimit = dialogView.findViewById(R.id.sliderDialogQuestionLimit);
-        TextView tvQuestionLimitValue = dialogView.findViewById(R.id.tvDialogQuestionLimitValue);
+        EditProfileDialogState state = createEditProfileDialogState();
+        bindEditProfileDialogState(state);
+        AlertDialog dialog = createEditProfileDialog(state);
+        dialog.setOnDismissListener(d -> dialogProfileImage = null);
+        dialog.show();
+        applyRoundedDialogCorners(dialog);
+    }
 
+    private EditProfileDialogState createEditProfileDialogState() {
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_edit_profile, null);
+        EditProfileDialogState state = new EditProfileDialogState();
+        state.dialogView = dialogView;
+        state.profileImageView = dialogView.findViewById(R.id.imgEditProfile);
+        dialogProfileImage = state.profileImageView;
+        state.showPasswordResetButton = dialogView.findViewById(R.id.btnShowPasswordReset);
+        state.logoutButton = dialogView.findViewById(R.id.btnDialogLogout);
+        state.usernameLayout = dialogView.findViewById(R.id.tilEditUsername);
+        state.fullNameLayout = dialogView.findViewById(R.id.tilEditFullName);
+        state.usernameEditText = dialogView.findViewById(R.id.etEditUsername);
+        state.fullNameEditText = dialogView.findViewById(R.id.etEditFullName);
+        state.themeToggle = dialogView.findViewById(R.id.toggleDialogTheme);
+        state.questionLimitSlider = dialogView.findViewById(R.id.sliderDialogQuestionLimit);
+        state.questionLimitValue = dialogView.findViewById(R.id.tvDialogQuestionLimitValue);
+        return state;
+    }
+
+    private void bindEditProfileDialogState(EditProfileDialogState state) {
         DatabaseHelper.UserProfile profile = db.getUserProfile(currentUser);
         String profileUsername = profile == null ? currentUser : profile.username;
         selectedProfileImagePath = profile == null ? "" : profile.profileImagePath;
-        etUsername.setText(profileUsername);
-        etFullName.setText(profile == null ? "" : profile.fullName);
-        applyProfileImage(dialogProfileImage, selectedProfileImagePath);
+        state.usernameEditText.setText(profileUsername);
+        state.fullNameEditText.setText(profile == null ? "" : profile.fullName);
+        applyProfileImage(state.profileImageView, selectedProfileImagePath);
 
         int currentLimit = AppSettings.getQuizLimit(this);
-        sliderQuestionLimit.setValue(currentLimit);
-        tvQuestionLimitValue.setText(String.valueOf(currentLimit));
-        sliderQuestionLimit.post(() -> updateQuestionLimitBubble(sliderQuestionLimit, tvQuestionLimitValue));
-        sliderQuestionLimit.addOnChangeListener((slider, value, fromUser) -> {
-            tvQuestionLimitValue.setText(String.valueOf(AppSettings.clampQuizLimit(Math.round(value))));
-            updateQuestionLimitBubble(slider, tvQuestionLimitValue);
+        state.questionLimitSlider.setValue(currentLimit);
+        state.questionLimitValue.setText(String.valueOf(currentLimit));
+        state.questionLimitSlider.post(() -> updateQuestionLimitBubble(state.questionLimitSlider, state.questionLimitValue));
+        state.questionLimitSlider.addOnChangeListener((slider, value, fromUser) -> {
+            state.questionLimitValue.setText(String.valueOf(AppSettings.clampQuizLimit(Math.round(value))));
+            updateQuestionLimitBubble(slider, state.questionLimitValue);
         });
 
         String savedTheme = ThemeManager.getSavedTheme(this);
-        toggleTheme.check(ThemeManager.THEME_DARK.equals(savedTheme)
+        state.themeToggle.check(ThemeManager.THEME_DARK.equals(savedTheme)
                 ? R.id.btnDialogDarkTheme
                 : R.id.btnDialogLightTheme);
 
-        dialogProfileImage.setOnClickListener(v -> showProfileImageOptions());
-        btnShowPasswordReset.setOnClickListener(v -> showResetPasswordDialog(getText(etUsername)));
+        state.profileImageView.setOnClickListener(v -> showProfileImageOptions());
+        state.showPasswordResetButton.setOnClickListener(v -> showResetPasswordDialog(getText(state.usernameEditText)));
+    }
 
+    private AlertDialog createEditProfileDialog(EditProfileDialogState state) {
         TextView dialogTitle = new TextView(this);
         dialogTitle.setText("Profili Düzenle");
         dialogTitle.setTextColor(getResources().getColor(R.color.text_primary));
@@ -1285,112 +1306,126 @@ public class AccountActivity extends BottomNavActivity {
 
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setCustomTitle(dialogTitle)
-                .setView(dialogView)
+                .setView(state.dialogView)
                 .setNegativeButton("Vazgeç", null)
                 .setPositiveButton("Kaydet", null)
                 .create();
 
-        btnDialogLogout.setOnClickListener(v -> {
+        state.logoutButton.setOnClickListener(v -> handleLogoutFromProfileDialog(dialog));
+        dialog.setOnShowListener(d -> dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                .setOnClickListener(v -> handleEditProfileSave(dialog, state)));
+        return dialog;
+    }
+
+    private void handleLogoutFromProfileDialog(AlertDialog dialog) {
+        dialog.dismiss();
+        AppSettings.clearCurrentUser(this);
+        AppSettings.clearRememberedLogin(this);
+        Intent intent = new Intent(AccountActivity.this, LoginActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
+    }
+
+    private void handleEditProfileSave(AlertDialog dialog, EditProfileDialogState state) {
+        state.usernameLayout.setError(null);
+        state.fullNameLayout.setError(null);
+
+        String newUsername = getText(state.usernameEditText);
+        String fullName = getText(state.fullNameEditText);
+        int newLimit = AppSettings.clampQuizLimit(Math.round(state.questionLimitSlider.getValue()));
+        String selectedTheme = state.themeToggle.getCheckedButtonId() == R.id.btnDialogDarkTheme
+                ? ThemeManager.THEME_DARK
+                : ThemeManager.THEME_LIGHT;
+
+        String usernameError = AccountSecurity.validateUsername(newUsername);
+        if (usernameError != null) {
+            state.usernameLayout.setError(usernameError);
+            return;
+        }
+        if (db.isUsernameTakenByOtherUser(newUsername, currentUser)) {
+            state.usernameLayout.setError("Bu kullanıcı adı zaten kullanılıyor.");
+            return;
+        }
+
+        if (db.updateUserProfile(currentUser, newUsername, fullName, "", selectedProfileImagePath)) {
+            updateStoredUsername(currentUser, newUsername);
+            currentUser = newUsername;
+            AppSettings.setQuizLimit(this, newLimit);
+            ThemeManager.saveAndApplyTheme(this, selectedTheme);
+            loadProfile();
+            Toast.makeText(this, "Profil güncellendi.", Toast.LENGTH_SHORT).show();
             dialog.dismiss();
-            AppSettings.clearCurrentUser(this);
-            AppSettings.clearRememberedLogin(this);
-            Intent intent = new Intent(AccountActivity.this, LoginActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-            finish();
-        });
+        } else {
+            Toast.makeText(this, "Profil güncellenemedi.", Toast.LENGTH_SHORT).show();
+        }
+    }
 
-        dialog.setOnShowListener(d -> dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
-            tilUsername.setError(null);
-            tilFullName.setError(null);
-
-            String newUsername = getText(etUsername);
-            String fullName = getText(etFullName);
-            int newLimit = AppSettings.clampQuizLimit(Math.round(sliderQuestionLimit.getValue()));
-            String selectedTheme = toggleTheme.getCheckedButtonId() == R.id.btnDialogDarkTheme
-                    ? ThemeManager.THEME_DARK
-                    : ThemeManager.THEME_LIGHT;
-
-            String usernameError = AccountSecurity.validateUsername(newUsername);
-            if (usernameError != null) {
-                tilUsername.setError(usernameError);
-                return;
-            }
-            if (db.isUsernameTakenByOtherUser(newUsername, currentUser)) {
-                tilUsername.setError("Bu kullanıcı adı zaten kullanılıyor.");
-                return;
-            }
-
-            if (db.updateUserProfile(currentUser, newUsername, fullName, "", selectedProfileImagePath)) {
-                updateStoredUsername(currentUser, newUsername);
-                currentUser = newUsername;
-                AppSettings.setQuizLimit(this, newLimit);
-                ThemeManager.saveAndApplyTheme(this, selectedTheme);
-                loadProfile();
-                Toast.makeText(this, "Profil güncellendi.", Toast.LENGTH_SHORT).show();
-                dialog.dismiss();
-            } else {
-                Toast.makeText(this, "Profil güncellenemedi.", Toast.LENGTH_SHORT).show();
-            }
-        }));
-
-        dialog.setOnDismissListener(d -> dialogProfileImage = null);
+    private void showResetPasswordDialog(String usernameForValidation) {
+        ResetPasswordDialogState state = createResetPasswordDialogState();
+        AlertDialog dialog = createResetPasswordDialog(state, usernameForValidation);
         dialog.show();
         applyRoundedDialogCorners(dialog);
     }
 
-    private void showResetPasswordDialog(String usernameForValidation) {
+    private ResetPasswordDialogState createResetPasswordDialogState() {
         View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_reset_password, null);
-        TextInputLayout tilCurrentPassword = dialogView.findViewById(R.id.tilCurrentPassword);
-        TextInputLayout tilNewPassword = dialogView.findViewById(R.id.tilNewPassword);
-        TextInputLayout tilConfirmPassword = dialogView.findViewById(R.id.tilConfirmPassword);
-        TextInputEditText etCurrentPassword = dialogView.findViewById(R.id.etCurrentPassword);
-        TextInputEditText etNewPassword = dialogView.findViewById(R.id.etNewPassword);
-        TextInputEditText etConfirmPassword = dialogView.findViewById(R.id.etConfirmPassword);
+        ResetPasswordDialogState state = new ResetPasswordDialogState();
+        state.dialogView = dialogView;
+        state.currentPasswordLayout = dialogView.findViewById(R.id.tilCurrentPassword);
+        state.newPasswordLayout = dialogView.findViewById(R.id.tilNewPassword);
+        state.confirmPasswordLayout = dialogView.findViewById(R.id.tilConfirmPassword);
+        state.currentPasswordEditText = dialogView.findViewById(R.id.etCurrentPassword);
+        state.newPasswordEditText = dialogView.findViewById(R.id.etNewPassword);
+        state.confirmPasswordEditText = dialogView.findViewById(R.id.etConfirmPassword);
+        return state;
+    }
 
+    private AlertDialog createResetPasswordDialog(ResetPasswordDialogState state, String usernameForValidation) {
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle("Şifremi Sıfırla")
-                .setView(dialogView)
+                .setView(state.dialogView)
                 .setNegativeButton("Vazgeç", null)
                 .setPositiveButton("Kaydet", null)
                 .create();
 
-        dialog.setOnShowListener(d -> dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
-            tilCurrentPassword.setError(null);
-            tilNewPassword.setError(null);
-            tilConfirmPassword.setError(null);
+        dialog.setOnShowListener(d -> dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                .setOnClickListener(v -> handleResetPasswordSave(dialog, state, usernameForValidation)));
+        return dialog;
+    }
 
-            String currentPassword = getText(etCurrentPassword);
-            String newPassword = getText(etNewPassword);
-            String confirmPassword = getText(etConfirmPassword);
-            String username = usernameForValidation == null || usernameForValidation.trim().isEmpty()
-                    ? currentUser
-                    : usernameForValidation.trim();
+    private void handleResetPasswordSave(AlertDialog dialog, ResetPasswordDialogState state, String usernameForValidation) {
+        state.currentPasswordLayout.setError(null);
+        state.newPasswordLayout.setError(null);
+        state.confirmPasswordLayout.setError(null);
 
-            if (!db.checkUser(currentUser, currentPassword)) {
-                tilCurrentPassword.setError("Eski şifre hatalı.");
-                return;
-            }
-            String passwordError = AccountSecurity.validatePassword(username, newPassword);
-            if (passwordError != null) {
-                tilNewPassword.setError(passwordError);
-                return;
-            }
-            if (!newPassword.equals(confirmPassword)) {
-                tilConfirmPassword.setError("Yeni şifreler eşleşmiyor.");
-                return;
-            }
+        String currentPassword = getText(state.currentPasswordEditText);
+        String newPassword = getText(state.newPasswordEditText);
+        String confirmPassword = getText(state.confirmPasswordEditText);
+        String username = usernameForValidation == null || usernameForValidation.trim().isEmpty()
+                ? currentUser
+                : usernameForValidation.trim();
 
-            if (db.updatePassword(currentUser, newPassword)) {
-                Toast.makeText(this, "Şifre güncellendi.", Toast.LENGTH_SHORT).show();
-                dialog.dismiss();
-            } else {
-                Toast.makeText(this, "Şifre güncellenemedi.", Toast.LENGTH_SHORT).show();
-            }
-        }));
+        if (!db.checkUser(currentUser, currentPassword)) {
+            state.currentPasswordLayout.setError("Eski şifre hatalı.");
+            return;
+        }
+        String passwordError = AccountSecurity.validatePassword(username, newPassword);
+        if (passwordError != null) {
+            state.newPasswordLayout.setError(passwordError);
+            return;
+        }
+        if (!newPassword.equals(confirmPassword)) {
+            state.confirmPasswordLayout.setError("Yeni şifreler eşleşmiyor.");
+            return;
+        }
 
-        dialog.show();
-        applyRoundedDialogCorners(dialog);
+        if (db.updatePassword(currentUser, newPassword)) {
+            Toast.makeText(this, "Şifre güncellendi.", Toast.LENGTH_SHORT).show();
+            dialog.dismiss();
+        } else {
+            Toast.makeText(this, "Şifre güncellenemedi.", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void applyRoundedDialogCorners(AlertDialog dialog) {
@@ -1521,6 +1556,30 @@ public class AccountActivity extends BottomNavActivity {
         return value * getResources().getDisplayMetrics().density;
     }
 
+    private static final class EditProfileDialogState {
+        View dialogView;
+        ImageView profileImageView;
+        MaterialButton showPasswordResetButton;
+        MaterialButton logoutButton;
+        TextInputLayout usernameLayout;
+        TextInputLayout fullNameLayout;
+        TextInputEditText usernameEditText;
+        TextInputEditText fullNameEditText;
+        MaterialButtonToggleGroup themeToggle;
+        Slider questionLimitSlider;
+        TextView questionLimitValue;
+    }
+
+    private static final class ResetPasswordDialogState {
+        View dialogView;
+        TextInputLayout currentPasswordLayout;
+        TextInputLayout newPasswordLayout;
+        TextInputLayout confirmPasswordLayout;
+        TextInputEditText currentPasswordEditText;
+        TextInputEditText newPasswordEditText;
+        TextInputEditText confirmPasswordEditText;
+    }
+
     private static class CategoryItem {
         final String name;
         final List<Word> words;
@@ -1558,7 +1617,7 @@ public class AccountActivity extends BottomNavActivity {
             List<Word> sortedWords = sortWords(item.words);
 
             holder.tvCategoryName.setText(item.name);
-            holder.tvCategoryCount.setText(item.words.size() + " kelime");
+            holder.tvCategoryCount.setText(item.words.size() + WORD_COUNT_SUFFIX);
             holder.tvCategorySubtitle.setVisibility(View.GONE);
 
             holder.llCategoryProgress.setVisibility(item.expanded ? View.GONE : View.VISIBLE);

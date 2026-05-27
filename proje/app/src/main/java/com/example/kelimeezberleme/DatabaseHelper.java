@@ -37,6 +37,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String SQL_SELECT = "SELECT ";
     private static final String SQL_FROM = " FROM ";
     private static final String SQL_SELECT_STAR_FROM = "SELECT * FROM ";
+    private static final String SQL_LOWER_TRIM = "lower(trim(";
+    private static final String SQL_LOWER_TRIM_EQUALS = ")) = lower(trim(?))";
+    private static final String SQL_LOWER_TRIM_EQUALS_LIMIT_ONE = ")) = lower(trim(?)) LIMIT 1";
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
     private static final String DEFAULT_CATEGORY = "Genel";
     private static final String CATEGORY_EGITIM = "Eğitim";
     private static final String CATEGORY_EGITIM_ASCII = "Egitim";
@@ -86,7 +90,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(SQL_CREATE_TABLE + TABLE_USERS + " (UserID" + SQL_PRIMARY_KEY_AUTOINCREMENT + "UserName" + SQL_TEXT_COLUMN + "Password" + SQL_TEXT_COLUMN + "FullName TEXT DEFAULT '', ProfileImagePath TEXT DEFAULT '', CreatedAt LONG DEFAULT 0)");
+        db.execSQL(SQL_CREATE_TABLE + TABLE_USERS + " (" +
+                COL_USER_ID + SQL_PRIMARY_KEY_AUTOINCREMENT +
+                COL_USER_NAME + SQL_TEXT_COLUMN +
+                COL_PASSWORD + SQL_TEXT_COLUMN +
+                COL_FULL_NAME + " TEXT DEFAULT '', " +
+                COL_PROFILE_IMAGE + " TEXT DEFAULT '', " +
+                COL_CREATED_AT + " LONG DEFAULT 0)");
         db.execSQL(SQL_CREATE_TABLE + TABLE_WORDS + " (" +
                 COL_WORD_ID + SQL_PRIMARY_KEY_AUTOINCREMENT +
                 COL_ENG_WORD + SQL_TEXT_COLUMN +
@@ -111,7 +121,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     private void ensureCurrentSchema(SQLiteDatabase db) {
-        db.execSQL(SQL_CREATE_TABLE_IF_NOT_EXISTS + TABLE_USERS + " (UserID INTEGER PRIMARY KEY AUTOINCREMENT, UserName TEXT, Password TEXT)");
+        db.execSQL(SQL_CREATE_TABLE_IF_NOT_EXISTS + TABLE_USERS + " (" +
+                COL_USER_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COL_USER_NAME + " TEXT, " +
+                COL_PASSWORD + " TEXT)");
         db.execSQL(SQL_CREATE_TABLE_IF_NOT_EXISTS + TABLE_WORDS + " (" +
                 COL_WORD_ID + SQL_PRIMARY_KEY_AUTOINCREMENT +
                 COL_ENG_WORD + SQL_TEXT_COLUMN +
@@ -489,7 +502,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private String hashPassword(String password) {
         try {
             byte[] salt = new byte[PASSWORD_SALT_BYTES];
-            new SecureRandom().nextBytes(salt);
+            SECURE_RANDOM.nextBytes(salt);
             byte[] hash = pbkdf2(password == null ? "" : password, salt, PASSWORD_HASH_ITERATIONS);
             return PASSWORD_HASH_PREFIX + ":" + PASSWORD_HASH_ITERATIONS + ":" +
                     Base64.encodeToString(salt, Base64.NO_WRAP) + ":" +
@@ -569,36 +582,36 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
     public void seedDatabase() {
         String[][] seedWords = {
-                {"Apple", "Elma", CATEGORY_MEYVELER}, {"Book", "Kitap", "E\u011fitim"}, {"Computer", "Bilgisayar", CATEGORY_TEKNOLOJI},
-                {"Water", "Su", "Do\u011fa"}, {"School", "Okul", "E\u011fitim"}, {"Pen", "Kalem", "E\u011fitim"},
+                {"Apple", "Elma", CATEGORY_MEYVELER}, {"Book", "Kitap", CATEGORY_EGITIM}, {"Computer", "Bilgisayar", CATEGORY_TEKNOLOJI},
+                {"Water", "Su", CATEGORY_DOGA}, {"School", "Okul", CATEGORY_EGITIM}, {"Pen", "Kalem", CATEGORY_EGITIM},
                 {"Door", "Kap\u0131", "Ev"}, {"Window", "Pencere", "Ev"}, {"Table", "Masa", "Ev"},
                 {"Chair", "Sandalye", "Ev"}, {"Friend", "Arkada\u015f", CATEGORY_SOSYAL}, {"Family", "Aile", CATEGORY_SOSYAL},
-                {"Heart", "Kalp", "V\u00fccut"}, {"Sun", "G\u00fcne\u015f", "Do\u011fa"}, {"Moon", "Ay", "Do\u011fa"},
-                {"Star", "Y\u0131ld\u0131z", "Do\u011fa"}, {"Time", CATEGORY_ZAMAN, CATEGORY_SOYUT}, {"City", "\u015eehir", "Yer"},
-                {"Country", "\u00dclke", "Yer"}, {"Money", "Para", "Ekonomi"}, {"Work", "\u0130\u015f", "\u0130\u015f D\u00fcnyas\u0131"},
+                {"Heart", "Kalp", "V\u00fccut"}, {"Sun", "G\u00fcne\u015f", CATEGORY_DOGA}, {"Moon", "Ay", CATEGORY_DOGA},
+                {"Star", "Y\u0131ld\u0131z", CATEGORY_DOGA}, {"Time", CATEGORY_ZAMAN, CATEGORY_SOYUT}, {"City", "\u015eehir", "Yer"},
+                {"Country", "\u00dclke", "Yer"}, {"Money", "Para", "Ekonomi"}, {"Work", "\u0130\u015f", CATEGORY_IS_DUNYASI},
                 {"Sleep", "Uyku", "Sa\u011fl\u0131k"}, {"Happy", "Mutlu", CATEGORY_DUYGULAR}, {"Sad", "\u00dczg\u00fcn", CATEGORY_DUYGULAR},
-                {"Beautiful", "G\u00fczel", "S\u0131fatlar"}, {"Big", "B\u00fcy\u00fck", "S\u0131fatlar"}, {"Small", "K\u00fc\u00e7\u00fck", "S\u0131fatlar"},
-                {"New", "Yeni", "S\u0131fatlar"}, {"Old", "Eski", "S\u0131fatlar"}, {"Good", "\u0130yi", "S\u0131fatlar"},
-                {"Bad", "K\u00f6t\u00fc", "S\u0131fatlar"}, {"Fast", "H\u0131zl\u0131", "S\u0131fatlar"}, {"Slow", "Yava\u015f", "S\u0131fatlar"},
-                {"Hot", "S\u0131cak", "S\u0131fatlar"}, {"Cold", "So\u011fuk", "S\u0131fatlar"}, {"Easy", "Kolay", "S\u0131fatlar"},
+                {"Beautiful", "G\u00fczel", CATEGORY_SIFATLAR}, {"Big", "B\u00fcy\u00fck", CATEGORY_SIFATLAR}, {"Small", "K\u00fc\u00e7\u00fck", CATEGORY_SIFATLAR},
+                {"New", "Yeni", CATEGORY_SIFATLAR}, {"Old", "Eski", CATEGORY_SIFATLAR}, {"Good", "\u0130yi", CATEGORY_SIFATLAR},
+                {"Bad", "K\u00f6t\u00fc", CATEGORY_SIFATLAR}, {"Fast", "H\u0131zl\u0131", CATEGORY_SIFATLAR}, {"Slow", "Yava\u015f", CATEGORY_SIFATLAR},
+                {"Hot", "S\u0131cak", CATEGORY_SIFATLAR}, {"Cold", "So\u011fuk", CATEGORY_SIFATLAR}, {"Easy", "Kolay", CATEGORY_SIFATLAR},
                 {"Hard", "Zor", CATEGORY_SIFATLAR_ASCII}, {"Read", "Okumak", CATEGORY_FIILLER}, {"Write", "Yazmak", CATEGORY_FIILLER},
                 {"Listen", "Dinlemek", CATEGORY_FIILLER}, {"Speak", "Konu\u015fmak", CATEGORY_FIILLER}, {"Run", "Ko\u015fmak", CATEGORY_FIILLER},
                 {"Walk", "Y\u00fcr\u00fcmek", CATEGORY_FIILLER}, {"Eat", "Yemek Yemek", CATEGORY_FIILLER}, {"Drink", "\u0130\u00e7mek", CATEGORY_FIILLER},
-                {"Language", "Dil", "E\u011fitim"}, {"Bird", "Ku\u015f", CATEGORY_HAYVANLAR}, {"Dog", "K\u00f6pek", CATEGORY_HAYVANLAR},
-                {"Cat", "Kedi", CATEGORY_HAYVANLAR}, {"Flower", "\u00c7i\u00e7ek", "Do\u011fa"},
+                {"Language", "Dil", CATEGORY_EGITIM}, {"Bird", "Ku\u015f", CATEGORY_HAYVANLAR}, {"Dog", "K\u00f6pek", CATEGORY_HAYVANLAR},
+                {"Cat", "Kedi", CATEGORY_HAYVANLAR}, {"Flower", "\u00c7i\u00e7ek", CATEGORY_DOGA},
                 {"About", "Hakk\u0131nda", DEFAULT_CATEGORY}, {"Above", "\u00dcst\u00fcnde", "Yer"}, {"After", "Sonra", CATEGORY_ZAMAN},
-                {"Again", "Tekrar", CATEGORY_ZAMAN}, {"Agent", "Temsilci", "\u0130\u015f D\u00fcnyas\u0131"}, {"Agree", "Kat\u0131lmak", CATEGORY_FIILLER},
-                {"Alarm", "Alarm", DEFAULT_CATEGORY}, {"Album", "Alb\u00fcm", CATEGORY_SANAT}, {"Alive", "Canl\u0131", "S\u0131fatlar"},
-                {"Allow", "\u0130zin vermek", CATEGORY_FIILLER}, {"Alone", "Yaln\u0131z", "S\u0131fatlar"}, {"Along", "Boyunca", "Yer"},
+                {"Again", "Tekrar", CATEGORY_ZAMAN}, {"Agent", "Temsilci", CATEGORY_IS_DUNYASI}, {"Agree", "Kat\u0131lmak", CATEGORY_FIILLER},
+                {"Alarm", "Alarm", DEFAULT_CATEGORY}, {"Album", "Alb\u00fcm", CATEGORY_SANAT}, {"Alive", "Canl\u0131", CATEGORY_SIFATLAR},
+                {"Allow", "\u0130zin vermek", CATEGORY_FIILLER}, {"Alone", "Yaln\u0131z", CATEGORY_SIFATLAR}, {"Along", "Boyunca", "Yer"},
                 {"Angel", "Melek", DEFAULT_CATEGORY}, {"Angry", "K\u0131zg\u0131n", CATEGORY_DUYGULAR}, {"Arena", "Arena", "Yer"},
                 {"Beach", "Plaj", "Yer"}, {"Begin", "Ba\u015flamak", CATEGORY_FIILLER}, {"Black", "Siyah", CATEGORY_RENKLER},
-                {"Brave", "Cesur", "S\u0131fatlar"}, {"Bread", "Ekmek", CATEGORY_YIYECEK}, {"Bring", "Getirmek", CATEGORY_FIILLER},
+                {"Brave", "Cesur", CATEGORY_SIFATLAR}, {"Bread", "Ekmek", CATEGORY_YIYECEK}, {"Bring", "Getirmek", CATEGORY_FIILLER},
                 {"Brown", "Kahverengi", CATEGORY_RENKLER}, {"Build", "\u0130n\u015fa etmek", CATEGORY_FIILLER}, {"Candy", "\u015eeker", CATEGORY_YIYECEK},
                 {"Carry", "Ta\u015f\u0131mak", CATEGORY_FIILLER}, {"Catch", "Yakalamak", CATEGORY_FIILLER}, {"Cause", "Sebep", CATEGORY_SOYUT},
-                {"Clean", "Temiz", "S\u0131fatlar"}, {"Clear", "A\u00e7\u0131k", "S\u0131fatlar"}, {"Cloud", "Bulut", "Do\u011fa"},
+                {"Clean", "Temiz", CATEGORY_SIFATLAR}, {"Clear", "A\u00e7\u0131k", CATEGORY_SIFATLAR}, {"Cloud", "Bulut", CATEGORY_DOGA},
                 {"Coast", "Sahil", "Yer"}, {"Cover", "\u00d6rtmek", CATEGORY_FIILLER}, {"Cream", "Krema", CATEGORY_YIYECEK},
                 {"Dance", "Dans", CATEGORY_SANAT}, {"Dream", "R\u00fcya", CATEGORY_SOYUT}, {"Drive", "S\u00fcrmek", CATEGORY_FIILLER},
-                {"Earth", "D\u00fcnya", "Do\u011fa"}, {"Empty", "Bo\u015f", "S\u0131fatlar"}, {"Enjoy", "Keyif almak", CATEGORY_FIILLER},
+                {"Earth", "D\u00fcnya", CATEGORY_DOGA}, {"Empty", "Bo\u015f", CATEGORY_SIFATLAR}, {"Enjoy", "Keyif almak", CATEGORY_FIILLER},
                 {"Enter", "Girmek", CATEGORY_FIILLER}, {"Event", "Etkinlik", DEFAULT_CATEGORY}, {"Every", "Her", DEFAULT_CATEGORY},
                 {"Field", "Alan", "Yer"}, {"Floor", "Zemin", "Ev"}, {"Focus", "Odak", CATEGORY_SOYUT},
                 {"Force", "G\u00fc\u00e7", CATEGORY_SOYUT}, {"Fresh", "Taze", "S\u0131fatlar"}, {"Front", "\u00d6n", "Yer"},
@@ -653,7 +666,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         dbWrite.update(
                 TABLE_WORDS,
                 values,
-                "lower(trim(" + COL_ENG_WORD + ")) = lower(trim(?))",
+                SQL_LOWER_TRIM + COL_ENG_WORD + SQL_LOWER_TRIM_EQUALS,
                 new String[]{english}
         );
     }
@@ -661,7 +674,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private void syncSeedWordSamples(SQLiteDatabase dbWrite, String english, String turkish, String category) {
         Cursor cursor = dbWrite.rawQuery(
                 SQL_SELECT + COL_WORD_ID + SQL_FROM + TABLE_WORDS +
-                        SQL_WHERE + "lower(trim(" + COL_ENG_WORD + ")) = lower(trim(?)) LIMIT 1",
+                        SQL_WHERE + SQL_LOWER_TRIM + COL_ENG_WORD + SQL_LOWER_TRIM_EQUALS_LIMIT_ONE,
                 new String[]{english}
         );
         if (!cursor.moveToFirst()) {
@@ -682,7 +695,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     private void insertSeedWordIfMissing(SQLiteDatabase dbWrite, String english, String turkish, String category) {
         Cursor cursor = dbWrite.rawQuery(
-                SQL_SELECT + "1" + SQL_FROM + TABLE_WORDS + SQL_WHERE + "lower(trim(" + COL_ENG_WORD + ")) = lower(trim(?)) LIMIT 1",
+                SQL_SELECT + "1" + SQL_FROM + TABLE_WORDS + SQL_WHERE + SQL_LOWER_TRIM + COL_ENG_WORD + SQL_LOWER_TRIM_EQUALS_LIMIT_ONE,
                 new String[]{english}
         );
         boolean exists = cursor.moveToFirst();

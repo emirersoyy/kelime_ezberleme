@@ -272,45 +272,61 @@ public class QuizActivity extends BottomNavActivity {
         Word currentWord = question.word;
         boolean isCorrect = selectedAnswer.equalsIgnoreCase(currentWord.tur);
 
-        for (MaterialCardView card : cardOptions) card.setEnabled(false);
+        setOptionCardsEnabled(false);
         tvFeedback.setVisibility(View.VISIBLE);
 
         if (isCorrect) {
-            tvFeedback.setText(reviewMode ? "Bu kez do\u011fru!" : "Do\u011fru!");
-            tvFeedback.setTextColor(getResources().getColor(android.R.color.holo_green_dark));
-            selectedCard.setCardBackgroundColor(getResources().getColor(android.R.color.holo_green_light));
-            setBubbleColor(question.originalIndex, Color.rgb(34, 197, 94));
-            question.everAnsweredCorrect = true;
-            if (!reviewMode && !question.everWrong) {
-                question.answeredCorrect = true;
-                correctCount++;
-            }
+            handleCorrectAnswer(question, selectedCard);
         } else {
-            tvFeedback.setText(reviewMode ? "Tekrar not edildi." : "Yanl\u0131\u015f.");
-            tvFeedback.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
-            selectedCard.setCardBackgroundColor(getResources().getColor(android.R.color.holo_red_light));
-            markCorrectOption(currentWord.tur);
-            question.everWrong = true;
-            if (!reviewMode) {
-                question.answeredCorrect = false;
-                reviewQuestions.add(question);
-                incorrectWords.add(new IncorrectWord(currentWord.eng, currentWord.tur, selectedAnswer, question.sampleText));
-                setBubbleColor(question.originalIndex, Color.rgb(239, 68, 68));
-            }
+            handleWrongAnswer(question, currentWord, selectedCard, selectedAnswer);
         }
 
-        handler.postDelayed(() -> {
-            currentIndex++;
-            if (currentIndex < getActiveQuestions().size()) {
-                showCurrentQuestion(true);
-            } else if (!reviewMode && !reviewQuestions.isEmpty()) {
-                reviewMode = true;
-                currentIndex = 0;
-                showCurrentQuestion(true);
-            } else {
-                finishQuiz();
-            }
-        }, 900);
+        handler.postDelayed(this::advanceQuizFlow, 900);
+    }
+
+    private void setOptionCardsEnabled(boolean enabled) {
+        for (MaterialCardView card : cardOptions) {
+            card.setEnabled(enabled);
+        }
+    }
+
+    private void handleCorrectAnswer(QuizQuestion question, MaterialCardView selectedCard) {
+        tvFeedback.setText(reviewMode ? "Bu kez do\u011fru!" : "Do\u011fru!");
+        tvFeedback.setTextColor(getResources().getColor(android.R.color.holo_green_dark));
+        selectedCard.setCardBackgroundColor(getResources().getColor(android.R.color.holo_green_light));
+        setBubbleColor(question.originalIndex, Color.rgb(34, 197, 94));
+        question.everAnsweredCorrect = true;
+        if (!reviewMode && !question.everWrong) {
+            question.answeredCorrect = true;
+            correctCount++;
+        }
+    }
+
+    private void handleWrongAnswer(QuizQuestion question, Word currentWord, MaterialCardView selectedCard, String selectedAnswer) {
+        tvFeedback.setText(reviewMode ? "Tekrar not edildi." : "Yanl\u0131\u015f.");
+        tvFeedback.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
+        selectedCard.setCardBackgroundColor(getResources().getColor(android.R.color.holo_red_light));
+        markCorrectOption(currentWord.tur);
+        question.everWrong = true;
+        if (!reviewMode) {
+            question.answeredCorrect = false;
+            reviewQuestions.add(question);
+            incorrectWords.add(new IncorrectWord(currentWord.eng, currentWord.tur, selectedAnswer, question.sampleText));
+            setBubbleColor(question.originalIndex, Color.rgb(239, 68, 68));
+        }
+    }
+
+    private void advanceQuizFlow() {
+        currentIndex++;
+        if (currentIndex < getActiveQuestions().size()) {
+            showCurrentQuestion(true);
+        } else if (!reviewMode && !reviewQuestions.isEmpty()) {
+            reviewMode = true;
+            currentIndex = 0;
+            showCurrentQuestion(true);
+        } else {
+            finishQuiz();
+        }
     }
 
     private void markCorrectOption(String correctAnswer) {
