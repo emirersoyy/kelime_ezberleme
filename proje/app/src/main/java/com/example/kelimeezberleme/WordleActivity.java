@@ -31,12 +31,17 @@ import java.util.Map;
 
 public class WordleActivity extends BottomNavActivity {
     private static final String TAG = "WordleActivity";
+    private static final String DATE_FORMAT = "yyyy-MM-dd";
     private static final int MAX_ATTEMPTS = 5;
     private static final int WORDLE_WORD_LENGTH = 5;
     private static final String WORDLE_PREFS = "WordlePrefs";
     private static final String STATUS_CORRECT = "correct";
     private static final String STATUS_FAILED = "failed";
     private static final String STATUS_PARTIAL = "partial";
+    private static final String PREF_SUFFIX_WORD = "_word";
+    private static final String PREF_SUFFIX_STATUS = "_status";
+    private static final String PREF_SUFFIX_GUESSES = "_guesses";
+    private static final String PREF_SUFFIX_FINISHED = "_finished";
     private static final int LETTER_UNKNOWN = 0;
     private static final int LETTER_ABSENT = 1;
     private static final int LETTER_PRESENT = 2;
@@ -145,7 +150,7 @@ public class WordleActivity extends BottomNavActivity {
 
         SharedPreferences pref = getSharedPreferences(WORDLE_PREFS, MODE_PRIVATE);
         // İlgili tarih için kelime var mı bak, yoksa o tarihe özel seç
-        targetWord = normalizeWord(pref.getString(prefKey(date, "_word"), null));
+        targetWord = normalizeWord(pref.getString(prefKey(date, PREF_SUFFIX_WORD), null));
         if (!isValidWord(targetWord)) {
             clearSavedGame(date);
             targetWord = null;
@@ -154,7 +159,7 @@ public class WordleActivity extends BottomNavActivity {
         if (targetWord == null) {
             targetWord = chooseWordleWord();
             if (isValidWord(targetWord)) {
-                pref.edit().putString(prefKey(date, "_word"), targetWord).apply();
+                pref.edit().putString(prefKey(date, PREF_SUFFIX_WORD), targetWord).apply();
             } else {
                 targetWord = null;
             }
@@ -202,7 +207,7 @@ public class WordleActivity extends BottomNavActivity {
 
     private String formatDisplayDate(String dateKey) {
         try {
-            Date date = new SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(dateKey);
+            Date date = new SimpleDateFormat(DATE_FORMAT, Locale.US).parse(dateKey);
             return new SimpleDateFormat("d MMMM", new Locale("tr", "TR")).format(date);
         } catch (Exception e) {
             return dateKey;
@@ -215,7 +220,7 @@ public class WordleActivity extends BottomNavActivity {
 
         Calendar visibleMonth = Calendar.getInstance();
         try {
-            Date selected = new SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(selectedDate);
+            Date selected = new SimpleDateFormat(DATE_FORMAT, Locale.US).parse(selectedDate);
             visibleMonth.setTime(selected);
         } catch (Exception ignored) {
             visibleMonth.setTime(new Date());
@@ -351,7 +356,7 @@ public class WordleActivity extends BottomNavActivity {
             calendarGrid.addView(createCalendarBlankCell());
         }
 
-        SimpleDateFormat keyFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+        SimpleDateFormat keyFormat = new SimpleDateFormat(DATE_FORMAT, Locale.US);
         for (int day = 1; day <= daysInMonth; day++) {
             cursor.set(Calendar.DAY_OF_MONTH, day);
             String dateKey = keyFormat.format(cursor.getTime());
@@ -430,7 +435,7 @@ public class WordleActivity extends BottomNavActivity {
 
     private boolean isFutureDate(String dateKey) {
         try {
-            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+            SimpleDateFormat df = new SimpleDateFormat(DATE_FORMAT, Locale.US);
             Date date = df.parse(dateKey);
             Date today = df.parse(getTodayKey());
             return date != null && today != null && date.after(today);
@@ -441,8 +446,8 @@ public class WordleActivity extends BottomNavActivity {
 
     private boolean isBeforeAccountOpened(String dateKey) {
         try {
-            Date date = new SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(dateKey);
-            Date opened = new SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(accountOpenedDateKey);
+            Date date = new SimpleDateFormat(DATE_FORMAT, Locale.US).parse(dateKey);
+            Date opened = new SimpleDateFormat(DATE_FORMAT, Locale.US).parse(accountOpenedDateKey);
             return date != null && opened != null && date.before(opened);
         } catch (Exception e) {
             return false;
@@ -469,14 +474,14 @@ public class WordleActivity extends BottomNavActivity {
 
     private String getGameStatus(String dateKey) {
         SharedPreferences pref = getSharedPreferences(WORDLE_PREFS, MODE_PRIVATE);
-        String savedStatus = pref.getString(prefKey(dateKey, "_status"), null);
+        String savedStatus = pref.getString(prefKey(dateKey, PREF_SUFFIX_STATUS), null);
         if (savedStatus != null) return savedStatus;
 
-        String savedGuesses = pref.getString(prefKey(dateKey, "_guesses"), "");
+        String savedGuesses = pref.getString(prefKey(dateKey, PREF_SUFFIX_GUESSES), "");
         if (savedGuesses.isEmpty()) return null;
 
-        String savedWord = normalizeWord(pref.getString(prefKey(dateKey, "_word"), null));
-        boolean finished = pref.getBoolean(prefKey(dateKey, "_finished"), false);
+        String savedWord = normalizeWord(pref.getString(prefKey(dateKey, PREF_SUFFIX_WORD), null));
+        boolean finished = pref.getBoolean(prefKey(dateKey, PREF_SUFFIX_FINISHED), false);
         boolean solved = savedWord != null && containsGuess(savedGuesses, savedWord);
         if (solved) return STATUS_CORRECT;
 
@@ -506,41 +511,63 @@ public class WordleActivity extends BottomNavActivity {
     private void loadPreviousAttempts(String date) {
         try {
             SharedPreferences pref = getSharedPreferences(WORDLE_PREFS, MODE_PRIVATE);
-            String savedGuesses = pref.getString(prefKey(date, "_guesses"), "");
-            boolean isFinished = pref.getBoolean(prefKey(date, "_finished"), false);
-
-            if (!savedGuesses.isEmpty()) {
-                String[] guesses = savedGuesses.split(",");
-                for (String g : guesses) {
-                    if (!g.isEmpty() && currentAttempt < MAX_ATTEMPTS && g.length() == wordLength) {
-                        fillRow(g);
-                    }
-                }
-            }
-
+            String savedGuesses = getSavedGuesses(pref, date);
+            boolean isFinished = isSavedGameFinished(pref, date);
+            restoreSavedGuesses(savedGuesses);
             currentGuess.setLength(0);
-
-            if (isFinished || currentAttempt >= MAX_ATTEMPTS) {
-                isGameOver = true;
-                setKeyboardEnabled(false);
-                tvResult.setText("Doğru Kelime: " + targetWord);
-                boolean solved = containsGuess(savedGuesses, targetWord);
-                saveGameStatus(solved ? STATUS_CORRECT : STATUS_FAILED);
-                tvResult.setTextColor(solved ? ContextCompat.getColor(this, R.color.wordle_green) : ContextCompat.getColor(this, R.color.wordle_red));
-                if (!isFinished) {
-                    markFinished(solved);
-                }
-            } else {
-                setKeyboardEnabled(true);
-            }
+            applyLoadedGameState(savedGuesses, isFinished);
         } catch (RuntimeException e) {
             Log.e(TAG, "Saved Wordle attempts could not be loaded: " + date, e);
-            clearSavedAttempts(date);
-            currentAttempt = 0;
-            currentGuess.setLength(0);
-            createGrid();
-            setKeyboardEnabled(true);
+            resetLoadedGameState(date);
         }
+    }
+
+    private String getSavedGuesses(SharedPreferences pref, String date) {
+        return pref.getString(prefKey(date, PREF_SUFFIX_GUESSES), "");
+    }
+
+    private boolean isSavedGameFinished(SharedPreferences pref, String date) {
+        return pref.getBoolean(prefKey(date, PREF_SUFFIX_FINISHED), false);
+    }
+
+    private void restoreSavedGuesses(String savedGuesses) {
+        if (savedGuesses.isEmpty()) {
+            return;
+        }
+        String[] guesses = savedGuesses.split(",");
+        for (String guess : guesses) {
+            if (!guess.isEmpty() && currentAttempt < MAX_ATTEMPTS && guess.length() == wordLength) {
+                fillRow(guess);
+            }
+        }
+    }
+
+    private void applyLoadedGameState(String savedGuesses, boolean isFinished) {
+        if (isFinished || currentAttempt >= MAX_ATTEMPTS) {
+            finishLoadedGame(savedGuesses, isFinished);
+            return;
+        }
+        setKeyboardEnabled(true);
+    }
+
+    private void finishLoadedGame(String savedGuesses, boolean isFinished) {
+        isGameOver = true;
+        setKeyboardEnabled(false);
+        tvResult.setText("Doğru Kelime: " + targetWord);
+        boolean solved = containsGuess(savedGuesses, targetWord);
+        saveGameStatus(solved ? STATUS_CORRECT : STATUS_FAILED);
+        tvResult.setTextColor(solved ? ContextCompat.getColor(this, R.color.wordle_green) : ContextCompat.getColor(this, R.color.wordle_red));
+        if (!isFinished) {
+            markFinished(solved);
+        }
+    }
+
+    private void resetLoadedGameState(String date) {
+        clearSavedAttempts(date);
+        currentAttempt = 0;
+        currentGuess.setLength(0);
+        createGrid();
+        setKeyboardEnabled(true);
     }
 
     private void fillRow(String guess) {
@@ -767,41 +794,41 @@ public class WordleActivity extends BottomNavActivity {
 
     private void saveGuess(String guess) {
         SharedPreferences pref = getSharedPreferences(WORDLE_PREFS, MODE_PRIVATE);
-        String saved = pref.getString(prefKey(selectedDate, "_guesses"), "");
-        pref.edit().putString(prefKey(selectedDate, "_guesses"), saved + (saved.isEmpty() ? "" : ",") + guess).apply();
+        String saved = pref.getString(prefKey(selectedDate, PREF_SUFFIX_GUESSES), "");
+        pref.edit().putString(prefKey(selectedDate, PREF_SUFFIX_GUESSES), saved + (saved.isEmpty() ? "" : ",") + guess).apply();
     }
 
     private void markFinished(boolean solved) {
         getSharedPreferences(WORDLE_PREFS, MODE_PRIVATE)
                 .edit()
-                .putBoolean(prefKey(selectedDate, "_finished"), true)
-                .putString(prefKey(selectedDate, "_status"), solved ? STATUS_CORRECT : STATUS_FAILED)
+                .putBoolean(prefKey(selectedDate, PREF_SUFFIX_FINISHED), true)
+                .putString(prefKey(selectedDate, PREF_SUFFIX_STATUS), solved ? STATUS_CORRECT : STATUS_FAILED)
                 .apply();
     }
 
     private void saveGameStatus(String status) {
         getSharedPreferences(WORDLE_PREFS, MODE_PRIVATE)
                 .edit()
-                .putString(prefKey(selectedDate, "_status"), status)
+                .putString(prefKey(selectedDate, PREF_SUFFIX_STATUS), status)
                 .apply();
     }
 
     private void clearSavedGame(String date) {
         getSharedPreferences(WORDLE_PREFS, MODE_PRIVATE)
                 .edit()
-                .remove(prefKey(date, "_word"))
-                .remove(prefKey(date, "_guesses"))
-                .remove(prefKey(date, "_finished"))
-                .remove(prefKey(date, "_status"))
+                .remove(prefKey(date, PREF_SUFFIX_WORD))
+                .remove(prefKey(date, PREF_SUFFIX_GUESSES))
+                .remove(prefKey(date, PREF_SUFFIX_FINISHED))
+                .remove(prefKey(date, PREF_SUFFIX_STATUS))
                 .commit();
     }
 
     private void clearSavedAttempts(String date) {
         getSharedPreferences(WORDLE_PREFS, MODE_PRIVATE)
                 .edit()
-                .remove(prefKey(date, "_guesses"))
-                .remove(prefKey(date, "_finished"))
-                .remove(prefKey(date, "_status"))
+                .remove(prefKey(date, PREF_SUFFIX_GUESSES))
+                .remove(prefKey(date, PREF_SUFFIX_FINISHED))
+                .remove(prefKey(date, PREF_SUFFIX_STATUS))
                 .commit();
     }
 
@@ -809,12 +836,12 @@ public class WordleActivity extends BottomNavActivity {
         String freshWord = chooseWordleWord();
         SharedPreferences.Editor editor = getSharedPreferences(WORDLE_PREFS, MODE_PRIVATE)
                 .edit()
-                .remove(prefKey(date, "_word"))
-                .remove(prefKey(date, "_guesses"))
-                .remove(prefKey(date, "_finished"))
-                .remove(prefKey(date, "_status"));
+                .remove(prefKey(date, PREF_SUFFIX_WORD))
+                .remove(prefKey(date, PREF_SUFFIX_GUESSES))
+                .remove(prefKey(date, PREF_SUFFIX_FINISHED))
+                .remove(prefKey(date, PREF_SUFFIX_STATUS));
         if (isValidWord(freshWord)) {
-            editor.putString(prefKey(date, "_word"), freshWord);
+            editor.putString(prefKey(date, PREF_SUFFIX_WORD), freshWord);
         }
         editor.commit();
     }
@@ -854,7 +881,7 @@ public class WordleActivity extends BottomNavActivity {
     }
 
     private String formatDateKey(long timeInMillis) {
-        return new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(new Date(timeInMillis));
+        return new SimpleDateFormat(DATE_FORMAT, Locale.US).format(new Date(timeInMillis));
     }
 
     private void normalizeToStartOfDay(Calendar calendar) {
