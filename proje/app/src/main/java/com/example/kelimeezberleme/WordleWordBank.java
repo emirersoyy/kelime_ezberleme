@@ -1,13 +1,15 @@
 package com.example.kelimeezberleme;
 
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-import java.util.concurrent.ThreadLocalRandom;
 
 final class WordleWordBank {
+    private static final SecureRandom RANDOM = new SecureRandom();
+
     private WordleWordBank() {
     }
 
@@ -19,7 +21,7 @@ final class WordleWordBank {
         if (pool.isEmpty()) {
             return null;
         }
-        return pool.get(ThreadLocalRandom.current().nextInt(pool.size())).toUpperCase(Locale.US);
+        return pool.get(RANDOM.nextInt(pool.size())).toUpperCase(Locale.US);
     }
 
     static boolean containsGuess(List<Word> allWords, String guess) {
@@ -54,8 +56,8 @@ final class WordleWordBank {
                 "He saw %s in a simple practice sentence."
         };
 
-        int sampleCount = Math.abs(normalized.hashCode()) % 2 == 0 ? 1 : 2;
-        int start = Math.abs(normalized.hashCode()) % templates.length;
+        int sampleCount = normalized.length() % 2 == 0 ? 1 : 2;
+        int start = normalized.length() % templates.length;
         List<String> samples = new ArrayList<>(sampleCount);
         for (int i = 0; i < sampleCount; i++) {
             String template = templates[(start + i) % templates.length];
