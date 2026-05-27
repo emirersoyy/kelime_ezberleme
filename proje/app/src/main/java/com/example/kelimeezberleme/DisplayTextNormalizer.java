@@ -6,6 +6,34 @@ import java.util.Map;
 
 final class DisplayTextNormalizer {
     private static final Locale TURKISH = new Locale("tr", "TR");
+    private static final String GENERAL_CATEGORY = "Genel";
+    private static final String CATEGORY_AKADEMI = "Akademi";
+    private static final String CATEGORY_BILIM = "Bilim";
+    private static final String CATEGORY_CEVRE = "Çevre";
+    private static final String CATEGORY_DONANIM = "Donanım";
+    private static final String CATEGORY_HASTANE = "Hastane";
+    private static final String CATEGORY_HAYVANLAR = "Hayvanlar";
+    private static final String CATEGORY_FIILLER = "Fiiller";
+    private static final String CATEGORY_SIFATLAR = "Sıfatlar";
+    private static final String CATEGORY_IKLIM = "İklim";
+    private static final String CATEGORY_ILETISIM = "İletişim";
+    private static final String CATEGORY_KARIYER = "Kariyer";
+    private static final String CATEGORY_LOJISTIK = "Lojistik";
+    private static final String CATEGORY_SAGLIK = "Sağlık";
+    private static final String CATEGORY_TEKNOLOJI = "Teknoloji";
+    private static final String CATEGORY_TOPLUM = "Toplum";
+    private static final String CATEGORY_URETIM = "Üretim";
+    private static final String CATEGORY_YAZILIM = "Yazılım";
+    private static final String CATEGORY_YONETIM = "Yönetim";
+    private static final String CATEGORY_EKONOMI = "Ekonomi";
+    private static final String CATEGORY_YIYECEK = "Yiyecek";
+    private static final String CATEGORY_MEYVELER = "Meyveler";
+    private static final String CATEGORY_RENKLER = "Renkler";
+    private static final String CATEGORY_SANAT = "Sanat";
+    private static final String CATEGORY_AKADEMI_KEY = "akademi";
+    private static final String CATEGORY_BILIM_KEY = "bilim";
+    private static final String CATEGORY_HASTANE_KEY = "hastane";
+    private static final String CATEGORY_HAYVANLAR_KEY = "hayvanlar";
     private static final Map<String, String> TOKEN_CORRECTIONS = buildTokenCorrections();
     private static final Map<String, String> CATEGORY_OVERRIDES = buildCategoryOverrides();
 
@@ -24,7 +52,7 @@ final class DisplayTextNormalizer {
 
     private static String resolveCategory(String english, String originalCategory) {
         String normalizedOriginal = normalizeCategoryName(originalCategory);
-        if ("Fiiller".equals(normalizedOriginal) || "Sıfatlar".equals(normalizedOriginal)) {
+        if (CATEGORY_FIILLER.equals(normalizedOriginal) || CATEGORY_SIFATLAR.equals(normalizedOriginal)) {
             return normalizedOriginal;
         }
         String key = english == null ? "" : english.trim().toLowerCase(Locale.US);
@@ -37,38 +65,38 @@ final class DisplayTextNormalizer {
     static String normalizeCategoryName(String value) {
         String collapsed = collapseSpaces(value);
         if (collapsed.isEmpty()) {
-            return "Genel";
+            return GENERAL_CATEGORY;
         }
 
         switch (toAsciiKey(collapsed)) {
-            case "akademi":
-                return "Akademi";
-            case "bilim":
-                return "Bilim";
+            case CATEGORY_AKADEMI_KEY:
+                return CATEGORY_AKADEMI;
+            case CATEGORY_BILIM_KEY:
+                return CATEGORY_BILIM;
             case "cevre":
-                return "Çevre";
+                return CATEGORY_CEVRE;
             case "dil":
                 return "Dil";
             case "doga":
                 return "Doğa";
             case "donanim":
-                return "Donanım";
+                return CATEGORY_DONANIM;
             case "egitim":
                 return "Eğitim";
-            case "hastane":
-                return "Hastane";
-            case "hayvanlar":
-                return "Hayvanlar";
+            case CATEGORY_HASTANE_KEY:
+                return CATEGORY_HASTANE;
+            case CATEGORY_HAYVANLAR_KEY:
+                return CATEGORY_HAYVANLAR;
             case "iklim":
-                return "İklim";
+                return CATEGORY_IKLIM;
             case "iletisim":
-                return "İletişim";
+                return CATEGORY_ILETISIM;
             case "is dunyasi":
                 return "İş Dünyası";
             case "kariyer":
-                return "Kariyer";
+                return CATEGORY_KARIYER;
             case "lojistik":
-                return "Lojistik";
+                return CATEGORY_LOJISTIK;
             case "ofis":
                 return "Ofis";
             case "okul":
@@ -78,21 +106,21 @@ final class DisplayTextNormalizer {
             case "ulasim":
                 return "Ulaşım";
             case "sifatlar":
-                return "Sıfatlar";
+                return CATEGORY_SIFATLAR;
             case "saglik":
-                return "Sağlık";
+                return CATEGORY_SAGLIK;
             case "toplum":
-                return "Toplum";
+                return CATEGORY_TOPLUM;
             case "uretim":
-                return "Üretim";
+                return CATEGORY_URETIM;
             case "uzay":
                 return "Uzay";
             case "vucut":
                 return "Vücut";
             case "yazilim":
-                return "Yazılım";
+                return CATEGORY_YAZILIM;
             case "yonetim":
-                return "Yönetim";
+                return CATEGORY_YONETIM;
             default:
                 return toTitleCaseTurkish(applyTokenCorrections(collapsed));
         }
@@ -168,11 +196,11 @@ final class DisplayTextNormalizer {
 
     private static Map<String, String> buildTokenCorrections() {
         Map<String, String> map = new HashMap<>();
-        map.put("akademi", "akademi");
+        map.put(CATEGORY_AKADEMI_KEY, CATEGORY_AKADEMI_KEY);
         map.put("arkadas", "arkadaş");
         map.put("atolye", "atölye");
         map.put("basinc", "basınç");
-        map.put("bilim", "bilim");
+        map.put(CATEGORY_BILIM_KEY, CATEGORY_BILIM_KEY);
         map.put("buyuk", "büyük");
         map.put("cevre", "çevre");
         map.put("cicek", "çiçek");
@@ -185,8 +213,8 @@ final class DisplayTextNormalizer {
         map.put("egitim", "eğitim");
         map.put("gunes", "güneş");
         map.put("guzel", "güzel");
-        map.put("hastane", "hastane");
-        map.put("hayvanlar", "hayvanlar");
+        map.put(CATEGORY_HASTANE_KEY, CATEGORY_HASTANE_KEY);
+        map.put(CATEGORY_HAYVANLAR_KEY, CATEGORY_HAYVANLAR_KEY);
         map.put("icmek", "içmek");
         map.put("iklim", "iklim");
         map.put("iletisim", "iletişim");
@@ -248,190 +276,190 @@ final class DisplayTextNormalizer {
         map.put("benefit", "Ekonomi");
         map.put("financial", "Ekonomi");
 
-        map.put("academic", "Akademi");
-        map.put("analysis", "Bilim");
+        map.put("academic", CATEGORY_AKADEMI);
+        map.put("analysis", CATEGORY_BILIM);
         map.put("backpack", "Okul");
-        map.put("biology", "Bilim");
-        map.put("certificate", "Akademi");
-        map.put("chemical", "Bilim");
-        map.put("chemistry", "Bilim");
-        map.put("classify", "Bilim");
+        map.put("biology", CATEGORY_BILIM);
+        map.put("certificate", CATEGORY_AKADEMI);
+        map.put("chemical", CATEGORY_BILIM);
+        map.put("chemistry", CATEGORY_BILIM);
+        map.put("classify", CATEGORY_BILIM);
         map.put("classroom", "Okul");
         map.put("dictionary", "Dil");
-        map.put("discovery", "Bilim");
-        map.put("education", "Akademi");
+        map.put("discovery", CATEGORY_BILIM);
+        map.put("education", CATEGORY_AKADEMI);
         map.put("example", "Okul");
-        map.put("experiment", "Bilim");
+        map.put("experiment", CATEGORY_BILIM);
         map.put("guidance", "Okul");
-        map.put("history", "Akademi");
-        map.put("information", "Akademi");
+        map.put("history", CATEGORY_AKADEMI);
+        map.put("information", CATEGORY_AKADEMI);
         map.put("instruction", "Okul");
-        map.put("journal", "Akademi");
-        map.put("knowledge", "Akademi");
-        map.put("laboratory", "Bilim");
+        map.put("journal", CATEGORY_AKADEMI);
+        map.put("knowledge", CATEGORY_AKADEMI);
+        map.put("laboratory", CATEGORY_BILIM);
         map.put("language", "Dil");
         map.put("lecture", "Okul");
-        map.put("library", "Akademi");
-        map.put("measurement", "Bilim");
-        map.put("microscope", "Bilim");
+        map.put("library", CATEGORY_AKADEMI);
+        map.put("measurement", CATEGORY_BILIM);
+        map.put("microscope", CATEGORY_BILIM);
         map.put("notebook", "Okul");
-        map.put("orientation", "Akademi");
-        map.put("publication", "Akademi");
+        map.put("orientation", CATEGORY_AKADEMI);
+        map.put("publication", CATEGORY_AKADEMI);
         map.put("question", "Okul");
         map.put("reference", "Dil");
-        map.put("research", "Bilim");
-        map.put("science", "Bilim");
+        map.put("research", CATEGORY_BILIM);
+        map.put("science", CATEGORY_BILIM);
         map.put("teacher", "Okul");
-        map.put("technique", "Bilim");
+        map.put("technique", CATEGORY_BILIM);
         map.put("translation", "Dil");
-        map.put("university", "Akademi");
+        map.put("university", CATEGORY_AKADEMI);
         map.put("vocabulary", "Dil");
-        map.put("zoology", "Bilim");
+        map.put("zoology", CATEGORY_BILIM);
 
-        map.put("delicious", "Yiyecek");
-        map.put("ingredient", "Yiyecek");
-        map.put("grocery", "Yiyecek");
-        map.put("restaurant", "Yiyecek");
-        map.put("vegetable", "Yiyecek");
-        map.put("bakery", "Yiyecek");
-        map.put("apple", "Meyveler");
-        map.put("banana", "Meyveler");
-        map.put("cherry", "Meyveler");
-        map.put("fruit", "Meyveler");
-        map.put("grape", "Meyveler");
-        map.put("orange", "Meyveler");
-        map.put("peach", "Meyveler");
-        map.put("pear", "Meyveler");
-        map.put("strawberry", "Meyveler");
-        map.put("watermelon", "Meyveler");
+        map.put("delicious", CATEGORY_YIYECEK);
+        map.put("ingredient", CATEGORY_YIYECEK);
+        map.put("grocery", CATEGORY_YIYECEK);
+        map.put("restaurant", CATEGORY_YIYECEK);
+        map.put("vegetable", CATEGORY_YIYECEK);
+        map.put("bakery", CATEGORY_YIYECEK);
+        map.put("apple", CATEGORY_MEYVELER);
+        map.put("banana", CATEGORY_MEYVELER);
+        map.put("cherry", CATEGORY_MEYVELER);
+        map.put("fruit", CATEGORY_MEYVELER);
+        map.put("grape", CATEGORY_MEYVELER);
+        map.put("orange", CATEGORY_MEYVELER);
+        map.put("peach", CATEGORY_MEYVELER);
+        map.put("pear", CATEGORY_MEYVELER);
+        map.put("strawberry", CATEGORY_MEYVELER);
+        map.put("watermelon", CATEGORY_MEYVELER);
 
-        map.put("appointment", "Hastane");
-        map.put("emergency", "Hastane");
-        map.put("healthy", "Sağlık");
-        map.put("hospital", "Hastane");
-        map.put("lifestyle", "Sağlık");
-        map.put("medical", "Sağlık");
-        map.put("medicine", "Hastane");
-        map.put("movement", "Sağlık");
-        map.put("operation", "Sağlık");
-        map.put("pharmacy", "Hastane");
-        map.put("treatment", "Sağlık");
+        map.put("appointment", CATEGORY_HASTANE);
+        map.put("emergency", CATEGORY_HASTANE);
+        map.put("healthy", CATEGORY_SAGLIK);
+        map.put("hospital", CATEGORY_HASTANE);
+        map.put("lifestyle", CATEGORY_SAGLIK);
+        map.put("medical", CATEGORY_SAGLIK);
+        map.put("medicine", CATEGORY_HASTANE);
+        map.put("movement", CATEGORY_SAGLIK);
+        map.put("operation", CATEGORY_SAGLIK);
+        map.put("pharmacy", CATEGORY_HASTANE);
+        map.put("treatment", CATEGORY_SAGLIK);
 
-        map.put("application", "Yazılım");
-        map.put("automatic", "Teknoloji");
-        map.put("battery", "Donanım");
-        map.put("camera", "Donanım");
-        map.put("connection", "Yazılım");
-        map.put("database", "Yazılım");
-        map.put("digital", "Teknoloji");
-        map.put("electric", "Teknoloji");
-        map.put("electricity", "Donanım");
-        map.put("engine", "Donanım");
-        map.put("equipment", "Donanım");
-        map.put("extension", "Yazılım");
-        map.put("function", "Yazılım");
-        map.put("internet", "Yazılım");
-        map.put("keyboard", "Donanım");
-        map.put("machine", "Donanım");
-        map.put("maintenance", "Donanım");
-        map.put("mechanism", "Donanım");
-        map.put("message", "İletişim");
-        map.put("network", "Yazılım");
-        map.put("password", "Yazılım");
-        map.put("platform", "Yazılım");
-        map.put("printer", "Donanım");
-        map.put("software", "Yazılım");
-        map.put("storage", "Donanım");
-        map.put("system", "Yazılım");
-        map.put("technical", "Teknoloji");
-        map.put("technology", "Teknoloji");
-        map.put("version", "Yazılım");
+        map.put("application", CATEGORY_YAZILIM);
+        map.put("automatic", CATEGORY_TEKNOLOJI);
+        map.put("battery", CATEGORY_DONANIM);
+        map.put("camera", CATEGORY_DONANIM);
+        map.put("connection", CATEGORY_YAZILIM);
+        map.put("database", CATEGORY_YAZILIM);
+        map.put("digital", CATEGORY_TEKNOLOJI);
+        map.put("electric", CATEGORY_TEKNOLOJI);
+        map.put("electricity", CATEGORY_DONANIM);
+        map.put("engine", CATEGORY_DONANIM);
+        map.put("equipment", CATEGORY_DONANIM);
+        map.put("extension", CATEGORY_YAZILIM);
+        map.put("function", CATEGORY_YAZILIM);
+        map.put("internet", CATEGORY_YAZILIM);
+        map.put("keyboard", CATEGORY_DONANIM);
+        map.put("machine", CATEGORY_DONANIM);
+        map.put("maintenance", CATEGORY_DONANIM);
+        map.put("mechanism", CATEGORY_DONANIM);
+        map.put("message", CATEGORY_ILETISIM);
+        map.put("network", CATEGORY_YAZILIM);
+        map.put("password", CATEGORY_YAZILIM);
+        map.put("platform", CATEGORY_YAZILIM);
+        map.put("printer", CATEGORY_DONANIM);
+        map.put("software", CATEGORY_YAZILIM);
+        map.put("storage", CATEGORY_DONANIM);
+        map.put("system", CATEGORY_YAZILIM);
+        map.put("technical", CATEGORY_TEKNOLOJI);
+        map.put("technology", CATEGORY_TEKNOLOJI);
+        map.put("version", CATEGORY_YAZILIM);
 
-        map.put("agreement", "Yönetim");
+        map.put("agreement", CATEGORY_YONETIM);
         map.put("assistant", "Ofis");
-        map.put("business", "Yönetim");
+        map.put("business", CATEGORY_YONETIM);
         map.put("campaign", "Ofis");
-        map.put("candidate", "Kariyer");
-        map.put("company", "Yönetim");
+        map.put("candidate", CATEGORY_KARIYER);
+        map.put("company", CATEGORY_YONETIM);
         map.put("conference", "Ofis");
-        map.put("contract", "Yönetim");
-        map.put("delivery", "Lojistik");
+        map.put("contract", CATEGORY_YONETIM);
+        map.put("delivery", CATEGORY_LOJISTIK);
         map.put("department", "Ofis");
         map.put("document", "Ofis");
-        map.put("employee", "Kariyer");
-        map.put("factory", "Üretim");
+        map.put("employee", CATEGORY_KARIYER);
+        map.put("factory", CATEGORY_URETIM);
         map.put("feedback", "Ofis");
         map.put("headquarters", "Ofis");
-        map.put("industry", "Üretim");
-        map.put("initiative", "Yönetim");
-        map.put("interview", "Kariyer");
-        map.put("leadership", "Yönetim");
-        map.put("management", "Yönetim");
-        map.put("manufacturer", "Üretim");
-        map.put("negotiation", "Yönetim");
+        map.put("industry", CATEGORY_URETIM);
+        map.put("initiative", CATEGORY_YONETIM);
+        map.put("interview", CATEGORY_KARIYER);
+        map.put("leadership", CATEGORY_YONETIM);
+        map.put("management", CATEGORY_YONETIM);
+        map.put("manufacturer", CATEGORY_URETIM);
+        map.put("negotiation", CATEGORY_YONETIM);
         map.put("official", "Ofis");
-        map.put("opportunity", "Kariyer");
-        map.put("organization", "Yönetim");
-        map.put("partnership", "Yönetim");
+        map.put("opportunity", CATEGORY_KARIYER);
+        map.put("organization", CATEGORY_YONETIM);
+        map.put("partnership", CATEGORY_YONETIM);
         map.put("presentation", "Ofis");
-        map.put("priority", "Yönetim");
-        map.put("procedure", "Yönetim");
-        map.put("production", "Üretim");
-        map.put("profession", "Kariyer");
-        map.put("professional", "Kariyer");
-        map.put("project", "Yönetim");
-        map.put("proposal", "Yönetim");
-        map.put("recommendation", "Yönetim");
+        map.put("priority", CATEGORY_YONETIM);
+        map.put("procedure", CATEGORY_YONETIM);
+        map.put("production", CATEGORY_URETIM);
+        map.put("profession", CATEGORY_KARIYER);
+        map.put("professional", CATEGORY_KARIYER);
+        map.put("project", CATEGORY_YONETIM);
+        map.put("proposal", CATEGORY_YONETIM);
+        map.put("recommendation", CATEGORY_YONETIM);
         map.put("reception", "Ofis");
-        map.put("requirement", "Yönetim");
+        map.put("requirement", CATEGORY_YONETIM);
         map.put("service", "Ofis");
-        map.put("shipment", "Lojistik");
+        map.put("shipment", CATEGORY_LOJISTIK);
         map.put("signature", "Ofis");
-        map.put("specialist", "Kariyer");
-        map.put("strategy", "Yönetim");
-        map.put("supervisor", "Yönetim");
-        map.put("warehouse", "Lojistik");
-        map.put("workflow", "Lojistik");
+        map.put("specialist", CATEGORY_KARIYER);
+        map.put("strategy", CATEGORY_YONETIM);
+        map.put("supervisor", CATEGORY_YONETIM);
+        map.put("warehouse", CATEGORY_LOJISTIK);
+        map.put("workflow", CATEGORY_LOJISTIK);
         map.put("workplace", "Ofis");
-        map.put("workshop", "Üretim");
+        map.put("workshop", CATEGORY_URETIM);
 
-        map.put("adventure", "Toplum");
-        map.put("argument", "İletişim");
-        map.put("behavior", "İletişim");
-        map.put("character", "İletişim");
-        map.put("community", "Toplum");
-        map.put("conversation", "İletişim");
-        map.put("cultural", "Toplum");
-        map.put("culture", "Toplum");
-        map.put("discussion", "İletişim");
-        map.put("expression", "İletişim");
-        map.put("generation", "Toplum");
-        map.put("government", "Toplum");
-        map.put("heritage", "Toplum");
-        map.put("identity", "İletişim");
-        map.put("influence", "Toplum");
-        map.put("membership", "Toplum");
-        map.put("neighbor", "Toplum");
-        map.put("participant", "Toplum");
-        map.put("population", "Toplum");
-        map.put("president", "Toplum");
-        map.put("recognition", "İletişim");
-        map.put("relationship", "İletişim");
-        map.put("reservation", "İletişim");
-        map.put("society", "Toplum");
-        map.put("tradition", "Toplum");
-        map.put("volunteer", "Toplum");
+        map.put("adventure", CATEGORY_TOPLUM);
+        map.put("argument", CATEGORY_ILETISIM);
+        map.put("behavior", CATEGORY_ILETISIM);
+        map.put("character", CATEGORY_ILETISIM);
+        map.put("community", CATEGORY_TOPLUM);
+        map.put("conversation", CATEGORY_ILETISIM);
+        map.put("cultural", CATEGORY_TOPLUM);
+        map.put("culture", CATEGORY_TOPLUM);
+        map.put("discussion", CATEGORY_ILETISIM);
+        map.put("expression", CATEGORY_ILETISIM);
+        map.put("generation", CATEGORY_TOPLUM);
+        map.put("government", CATEGORY_TOPLUM);
+        map.put("heritage", CATEGORY_TOPLUM);
+        map.put("identity", CATEGORY_ILETISIM);
+        map.put("influence", CATEGORY_TOPLUM);
+        map.put("membership", CATEGORY_TOPLUM);
+        map.put("neighbor", CATEGORY_TOPLUM);
+        map.put("participant", CATEGORY_TOPLUM);
+        map.put("population", CATEGORY_TOPLUM);
+        map.put("president", CATEGORY_TOPLUM);
+        map.put("recognition", CATEGORY_ILETISIM);
+        map.put("relationship", CATEGORY_ILETISIM);
+        map.put("reservation", CATEGORY_ILETISIM);
+        map.put("society", CATEGORY_TOPLUM);
+        map.put("tradition", CATEGORY_TOPLUM);
+        map.put("volunteer", CATEGORY_TOPLUM);
 
         map.put("atmosphere", "Uzay");
-        map.put("climate", "İklim");
-        map.put("energy", "Bilim");
-        map.put("environment", "Çevre");
-        map.put("garden", "Çevre");
-        map.put("landscape", "Çevre");
-        map.put("pressure", "Bilim");
-        map.put("temperature", "İklim");
-        map.put("weather", "İklim");
-        map.put("wildlife", "Hayvanlar");
+        map.put("climate", CATEGORY_IKLIM);
+        map.put("energy", CATEGORY_BILIM);
+        map.put("environment", CATEGORY_CEVRE);
+        map.put("garden", CATEGORY_CEVRE);
+        map.put("landscape", CATEGORY_CEVRE);
+        map.put("pressure", CATEGORY_BILIM);
+        map.put("temperature", CATEGORY_IKLIM);
+        map.put("weather", CATEGORY_IKLIM);
+        map.put("wildlife", CATEGORY_HAYVANLAR);
 
         return map;
     }
