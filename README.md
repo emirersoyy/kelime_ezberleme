@@ -67,7 +67,3 @@ gradlew.bat assembleDebug
 ## Geliştirme Hakkında
 
 Uygulama, kullanıcıların kelime öğrenme sürecini düzenli tekrar, quiz ve oyunlaştırma ile desteklemek için tasarlanmıştır. Yerel veriler SQLite veritabanında saklanır.
-
-## Lisans / Ders Notu
-
-Bu proje, yazılım geliştirme süreci kapsamında hazırlanmıştır.
